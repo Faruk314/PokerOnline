@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  poker-mysql:
+    image: mysql:8.0.35
+    container_name: poker-mysql
+    ports:
+      - "8081:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: L8WMTRFEu85nPwqTWvzRhFa2k2CogE
+      MYSQL_DATABASE: poker
+      MYSQL_USER: poker_admin
+      MYSQL_PASSWORD: s86UaYx7xvQarSUG7qK5SdiQUf5hWh
+    volumes:
+      - poker-mysql-data:/var/lib/mysql
+  poker-redis:
+    ports:
+      - "8082:6379"
+    image: redis:latest
+    container_name: poker-redis
+    environment:
+      - REDIS_PASSWORD=cx34CGDhFuz4XfDjWjBXQa3xzsyQWy
+    volumes:
+      - poker-redis-data:/data
+
+volumes:
+  poker-mysql-data:
+  poker-redis-data:

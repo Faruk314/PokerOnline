@@ -1,0 +1,45 @@
+.styled-border {
+  position: relative;
+  border: 2rem solid #111827;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+
+.button-border {
+  border: 2px solid #111827;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.loader {
+  border: 4px solid white;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes flash {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 1);
+  }
+}
+
+.highlight {
+  animation: flash 1s infinite;
+}
