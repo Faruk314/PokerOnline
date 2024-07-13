@@ -7,8 +7,10 @@ import {
   RanksMap,
   GetKickersArgs,
 } from "../types/types";
+import { generateDeck } from "./methods";
 
 const handRanks = [
+  "highCard",
   "onePair",
   "twoPair",
   "3Kind",
@@ -29,7 +31,7 @@ class Game {
   lastBet: number = 0;
   movesCount: number = 0;
   currentRound = "preFlop";
-  winner: { userId: number; cards: string[] } | null = null;
+  winner: { userId: number; hand: Hand } | null = null;
 
   constructor({
     totalPot,
@@ -80,7 +82,7 @@ class Game {
 
       if (this.currentRound === "turn") return this.startRiver();
 
-      if (this.currentRound === "showdown") return this.startShowdown();
+      if (this.currentRound === "river") return this.startShowdown();
     }
   }
 
@@ -251,6 +253,7 @@ class Game {
         const flush = this.isFlush(c);
         const fullHouse = this.isFullHouse(c);
         const straight = this.isStraight(c);
+        const highCard = this.isHighCard(c);
 
         if (flush) {
           player.hand = this.handPriority(player.hand!, flush);
@@ -271,27 +274,71 @@ class Game {
         if (pair) {
           player.hand = this.handPriority(player.hand!, pair);
         }
+
+        if (highCard) {
+          player.hand = this.handPriority(player.hand!, highCard);
+        }
       });
     });
   }
 
   findBestHand() {
-    let winningHand: Hand | null = null;
+    const handOrder: Hand[] = [];
+    let draw: {
+      isDraw: boolean;
+      potSpliters: { userId: number; hand: Hand }[];
+    } = {
+      isDraw: false,
+      potSpliters: [],
+    };
+
     for (let i = 0; i < this.players.length; i++) {
+      if (this.players[i].isFold) continue;
+
       const firstHand = this.players[i].hand;
+      firstHand!.userId = this.players[i].playerInfo.userId;
 
       for (let j = 0; j < this.players.length; j++) {
-        if (i === j) continue;
+        if (i === j || this.players[j].isFold) continue;
 
         const nextHand = this.players[j].hand;
 
+        nextHand!.userId = this.players[j].playerInfo.userId;
+
         const betterHand = this.handPriority(firstHand!, nextHand!);
 
-        winningHand = betterHand;
+        handOrder.unshift(betterHand);
       }
     }
 
-    console.log(winningHand, "wining hand");
+    for (let i = 0; i < handOrder.length - 1; i++) {
+      const hand = handOrder[i];
+      const handTwo = handOrder[i + 1];
+
+      //this means we have only one winner
+      if (hand.name !== handTwo.name) {
+        this.winner = { userId: hand.userId!, hand: hand };
+        break;
+      }
+
+      if (hand.name === handTwo.name && hand.kicker === handTwo.kicker) {
+        const potSpliter = { userId: hand.userId!, hand: hand };
+        const potSpliterTwo = { userId: handTwo.userId!, hand: handTwo };
+
+        draw.isDraw = true;
+
+        if (
+          draw.potSpliters.some((user) => user.userId === potSpliter.userId)
+        ) {
+          draw.potSpliters.push(potSpliterTwo);
+        } else {
+          draw.potSpliters = [potSpliter, potSpliterTwo];
+        }
+      }
+    }
+
+    console.log(this.winner, "winner");
+    console.log(draw, "draw");
   }
 
   getSuit(card: string) {
@@ -349,9 +396,15 @@ class Game {
 
       const strongerKicker = Math.max(handOneKicker, handTwoKicker);
 
-      if (handOneKicker === strongerKicker) return handOne;
+      if (handOneKicker === strongerKicker) {
+        handOne.kicker = handOneKicker;
+        return handOne;
+      }
 
-      if (handTwoKicker === strongerKicker) return handTwo;
+      if (handTwoKicker === strongerKicker) {
+        handTwo.kicker = handTwoKicker;
+        return handTwo;
+      }
     }
 
     //we will later return draw here
@@ -633,6 +686,75 @@ class Game {
     }
 
     return false;
+  }
+
+  isHighCard(combination: string[]) {
+    const ranks = combination.map((card) => this.getRank(card));
+
+    ranks.sort((a, b) => b - a);
+
+    const highestCard = ranks[0];
+
+    ranks.splice(0, 1);
+
+    return {
+      name: "highCard",
+      cards: combination,
+      rank: highestCard,
+      kickers: ranks,
+    };
+  }
+
+  resetGame() {
+    const bigBindAmount = 50;
+    this.currentRound = "preFlop";
+    this.totalPot = 0;
+    this.communityCards = [];
+    this.deck = generateDeck();
+    this.winner = null;
+    this.lastBet = 0;
+
+    const currentDealerIndex = this.players.findIndex(
+      (player) => player.isDealer
+    );
+
+    const smallBindIndex = (currentDealerIndex + 1) % this.players.length;
+
+    this.players[smallBindIndex].isSmallBind = true;
+    this.players[smallBindIndex].playerPot = bigBindAmount / 2;
+    this.players[smallBindIndex].coins -= bigBindAmount / 2;
+
+    const bigBindIndex = (smallBindIndex + 1) % this.players.length;
+
+    this.players[bigBindIndex].isBigBind = true;
+    this.players[bigBindIndex].playerPot = bigBindAmount;
+    this.players[bigBindIndex].coins -= bigBindAmount;
+
+    const playerTurnIndex = (smallBindIndex + 2) % this.players.length;
+
+    this.lastBet = bigBindAmount;
+    this.playerTurn = this.players[playerTurnIndex];
+
+    const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
+
+    const firstCard = this.deck.splice(firstRandomCardIndex, 1);
+
+    const secondRandomCardIndex = Math.floor(Math.random() * this.deck.length);
+
+    const secondCard = this.deck.splice(secondRandomCardIndex, 1);
+
+    this.players.forEach((player) => {
+      player.playerPot = 0;
+      player.isCall = false;
+      player.isFold = false;
+      player.isCheck = false;
+      player.hand = null;
+      player.cards = [...firstCard, ...secondCard];
+      player.playerRaise = {
+        isRaise: false,
+        amount: 0,
+      };
+    });
   }
 }
 

@@ -4,30 +4,34 @@ import { Game } from "./classes";
 
 const ROOMS_KEY = "rooms";
 
-const suits = ["H", "D", "C", "S"];
-const ranks = [
-  "A",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "J",
-  "Q",
-  "K",
-];
+const generateDeck = () => {
+  const suits = ["H", "D", "C", "S"];
+  const ranks = [
+    "A",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+  ];
 
-const deck: string[] = [];
+  const deck: string[] = [];
 
-for (const suit of suits) {
-  for (const rank of ranks) {
-    deck.push(`${suit}${rank}`);
+  for (const suit of suits) {
+    for (const rank of ranks) {
+      deck.push(`${suit}${rank}`);
+    }
   }
-}
+
+  return deck;
+};
 
 const initializeGame = async (roomId: string) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
@@ -49,10 +53,14 @@ const initializeGame = async (roomId: string) => {
     movesCount: 0,
     currentRound: "preFlop",
     winner: null,
+    // draw: {
+    //   isDraw: false,
+    //   potSpliters: [],
+    // },
   };
 
   if (room.gameState) {
-    room.gameState.deck = deck;
+    room.gameState.deck = generateDeck();
 
     room.players.forEach((user) => {
       if (!room.gameState?.deck) return;
@@ -173,4 +181,4 @@ const saveGameState = async (roomId: string, gameState: IGame) => {
   }
 };
 
-export { initializeGame, retrieveGameState, saveGameState };
+export { initializeGame, retrieveGameState, saveGameState, generateDeck };

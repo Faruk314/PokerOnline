@@ -18,7 +18,11 @@ interface IGame {
   lastBet: number;
   movesCount: number;
   currentRound: string;
-  winner: { userId: number; cards: string[] } | null;
+  winner: { userId: number; hand: Hand } | null;
+  // draw: {
+  //   isDraw: boolean;
+  //   potSpliters: [];
+  // };
 }
 
 interface IRaise {
@@ -31,7 +35,9 @@ interface Hand {
   cards: string[];
   rank?: number | null;
   rankTwo?: number | null;
+  kicker?: number;
   kickers?: number[] | null;
+  userId?: number;
 }
 
 interface IPlayer {

@@ -125,6 +125,8 @@ export default function setupSocket() {
 
         game.switchTurns();
 
+        game.resetGame();
+
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
