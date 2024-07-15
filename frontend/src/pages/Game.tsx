@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import { IPlayer } from "../types/types";
 import { SocketContext } from "../context/SocketContext";
 import { pokerCards } from "../utils/cards";
+import classNames from "classnames";
 
 const Game = () => {
   const positions = [
@@ -69,11 +70,18 @@ const Game = () => {
     return tablePositions;
   };
 
-  const findCard = (c: string) => {
+  const findCard = (c: string, index: number) => {
     const card = pokerCards.find((card) => card.card === c);
+    const currentRound = gameState?.currentRound;
 
     return (
-      <div key={c} className="w-[4rem]">
+      <div
+        key={c}
+        className={classNames("w-[4rem]", {
+          cardSlideOne: index === 1 && currentRound === "flop",
+          cardSlideTwo: index === 2 && currentRound === "flop",
+        })}
+      >
         <div className="h-full bg-white w-full rounded-md">
           <img src={card?.image} className="h-full rounded-md" />
         </div>
@@ -184,7 +192,7 @@ const Game = () => {
           );
         })}
 
-        <div className="relative flex items-center justify-center h-[30rem] rounded-full w-[60rem] styled-border">
+        <div className="relative flex items-center justify-center h-[33rem] rounded-full w-[60rem] styled-border">
           <img src={table} className="absolute w-full h-full rounded-full" />
 
           <div className="relative flex flex-col items-center">
@@ -192,9 +200,9 @@ const Game = () => {
               <img src={chip} className="w-5 h-5" />
               <span>{gameState?.totalPot}</span>
             </div>
-            <div className="flex space-x-2 w-[20rem]">
-              {gameState?.communityCards.map((c) => {
-                return findCard(c);
+            <div className="flex space-x-2 w-[22rem]">
+              {gameState?.communityCards.map((c, index) => {
+                return findCard(c, index);
               })}
             </div>
           </div>

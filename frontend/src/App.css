@@ -40,6 +40,34 @@
   }
 }
 
+@keyframes slideRight {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRightTwo {
+  0% {
+    transform: translateX(-200%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .highlight {
   animation: flash 1s infinite;
+}
+
+.cardSlideOne {
+  animation: slideRight 0.5s ease;
+}
+
+.cardSlideTwo {
+  animation: slideRightTwo 0.5s ease;
 }
