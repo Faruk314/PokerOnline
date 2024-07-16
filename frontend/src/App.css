@@ -71,3 +71,39 @@
 .cardSlideTwo {
   animation: slideRightTwo 0.5s ease;
 }
+
+.slider {
+  -webkit-appearance: none;
+  width: 35rem;
+  height: 15px;
+  background: red;
+  outline: none;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 45px;
+  background: #111827;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.slider::-moz-range-thumb {
+  width: 17px;
+  height: 40px;
+  background: #111827;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1),
+    0 0 20px rgba(255, 255, 255, 0.1);
+}
