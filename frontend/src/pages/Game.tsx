@@ -13,8 +13,10 @@ import { IPlayer } from "../types/types";
 import { SocketContext } from "../context/SocketContext";
 import { pokerCards } from "../utils/cards";
 import classNames from "classnames";
+import RaiseBar from "../components/RaiseBar";
 
 const Game = () => {
+  const [openRaiseBar, setOpenRaiseBar] = useState(false);
   const positions = [
     "bottomCenter",
     "bottomLeft",
@@ -95,34 +97,41 @@ const Game = () => {
     const isRaised = gameState?.players.some(
       (player) => player.playerRaise.isRaise
     );
+    const isCalled = gameState?.players.some(
+      (player) => player.isCall === true
+    );
     const round = gameState?.currentRound;
 
     if (gameState?.playerTurn.isSmallBind && !isRaised && round === "preFlop") {
       callAmount = gameState.lastBet / 2;
     }
 
-    if (lastBet && lastBet > 0 && callAmount)
+    if (
+      (!isRaised && !isCalled && lastBet === 0) ||
+      (gameState?.playerTurn.isBigBind && round === "preFlop")
+    ) {
       return (
         <button
-          onClick={() => handleCall(callAmount)}
+          onClick={handleCheck}
           className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
         >
-          <span>CALL</span>
-          <div className="flex items-center space-x-1">
-            <span>{callAmount}</span>
-            <img src={chip} className="w-4 h-4" />
-          </div>
+          <span>CHECK</span>
         </button>
       );
+    }
 
-    // return (
-    //   <button
-    //     onClick={handleCheck}
-    //     className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
-    //   >
-    //     <span>CHECK</span>
-    //   </button>
-    // );
+    return (
+      <button
+        onClick={() => handleCall(callAmount!)}
+        className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
+      >
+        <span>CALL</span>
+        <div className="flex items-center space-x-1">
+          <span>{callAmount}</span>
+          <img src={chip} className="w-4 h-4" />
+        </div>
+      </button>
+    );
   };
 
   const handleCall = (amount: number) => {
@@ -166,19 +175,33 @@ const Game = () => {
 
       {gameState?.playerTurn?.playerInfo.userId === loggedUserInfo?.userId && (
         <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
-          <button
-            onClick={handleFold}
-            className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
-          >
-            FOLD
-          </button>
-          {renderButtons()}
-          <button
-            onClick={() => handleRaise(1000)}
-            className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
-          >
-            RAISE
-          </button>
+          {!openRaiseBar && (
+            <>
+              <button
+                onClick={handleFold}
+                className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
+              >
+                FOLD
+              </button>
+              {renderButtons()}
+              <div className="">
+                <button
+                  onClick={() => setOpenRaiseBar(true)}
+                  className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
+                >
+                  RAISE
+                </button>
+              </div>
+            </>
+          )}
+
+          {openRaiseBar && (
+            <RaiseBar
+              setOpenRaiseBar={setOpenRaiseBar}
+              handleRaise={handleRaise}
+              maxAmount={gameState?.playerTurn.coins}
+            />
+          )}
         </div>
       )}
       <div className="relative">

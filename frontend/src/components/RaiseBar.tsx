@@ -13,6 +13,11 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
 
   return (
     <div className="flex items-center space-x-4">
+      <div className="text-black border-black text-white flex space-x-2 items-center">
+        <span>{amount}</span>
+        <img src={chip} className="h-6 w-6" />
+      </div>
+
       <button
         onClick={() => setOpenRaiseBar(false)}
         className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
@@ -28,11 +33,6 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
         max={maxAmount}
         value={amount}
       />
-
-      <div className="text-black border-black text-white flex space-x-2 items-center">
-        <span>{amount}</span>
-        <img src={chip} className="h-6 w-6" />
-      </div>
 
       <button
         onClick={() => {
