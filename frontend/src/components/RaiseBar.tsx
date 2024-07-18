@@ -35,7 +35,10 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
       </div>
 
       <button
-        onClick={() => handleRaise(parseInt(amount))}
+        onClick={() => {
+          handleRaise(parseInt(amount));
+          setOpenRaiseBar(false);
+        }}
         className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
       >
         OK
