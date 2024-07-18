@@ -5,7 +5,6 @@ import {
   CardsMap,
   Hand,
   RanksMap,
-  GetKickersArgs,
   IDraw,
 } from "../types/types";
 import { generateDeck } from "./methods";
@@ -82,6 +81,7 @@ class Game {
       });
 
       this.totalPot = totalPot;
+      this.lastBet = 0;
 
       if (this.currentRound === "preFlop") return this.startFlop();
 
@@ -254,6 +254,8 @@ class Game {
         5
       );
 
+      console.log(playerCardCombinations, "p card comb");
+
       playerCardCombinations.forEach((c) => {
         const nKind = this.isNKind(c);
         const pair = this.isPair(c);
@@ -312,6 +314,8 @@ class Game {
         }
       }
     }
+
+    console.log(handOrder, "hand order");
 
     if (handOrder.length === 1) {
       console.log(handOrder[0], "winner length 1");
@@ -411,6 +415,8 @@ class Game {
     for (let i = 0; i < handOne.kickers.length; i++) {
       const handOneKicker = handOne.kickers[i];
       const handTwoKicker = handTwo.kickers[i];
+
+      if (handOneKicker === handTwoKicker) continue;
 
       const strongerKicker = Math.max(handOneKicker, handTwoKicker);
 
@@ -736,6 +742,8 @@ class Game {
   }
 
   resetGame() {
+    this.deck = generateDeck();
+
     this.players.forEach((player) => {
       const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
       const firstCard = this.deck.splice(firstRandomCardIndex, 1);
@@ -760,9 +768,13 @@ class Game {
     this.currentRound = "preFlop";
     this.totalPot = 0;
     this.communityCards = [];
-    this.deck = generateDeck();
     this.winner = null;
     this.lastBet = 0;
+    this.draw = {
+      isDraw: false,
+      potSpliters: [],
+    };
+    this.movesCount = 0;
 
     const currentDealerIndex = this.players.findIndex(
       (player) => player.isDealer
