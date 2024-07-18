@@ -9,6 +9,11 @@ interface UserData {
   userSocketId: string;
 }
 
+interface IDraw {
+  isDraw: boolean;
+  potSpliters: { userId: number; hand: Hand }[];
+}
+
 interface IGame {
   totalPot: number;
   playerTurn: IPlayer | null;
@@ -19,10 +24,7 @@ interface IGame {
   movesCount: number;
   currentRound: string;
   winner: { userId: number; hand: Hand } | null;
-  // draw: {
-  //   isDraw: boolean;
-  //   potSpliters: [];
-  // };
+  draw: IDraw;
 }
 
 interface IRaise {
@@ -94,4 +96,5 @@ export type {
   Hand,
   RanksMap,
   GetKickersArgs,
+  IDraw,
 };

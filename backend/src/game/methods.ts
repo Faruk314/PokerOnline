@@ -53,10 +53,10 @@ const initializeGame = async (roomId: string) => {
     movesCount: 0,
     currentRound: "preFlop",
     winner: null,
-    // draw: {
-    //   isDraw: false,
-    //   potSpliters: [],
-    // },
+    draw: {
+      isDraw: false,
+      potSpliters: [],
+    },
   };
 
   if (room.gameState) {
