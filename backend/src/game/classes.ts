@@ -6,6 +6,7 @@ import {
   Hand,
   RanksMap,
   GetKickersArgs,
+  IDraw,
 } from "../types/types";
 import { generateDeck } from "./methods";
 
@@ -32,6 +33,10 @@ class Game {
   movesCount: number = 0;
   currentRound = "preFlop";
   winner: { userId: number; hand: Hand } | null = null;
+  draw: IDraw = {
+    isDraw: false,
+    potSpliters: [],
+  };
 
   constructor({
     totalPot,
@@ -43,6 +48,7 @@ class Game {
     movesCount,
     currentRound,
     winner,
+    draw,
   }: IGame) {
     this.totalPot = totalPot;
     this.players = players.map((player) => new Player(player));
@@ -57,6 +63,7 @@ class Game {
     this.movesCount = movesCount;
     this.currentRound = currentRound;
     this.winner = winner;
+    this.draw = draw;
   }
 
   isRoundOver() {
@@ -82,7 +89,7 @@ class Game {
 
       if (this.currentRound === "turn") return this.startRiver();
 
-      if (this.currentRound === "showdown") return this.startShowdown();
+      if (this.currentRound === "river") return this.startShowdown();
     }
   }
 
@@ -284,27 +291,6 @@ class Game {
 
   findBestHand() {
     const handOrder: Hand[] = [];
-    let draw: {
-      isDraw: boolean;
-      potSpliters: { userId: number; hand: Hand }[];
-    } = {
-      isDraw: false,
-      potSpliters: [],
-    };
-
-    // [1, 2][(1, 2, 3)];
-
-    // 1, 2;
-
-    // 1, 3;
-
-    // 2, 1;
-
-    // 2, 3;
-
-    // 3, 1;
-
-    // 3, 2;
 
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].isFold) continue;
@@ -328,7 +314,7 @@ class Game {
     }
 
     if (handOrder.length === 1) {
-      console.log(handOrder[0], "winner");
+      console.log(handOrder[0], "winner length 1");
       return (this.winner = {
         userId: handOrder[0].userId!,
         hand: handOrder[0],
@@ -338,7 +324,7 @@ class Game {
     for (let i = 0; i < 1; i++) {
       const hand = handOrder[i];
       const potSpliter = { userId: hand.userId!, hand: hand };
-      draw.potSpliters = [potSpliter];
+      this.draw.potSpliters = [potSpliter];
 
       for (let j = 1; j < handOrder.length; j++) {
         const handTwo = handOrder[j];
@@ -363,15 +349,14 @@ class Game {
         if (hand.name === handTwo.name && hand.kicker === handTwo.kicker) {
           const potSpliterTwo = { userId: handTwo.userId!, hand: handTwo };
 
-          draw.isDraw = true;
-          draw.potSpliters.push(potSpliterTwo);
+          this.draw.isDraw = true;
+          this.draw.potSpliters.push(potSpliterTwo);
         }
       }
     }
 
     console.log(this.winner, "winner");
-    console.log(draw.potSpliters[0], draw.potSpliters[1], "pot");
-    console.log(draw);
+    console.log(this.draw.potSpliters[0], this.draw.potSpliters[1], "pot");
   }
 
   getSuit(card: string) {
@@ -619,9 +604,11 @@ class Game {
 
     const lowAceIndex = sorted.findIndex((rank) => rank === 14);
 
-    sorted[lowAceIndex] = 1;
+    const copy = [...sorted];
 
-    let resorted = sorted.sort((a, b) => a - b);
+    copy[lowAceIndex] = 1;
+
+    let resorted = copy.sort((a, b) => a - b);
 
     let isConsecutiveLowAce = this.isConsecutive(resorted);
 
@@ -634,6 +621,10 @@ class Game {
 
       if (isConsecutiveLowAce) {
         highestRank = resorted[resorted.length - 1];
+      }
+
+      if (isConsecutive && isConsecutiveLowAce) {
+        highestRank = sorted[sorted.length - 1];
       }
 
       return {
@@ -650,7 +641,7 @@ class Game {
       return {
         name: "flush",
         cards: combination,
-        ranks: highestRank,
+        rank: highestRank,
         kickers: sorted,
       };
     }
@@ -694,9 +685,11 @@ class Game {
 
     const lowAceIndex = sorted.findIndex((rank) => rank === 14);
 
-    sorted[lowAceIndex] = 1;
+    const copy = [...sorted];
 
-    let resorted = sorted.sort((a, b) => a - b);
+    copy[lowAceIndex] = 1;
+
+    let resorted = copy.sort((a, b) => a - b);
 
     let isConsecutiveLowAce = this.isConsecutive(resorted);
 
@@ -709,6 +702,10 @@ class Game {
 
       if (isConsecutiveLowAce) {
         highestRank = resorted[resorted.length - 1];
+      }
+
+      if (isConsecutive && isConsecutiveLowAce) {
+        highestRank = sorted[sorted.length - 1];
       }
 
       return {
