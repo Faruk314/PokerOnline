@@ -3,7 +3,7 @@ import classNames from "classnames";
 import chip from "../assets/images/chip.png";
 import cardBack from "../assets/images/back.png";
 import { useAppSelector } from "../store/hooks";
-import { IPlayer } from "../types/types";
+import { IPlayer, Hand } from "../types/types";
 import { useEffect, useState } from "react";
 import { pokerCards } from "../utils/cards";
 
@@ -14,10 +14,18 @@ interface Props {
 
 const PlayerInfo = ({ position, player }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
-  const { playerInfo, coins, isFold, playerPot, playerRaise, isDealer, cards } =
-    player;
+  const {
+    playerInfo,
+    coins,
+    isFold,
+    playerPot,
+    playerRaise,
+    isDealer,
+    cards,
+    isCall,
+  } = player;
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
-  const [timeOut, setTimeOut] = useState({ state: "", status: true });
+  const [timeOut, setTimeOut] = useState({ state: "", status: false });
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -26,11 +34,16 @@ const PlayerInfo = ({ position, player }: Props) => {
       setTimeOut({ state: "raise", status: true });
     }
 
+    if (isCall) {
+      setTimeOut({ state: "call", status: true });
+      console.log("isCall", true);
+    }
+
     if (isFold) {
       setTimeOut({ state: "fold", status: true });
     }
 
-    if (isFold || playerRaise.isRaise) {
+    if (isFold || playerRaise.isRaise || isCall) {
       timeoutId = setTimeout(() => {
         setTimeOut({ state: "", status: false });
       }, 2000);
@@ -39,7 +52,7 @@ const PlayerInfo = ({ position, player }: Props) => {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [isFold, playerRaise.isRaise]);
+  }, [isFold, playerRaise.isRaise, isCall]);
 
   const determineCardSide = (card: string) => {
     if (
@@ -51,6 +64,150 @@ const PlayerInfo = ({ position, player }: Props) => {
     } else {
       return cardBack;
     }
+  };
+
+  const getRank = (rank: number) => {
+    if (rank === 11) {
+      return "J";
+    }
+
+    if (rank === 12) {
+      return "Q";
+    }
+
+    if (rank === 13) {
+      return "K";
+    }
+
+    if (rank === 14) {
+      return "A";
+    }
+
+    return rank.toString();
+  };
+
+  const findHandName = (hand: Hand) => {
+    if (!hand) return;
+
+    let rank: string = "";
+    let rankTwo: string = "";
+    let kicker: string = "";
+
+    if (hand.rank) {
+      rank = getRank(hand.rank);
+    }
+
+    if (hand.rankTwo) {
+      rankTwo = getRank(hand.rankTwo);
+    }
+
+    if (hand.kicker) {
+      kicker = getRank(hand.kicker);
+    }
+
+    if (hand.name === "twoPair") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>
+            Two pair {rank} and {rankTwo}
+          </span>
+
+          <span className="text-white">({kicker} kicker)</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "highCard") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>High Card, {rank}</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "onePair") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Pair of {rank}</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "straight") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Straight</span>
+          <span>{rank} high</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "straightFlush") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Straight flush</span>
+          <span>{rank} high</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "flush") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Flush</span>
+          <span>{rank} high</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "royalFlush") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Royal Flush</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "3Kind") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Three of a Kind, {rank}</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "4Kind") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>Four of a Kind, {rank}</span>
+        </div>
+      );
+    }
+
+    if (hand.name === "fullHouse") {
+      return (
+        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
+          <span>
+            Full House {rank} Full of {rankTwo}
+          </span>
+        </div>
+      );
+    }
+  };
+
+  const findPotSpliter = (playerId: number) => {
+    const potSpliter = gameState?.draw.potSpliters.find(
+      (p) => p.userId === playerId
+    );
+
+    if (!potSpliter) return null;
+
+    return (
+      <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
+        <span>DRAW</span>
+        {findHandName(potSpliter.hand)}
+      </div>
+    );
   };
 
   return (
@@ -76,13 +233,24 @@ const PlayerInfo = ({ position, player }: Props) => {
             <span>{playerPot}</span>
           </div>
         )}
+
+        {gameState?.winner &&
+          gameState?.winner.userId === player.playerInfo?.userId && (
+            <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
+              <span>WINNER</span>
+              {findHandName(gameState.winner.hand)}
+            </div>
+          )}
+
+        {gameState?.draw.isDraw && findPotSpliter(player.playerInfo.userId)}
+
         <img src={person} className="rounded-full" />
 
         {!isFold && (
           <div className="absolute bottom-0 flex">
             <img
               src={determineCardSide(cards[0])}
-              className="w-[5rem] h-[6rem] bg-white rounded-sm z-0 rotate-[-5deg]"
+              className="w-[5rem] h-[6rem] bg-white rounded-sm z-0 rotate-[-5deg] card"
             />
             <img
               src={determineCardSide(cards[1])}
@@ -91,7 +259,7 @@ const PlayerInfo = ({ position, player }: Props) => {
           </div>
         )}
 
-        {timeOut.state && (
+        {timeOut.status && (
           <div className="absolute z-20 top-[25%]">
             <div
               className={classNames(
@@ -99,6 +267,7 @@ const PlayerInfo = ({ position, player }: Props) => {
                 {
                   "border-green-600": timeOut.state === "raise",
                   "border-red-600": timeOut.state === "fold",
+                  "border-blue-600": timeOut.state === "call",
                 }
               )}
             >

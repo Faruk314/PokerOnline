@@ -16,6 +16,11 @@ interface GameRoom {
   players: [];
 }
 
+interface IDraw {
+  isDraw: boolean;
+  potSpliters: { userId: number; hand: Hand }[];
+}
+
 interface IGame {
   totalPot: number;
   playerTurn: IPlayer;
@@ -24,6 +29,8 @@ interface IGame {
   players: IPlayer[];
   lastBet: number;
   currentRound: string;
+  winner: { userId: number; hand: Hand };
+  draw: IDraw;
 }
 
 interface IRaise {
@@ -34,6 +41,11 @@ interface IRaise {
 interface Hand {
   name: string;
   cards: string[];
+  rank?: number | null;
+  rankTwo?: number | null;
+  kicker?: number;
+  kickers?: number[] | null;
+  userId?: number;
 }
 
 interface IPlayer {
@@ -58,4 +70,12 @@ interface UserInfo {
   image: string;
 }
 
-export type { UserData, UserInfo, GameRoom, AuthResponse, IGame, IPlayer };
+export type {
+  UserData,
+  UserInfo,
+  GameRoom,
+  AuthResponse,
+  IGame,
+  IPlayer,
+  Hand,
+};
