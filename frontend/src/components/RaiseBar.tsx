@@ -7,10 +7,16 @@ interface Props {
   setOpenRaiseBar: React.Dispatch<React.SetStateAction<boolean>>;
   handleRaise: (amount: number) => void;
   maxAmount?: number;
+  minAmout?: number;
 }
 
-const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
-  const [amount, setAmount] = useState("10");
+const RaiseBar = ({
+  setOpenRaiseBar,
+  handleRaise,
+  maxAmount,
+  minAmout,
+}: Props) => {
+  const [amount, setAmount] = useState((minAmout! * 2).toString());
 
   return (
     <div className="flex items-center space-x-4">
@@ -45,7 +51,7 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
         onChange={(e) => setAmount(e.target.value)}
         type="range"
         className="slider"
-        min="1"
+        min={(minAmout! * 2).toString() || "1"}
         max={maxAmount}
         value={amount}
       />

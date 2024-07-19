@@ -147,11 +147,11 @@ export default function setupSocket() {
 
           if (!playerTurn) return;
 
-          playerTurn.raise(amount);
+          const raiseAmount = amount - playerTurn.playerPot;
+
+          playerTurn.raise(raiseAmount);
 
           game.lastBet = amount;
-
-          game.isRoundOver();
 
           game.switchTurns();
 
@@ -177,8 +177,6 @@ export default function setupSocket() {
           if (!playerTurn) return;
 
           playerTurn.call(amount);
-
-          game.lastBet = amount;
 
           game.isRoundOver();
 

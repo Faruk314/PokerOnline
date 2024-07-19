@@ -70,17 +70,15 @@ class Game {
 
     if (this.movesCount === this.players.length) {
       this.movesCount = 0;
-      let totalPot = 0;
 
       this.players.forEach((player) => {
-        totalPot += player.playerPot;
+        this.totalPot += player.playerPot;
         player.playerPot = 0;
         player.isCall = false;
         player.playerRaise.isRaise = false;
         player.playerRaise.amount = 0;
       });
 
-      this.totalPot = totalPot;
       this.lastBet = 0;
 
       if (this.currentRound === "preFlop") return this.startFlop();

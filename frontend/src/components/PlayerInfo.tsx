@@ -91,7 +91,6 @@ const PlayerInfo = ({ position, player }: Props) => {
 
     let rank: string = "";
     let rankTwo: string = "";
-    let kicker: string = "";
 
     if (hand.rank) {
       rank = getRank(hand.rank);
@@ -101,18 +100,12 @@ const PlayerInfo = ({ position, player }: Props) => {
       rankTwo = getRank(hand.rankTwo);
     }
 
-    if (hand.kicker) {
-      kicker = getRank(hand.kicker);
-    }
-
     if (hand.name === "twoPair") {
       return (
         <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
           <span>
             Two pair {rank} and {rankTwo}
           </span>
-
-          <span className="text-white">({kicker} kicker)</span>
         </div>
       );
     }

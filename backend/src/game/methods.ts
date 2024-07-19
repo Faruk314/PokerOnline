@@ -78,7 +78,7 @@ const initializeGame = async (roomId: string) => {
       const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
       const player: IPlayer = {
-        coins: 1000000,
+        coins: 10000,
         playerInfo: user,
         isDealer: false,
         isSmallBind: false,
