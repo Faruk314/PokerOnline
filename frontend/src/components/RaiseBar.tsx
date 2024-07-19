@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IoCaretBackOutline } from "react-icons/io5";
 import chip from "../assets/images/chip.png";
+import { FaMinus, FaPlus } from "react-icons/fa";
 
 interface Props {
   setOpenRaiseBar: React.Dispatch<React.SetStateAction<boolean>>;
@@ -25,6 +26,21 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
         <IoCaretBackOutline size={30} />
       </button>
 
+      <button
+        onClick={() => {
+          const parsedAm = parseInt(amount);
+
+          if (parsedAm === 1) return;
+
+          const newAmount = parsedAm - 1;
+
+          setAmount(newAmount.toString());
+        }}
+        className="button-border flex space-x-3 items-center p-2 bg-red-600 text-xl hover:bg-red-500 rounded-full"
+      >
+        <FaMinus />
+      </button>
+
       <input
         onChange={(e) => setAmount(e.target.value)}
         type="range"
@@ -33,6 +49,17 @@ const RaiseBar = ({ setOpenRaiseBar, handleRaise, maxAmount }: Props) => {
         max={maxAmount}
         value={amount}
       />
+
+      <button
+        onClick={() => {
+          const newAmount = parseInt(amount) + 1;
+
+          setAmount(newAmount.toString());
+        }}
+        className="button-border flex space-x-3 items-center p-2 bg-green-600 text-xl hover:bg-green-500 rounded-full"
+      >
+        <FaPlus />
+      </button>
 
       <button
         onClick={() => {
