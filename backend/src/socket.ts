@@ -125,7 +125,7 @@ export default function setupSocket() {
 
         game.switchTurns();
 
-        game.resetGame();
+        // game.resetGame();
 
         const data = await saveGameState(roomId, game);
 
@@ -152,6 +152,8 @@ export default function setupSocket() {
           playerTurn.raise(raiseAmount);
 
           game.lastBet = amount;
+
+          game.movesCount = 1;
 
           game.switchTurns();
 

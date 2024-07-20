@@ -31,7 +31,7 @@ class Game {
   lastBet: number = 0;
   movesCount: number = 0;
   currentRound = "preFlop";
-  winner: { userId: number; hand: Hand } | null = null;
+  winner: { userId: number; hand?: Hand } | null = null;
   draw: IDraw = {
     isDraw: false,
     potSpliters: [],
@@ -66,9 +66,18 @@ class Game {
   }
 
   isRoundOver() {
-    this.movesCount += 1;
+    if (!this.playerTurn?.isFold) this.movesCount += 1;
 
-    if (this.movesCount === this.players.length) {
+    const playersNotFold = this.players.filter(
+      (player) => player.isFold === false
+    );
+
+    if (playersNotFold.length === 1) {
+      this.winner = { userId: playersNotFold[0].playerInfo.userId };
+      return;
+    }
+
+    if (this.movesCount === playersNotFold.length) {
       this.movesCount = 0;
 
       this.players.forEach((player) => {
@@ -245,14 +254,16 @@ class Game {
   }
 
   findHands() {
-    this.players.forEach((player) => {
+    const playersNotFold = this.players.filter(
+      (player) => player.isFold === false
+    );
+
+    playersNotFold.forEach((player) => {
       const cards = [...this.communityCards, ...player.cards];
       const playerCardCombinations = this.getCommunityCardsCombinations(
         cards,
         5
       );
-
-      console.log(playerCardCombinations, "p card comb");
 
       playerCardCombinations.forEach((c) => {
         const nKind = this.isNKind(c);

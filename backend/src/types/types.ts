@@ -23,7 +23,7 @@ interface IGame {
   lastBet: number;
   movesCount: number;
   currentRound: string;
-  winner: { userId: number; hand: Hand } | null;
+  winner: { userId: number; hand?: Hand } | null;
   draw: IDraw;
 }
 
