@@ -77,18 +77,34 @@ class Game {
       return;
     }
 
-    if (this.movesCount === playersNotFold.length) {
-      this.movesCount = 0;
+    const allIn = playersNotFold.every((player) => player.coins === 0);
 
-      this.players.forEach((player) => {
-        this.totalPot += player.playerPot;
-        player.playerPot = 0;
-        player.isCall = false;
-        player.playerRaise.isRaise = false;
-        player.playerRaise.amount = 0;
-      });
+    const lastMove = this.movesCount === playersNotFold.length;
 
-      this.lastBet = 0;
+    if (lastMove && allIn && this.currentRound === "preFlop") {
+      this.resetRound();
+      this.startFlop();
+      this.startTurn();
+      this.startRiver();
+      return this.startShowdown();
+    }
+
+    if (lastMove && allIn && this.currentRound === "flop") {
+      this.resetRound();
+      this.startTurn();
+      this.startRiver();
+      return this.startShowdown();
+    }
+
+    if (lastMove && allIn && this.currentRound === "turn") {
+      this.resetRound();
+      this.startRiver();
+
+      return this.startShowdown();
+    }
+
+    if (lastMove) {
+      this.resetRound();
 
       if (this.currentRound === "preFlop") return this.startFlop();
 
@@ -98,6 +114,20 @@ class Game {
 
       if (this.currentRound === "river") return this.startShowdown();
     }
+  }
+
+  resetRound() {
+    this.movesCount = 0;
+
+    this.players.forEach((player) => {
+      this.totalPot += player.playerPot;
+      player.playerPot = 0;
+      player.isCall = false;
+      player.playerRaise.isRaise = false;
+      player.playerRaise.amount = 0;
+    });
+
+    this.lastBet = 0;
   }
 
   startFlop() {
