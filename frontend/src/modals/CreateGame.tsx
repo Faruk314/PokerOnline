@@ -80,7 +80,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
                 className={classNames(
                   "bg-white text-black px-6 py-1 button-border rounded-md mr-2 mt-2",
                   {
-                    "bg-gray-400 text-white": maxPlayers === item,
+                    "bg-green-500 text-white": maxPlayers === item,
                   }
                 )}
               >
