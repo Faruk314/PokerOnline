@@ -11,7 +11,7 @@ import "./App.css";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
-import { setGameState } from "./store/slices/game";
+import game, { setGameState } from "./store/slices/game";
 import { IGame } from "./types/types";
 
 function App() {
@@ -58,10 +58,20 @@ function App() {
   }, [socket, navigate, dispatch]);
 
   useEffect(() => {
-    socket?.on("playerMoved", ({ gameState }: { gameState: IGame }) => {
-      console.log(gameState, "gameState after player moves");
-      dispatch(setGameState(gameState));
-    });
+    socket?.on(
+      "playerMoved",
+      ({ gameState, roomId }: { gameState: IGame; roomId: string }) => {
+        console.log(gameState, "gameState after player moves");
+
+        if (gameState.winner || gameState.draw.isDraw) {
+          setTimeout(() => {
+            socket.emit("resetGame", { roomId });
+          }, 3000);
+        }
+
+        dispatch(setGameState(gameState));
+      }
+    );
 
     return () => {
       socket?.off("playerMoved");

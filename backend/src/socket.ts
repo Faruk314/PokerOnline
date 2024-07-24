@@ -125,12 +125,10 @@ export default function setupSocket() {
 
         game.switchTurns();
 
-        // game.resetGame();
-
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
-          io.to(roomId).emit("playerMoved", { gameState: game });
+          io.to(roomId).emit("playerMoved", { gameState: game, roomId });
         }
       }
     });
@@ -147,11 +145,18 @@ export default function setupSocket() {
 
           if (!playerTurn) return;
 
-          const raiseAmount = amount - playerTurn.playerPot;
+          let raiseAmount = amount - playerTurn.playerPot;
+
+          const allIn = amount === playerTurn.coins;
+
+          if (allIn) {
+            raiseAmount = amount;
+            game.lastBet = amount + playerTurn.playerPot;
+          } else {
+            game.lastBet = amount;
+          }
 
           playerTurn.raise(raiseAmount);
-
-          game.lastBet = amount;
 
           game.movesCount = 1;
 
@@ -160,7 +165,7 @@ export default function setupSocket() {
           const data = await saveGameState(roomId, game);
 
           if (data.status === "success") {
-            io.to(roomId).emit("playerMoved", { gameState: game });
+            io.to(roomId).emit("playerMoved", { gameState: game, roomId });
           }
         }
       }
@@ -187,7 +192,7 @@ export default function setupSocket() {
           const data = await saveGameState(roomId, game);
 
           if (data.status === "success") {
-            io.to(roomId).emit("playerMoved", { gameState: game });
+            io.to(roomId).emit("playerMoved", { gameState: game, roomId });
           }
         }
       }
@@ -211,8 +216,22 @@ export default function setupSocket() {
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
-          io.to(roomId).emit("playerMoved", { gameState: game });
+          io.to(roomId).emit("playerMoved", { gameState: game, roomId });
         }
+      }
+    });
+
+    socket.on("resetGame", async ({ roomId }: { roomId: string }) => {
+      const response = await retrieveGameState(roomId);
+
+      if (response.status === "success" && response.gameState) {
+        const game = response.gameState;
+
+        game.resetGame();
+
+        await saveGameState(roomId, game);
+
+        io.to(roomId).emit("playerMoved", { gameState: game, roomId });
       }
     });
   });
