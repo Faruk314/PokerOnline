@@ -1,11 +1,10 @@
 import person from "../assets/images/person.png";
 import classNames from "classnames";
 import chip from "../assets/images/chip.png";
-import cardBack from "../assets/images/back.png";
 import { useAppSelector } from "../store/hooks";
 import { IPlayer, Hand } from "../types/types";
 import { useEffect, useState } from "react";
-import { pokerCards } from "../utils/cards";
+import Card from "./Card";
 
 interface Props {
   position: string;
@@ -26,6 +25,8 @@ const PlayerInfo = ({ position, player }: Props) => {
   } = player;
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const [timeOut, setTimeOut] = useState({ state: "", status: false });
+
+  const isLoggedUser = loggedUserInfo?.userId === player.playerInfo.userId;
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -53,18 +54,6 @@ const PlayerInfo = ({ position, player }: Props) => {
       clearTimeout(timeoutId);
     };
   }, [isFold, playerRaise.isRaise, isCall]);
-
-  const determineCardSide = (card: string) => {
-    if (
-      loggedUserInfo?.userId === player.playerInfo.userId ||
-      gameState?.currentRound === "showdown"
-    ) {
-      const pokerCard = pokerCards.find((c) => c.card === card);
-      return pokerCard?.image;
-    } else {
-      return cardBack;
-    }
-  };
 
   const getRank = (rank: number) => {
     if (rank === 11) {
@@ -241,13 +230,16 @@ const PlayerInfo = ({ position, player }: Props) => {
 
         {!isFold && (
           <div className="absolute bottom-0 flex">
-            <img
-              src={determineCardSide(cards[0])}
-              className="w-[5rem] h-[6rem] bg-white rounded-sm z-0 rotate-[-5deg] card"
+            <Card
+              isLoggedUser={isLoggedUser}
+              card={cards[0]}
+              style="cardContainer rotate-[-5deg] left-3 rounded-sm"
             />
-            <img
-              src={determineCardSide(cards[1])}
-              className="w-[5rem] h-[6rem] bg-white rounded-md rotate-[5deg] z-10 relative right-5 border-l border-gray-400 shadow-md"
+
+            <Card
+              isLoggedUser={isLoggedUser}
+              card={cards[1]}
+              style={"cardContainer rotate-[5deg] relative right-3"}
             />
           </div>
         )}
