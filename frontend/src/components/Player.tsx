@@ -18,48 +18,19 @@ interface Props {
 
 const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
-  const { playerInfo, coins, isFold, playerRaise, isDealer, cards, isCall } =
-    player;
+  const { playerInfo, coins, isFold, isDealer, cards } = player;
 
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
-  const [timeOut, setTimeOut] = useState({ state: "", status: false });
   const isLoggedUser = loggedUserInfo?.userId === player.playerInfo.userId;
   const [openRaiseBar, setOpenRaiseBar] = useState(false);
   const { socket } = useContext(SocketContext);
   const { id } = useParams<{ id: string }>();
-  const { createPlayerPotRef } = useContext(AnimationContext);
+  const { createPlayerPotRef, actionAnimation } = useContext(AnimationContext);
   const potRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     createPlayerPotRef(potRef);
   }, []);
-
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    if (playerRaise.isRaise) {
-      setTimeOut({ state: "raise", status: true });
-    }
-
-    if (isCall) {
-      setTimeOut({ state: "call", status: true });
-      console.log("isCall", true);
-    }
-
-    if (isFold) {
-      setTimeOut({ state: "fold", status: true });
-    }
-
-    if (isFold || playerRaise.isRaise || isCall) {
-      timeoutId = setTimeout(() => {
-        setTimeOut({ state: "", status: false });
-      }, 2000);
-    }
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [isFold, playerRaise.isRaise, isCall]);
 
   const getRank = (rank: number) => {
     if (rank === 11) {
@@ -308,19 +279,20 @@ const Player = ({ player, position }: Props) => {
           </div>
         )}
 
-        {timeOut.status && (
+        {actionAnimation.playerId === playerInfo.userId && (
           <div className="absolute z-20 top-[25%]">
             <div
               className={classNames(
-                "bg-[rgba(0,0,0,0.8)] font-bold button-border border-white rounded-md p-1 px-4 text-white highlight",
+                "bg-[rgba(0,0,0,0.8)] border-2 font-bold rounded-md p-1 px-5 text-white highlight",
                 {
-                  "border-green-600": timeOut.state === "raise",
-                  "border-red-600": timeOut.state === "fold",
-                  "border-blue-600": timeOut.state === "call",
+                  "border-green-600": actionAnimation.state === "raise",
+                  "border-red-600": actionAnimation.state === "fold",
+                  "border-blue-400": actionAnimation.state === "call",
+                  "border-yellow-400": actionAnimation.state === "check",
                 }
               )}
             >
-              <span>{timeOut.state}</span>
+              <span>{actionAnimation.state}</span>
             </div>
           </div>
         )}

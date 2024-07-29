@@ -7,6 +7,7 @@ import {
   useCallback,
 } from "react";
 import chip from "../assets/images/chip.png";
+import { IActionAnimation } from "../types/types";
 
 const initialAnimationContextData: any = {};
 
@@ -20,6 +21,10 @@ export const AnimationContextProvider = ({
   children,
 }: AnimationContextProviderProps) => {
   const tablePotRef = useRef<HTMLImageElement>(null);
+  const [actionAnimation, setActionAnimation] = useState<IActionAnimation>({
+    state: null,
+    playerId: null,
+  });
   const [animateFlop, setAnimateFlop] = useState(false);
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
@@ -105,9 +110,11 @@ export const AnimationContextProvider = ({
     tablePotRef,
     playerPotRefs,
     animateFlop,
+    actionAnimation,
     createPlayerPotRef,
     animateMoveChip,
     setAnimateFlop,
+    setActionAnimation,
   };
 
   return (

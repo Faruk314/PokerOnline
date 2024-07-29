@@ -235,7 +235,12 @@ export default function setupSocket() {
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
-          io.to(roomId).emit("playerMoved", { gameState: game, roomId });
+          io.to(roomId).emit("playerMoved", {
+            gameState: game,
+            roomId,
+            action: "check",
+            playerId: socket.userId,
+          });
         }
       }
     });

@@ -1,4 +1,4 @@
-import { Suspense, useContext, useEffect } from "react";
+import { Suspense, act, useContext, useEffect } from "react";
 import Game from "./pages/Game";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Menu from "./pages/Menu";
@@ -17,7 +17,8 @@ import { AnimationContext } from "./context/AnimationContext";
 
 function App() {
   const { socket } = useContext(SocketContext);
-  const { animateMoveChip, setAnimateFlop } = useContext(AnimationContext);
+  const { animateMoveChip, setAnimateFlop, setActionAnimation } =
+    useContext(AnimationContext);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -106,10 +107,19 @@ function App() {
           setAnimateFlop(true);
         }
 
+        if (action === "fold" || action === "check") {
+          setActionAnimation({ state: action, playerId });
+        }
+
         if (action === "raise" || action === "call") {
+          setActionAnimation({ state: action, playerId });
+
           animateMoveChip(playerId, false);
         }
 
+        setTimeout(() => {
+          setActionAnimation({ state: null, playerId: null });
+        }, 1000);
         dispatch(setGameState(gameState));
       }
     );
@@ -117,7 +127,7 @@ function App() {
     return () => {
       socket?.off("playerMoved");
     };
-  }, [socket, dispatch, animateMoveChip, setAnimateFlop]);
+  }, [socket, dispatch, animateMoveChip, setAnimateFlop, setActionAnimation]);
 
   return (
     <Suspense fallback={<Loader />}>

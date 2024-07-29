@@ -21,6 +21,11 @@ interface IDraw {
   potSpliters: { userId: number; hand: Hand }[];
 }
 
+interface IActionAnimation {
+  state: "fold" | "check" | "raise" | "call" | null;
+  playerId: number | null;
+}
+
 interface IGame {
   totalPot: number;
   playerTurn: IPlayer;
@@ -77,5 +82,6 @@ export type {
   AuthResponse,
   IGame,
   IPlayer,
+  IActionAnimation,
   Hand,
 };
