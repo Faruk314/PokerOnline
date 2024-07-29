@@ -75,14 +75,26 @@ function App() {
       }) => {
         console.log(gameState, "gameState after player moves");
 
-        if (gameState.winner || gameState.draw.isDraw) {
+        if (gameState.winner) {
+          moveChip(gameState.winner.userId, true);
+
+          setTimeout(() => {
+            socket.emit("resetGame", { roomId });
+          }, 3000);
+        }
+
+        if (gameState.draw.isDraw) {
+          gameState.draw.potSpliters.forEach((player) => {
+            moveChip(player.userId, true);
+          });
+
           setTimeout(() => {
             socket.emit("resetGame", { roomId });
           }, 3000);
         }
 
         if (action === "raise" || action === "call") {
-          moveChip(playerId);
+          moveChip(playerId, false);
         }
 
         dispatch(setGameState(gameState));

@@ -56,33 +56,46 @@ export const AnimationContextProvider = ({
   };
 
   const moveChip = useCallback(
-    (playerId: number) => {
+    (playerId: number, winner = false) => {
       const chipRef = playerPotRefs.find(
         (ref) => ref.current && ref.current.id === playerId.toString()
       );
 
       if (!chipRef) return;
 
-      console.log(chipRef, "chip ref");
-
-      const chipRect = chipRef.current?.getBoundingClientRect();
+      const playerPotRect = chipRef.current?.getBoundingClientRect();
       const tablePotRect = tablePotRef.current?.getBoundingClientRect();
 
-      if (!chipRect || !tablePotRect) return;
+      if (!playerPotRect || !tablePotRect) return;
 
-      const chipElement = createChipElement(chipRect.top, chipRect.left);
+      let chipElement = null;
+      let animationDuration = 100;
 
-      document.body.appendChild(chipElement);
+      if (winner) {
+        chipElement = createChipElement(tablePotRect.top, tablePotRect.left);
+
+        document.body.appendChild(chipElement);
+        animationDuration = 1000;
+      } else {
+        chipElement = createChipElement(playerPotRect.top, playerPotRect.left);
+
+        document.body.appendChild(chipElement);
+      }
 
       // Animate the chip movement
       setTimeout(() => {
-        chipElement.style.top = `${tablePotRect.top}px`;
-        chipElement.style.left = `${tablePotRect.left}px`;
+        if (winner) {
+          chipElement.style.top = `${playerPotRect.top}px`;
+          chipElement.style.left = `${playerPotRect.left}px`;
+        } else {
+          chipElement.style.top = `${tablePotRect.top}px`;
+          chipElement.style.left = `${tablePotRect.left}px`;
+        }
 
         setTimeout(() => {
           document.body.removeChild(chipElement);
         }, 500);
-      }, 100);
+      }, animationDuration);
     },
     [playerPotRefs]
   );
