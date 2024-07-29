@@ -94,6 +94,14 @@ function App() {
           }, 3000);
         }
 
+        if (gameState.currentRound === "preFlop" && !action) {
+          gameState.players
+            .filter((p) => p.isBigBind || p.isSmallBind)
+            .forEach((player) => animateMoveChip(player.playerInfo.userId));
+
+          return dispatch(setGameState(gameState));
+        }
+
         if (gameState.currentRound === "flop") {
           setAnimateFlop(true);
         }
