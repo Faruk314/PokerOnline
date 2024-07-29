@@ -17,7 +17,7 @@ import { AnimationContext } from "./context/AnimationContext";
 
 function App() {
   const { socket } = useContext(SocketContext);
-  const { moveChip } = useContext(AnimationContext);
+  const { animateMoveChip, setAnimateFlop } = useContext(AnimationContext);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -76,7 +76,8 @@ function App() {
         console.log(gameState, "gameState after player moves");
 
         if (gameState.winner) {
-          moveChip(gameState.winner.userId, true);
+          gameState.winner.hand &&
+            animateMoveChip(gameState.winner.userId, true);
 
           setTimeout(() => {
             socket.emit("resetGame", { roomId });
@@ -85,7 +86,7 @@ function App() {
 
         if (gameState.draw.isDraw) {
           gameState.draw.potSpliters.forEach((player) => {
-            moveChip(player.userId, true);
+            animateMoveChip(player.userId, true);
           });
 
           setTimeout(() => {
@@ -93,8 +94,12 @@ function App() {
           }, 3000);
         }
 
+        if (gameState.currentRound === "flop") {
+          setAnimateFlop(true);
+        }
+
         if (action === "raise" || action === "call") {
-          moveChip(playerId, false);
+          animateMoveChip(playerId, false);
         }
 
         dispatch(setGameState(gameState));
@@ -104,7 +109,7 @@ function App() {
     return () => {
       socket?.off("playerMoved");
     };
-  }, [socket, dispatch, moveChip]);
+  }, [socket, dispatch, animateMoveChip, setAnimateFlop]);
 
   return (
     <Suspense fallback={<Loader />}>

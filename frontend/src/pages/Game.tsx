@@ -32,7 +32,7 @@ const Game = () => {
   const { gameState, isLoading } = useAppSelector((state) => state.game);
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
-  const { tablePotRef } = useContext(AnimationContext);
+  const { tablePotRef, animateFlop } = useContext(AnimationContext);
 
   useEffect(() => {
     dispatch(getGameState(id));
@@ -74,14 +74,13 @@ const Game = () => {
 
   const findCard = (c: string, index: number) => {
     const card = pokerCards.find((card) => card.card === c);
-    const currentRound = gameState?.currentRound;
 
     return (
       <div
         key={c}
         className={classNames("w-[4rem]", {
-          cardSlideOne: index === 1 && currentRound === "flop",
-          cardSlideTwo: index === 2 && currentRound === "flop",
+          cardSlideOne: index === 1 && animateFlop,
+          cardSlideTwo: index === 2 && animateFlop,
         })}
       >
         <div className="h-full bg-white w-full rounded-md">

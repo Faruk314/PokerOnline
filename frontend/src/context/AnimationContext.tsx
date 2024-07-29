@@ -20,6 +20,7 @@ export const AnimationContextProvider = ({
   children,
 }: AnimationContextProviderProps) => {
   const tablePotRef = useRef<HTMLImageElement>(null);
+  const [animateFlop, setAnimateFlop] = useState(false);
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
   >([]);
@@ -55,7 +56,7 @@ export const AnimationContextProvider = ({
     return chipElement;
   };
 
-  const moveChip = useCallback(
+  const animateMoveChip = useCallback(
     (playerId: number, winner = false) => {
       const chipRef = playerPotRefs.find(
         (ref) => ref.current && ref.current.id === playerId.toString()
@@ -103,8 +104,10 @@ export const AnimationContextProvider = ({
   const contextValue: any = {
     tablePotRef,
     playerPotRefs,
+    animateFlop,
     createPlayerPotRef,
-    moveChip,
+    animateMoveChip,
+    setAnimateFlop,
   };
 
   return (
