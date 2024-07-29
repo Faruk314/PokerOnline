@@ -1,3 +1,4 @@
+import { useContext, useRef } from "react";
 import person from "../assets/images/person.png";
 import classNames from "classnames";
 import chip from "../assets/images/chip.png";
@@ -5,28 +6,33 @@ import { useAppSelector } from "../store/hooks";
 import { IPlayer, Hand } from "../types/types";
 import { useEffect, useState } from "react";
 import Card from "./Card";
+import { SocketContext } from "../context/SocketContext";
+import { useParams } from "react-router-dom";
+import RaiseBar from "./RaiseBar";
+import { AnimationContext } from "../context/AnimationContext";
 
 interface Props {
   position: string;
   player: IPlayer;
 }
 
-const PlayerInfo = ({ position, player }: Props) => {
+const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
-  const {
-    playerInfo,
-    coins,
-    isFold,
-    playerPot,
-    playerRaise,
-    isDealer,
-    cards,
-    isCall,
-  } = player;
+  const { playerInfo, coins, isFold, playerRaise, isDealer, cards, isCall } =
+    player;
+
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const [timeOut, setTimeOut] = useState({ state: "", status: false });
-
   const isLoggedUser = loggedUserInfo?.userId === player.playerInfo.userId;
+  const [openRaiseBar, setOpenRaiseBar] = useState(false);
+  const { socket } = useContext(SocketContext);
+  const { id } = useParams<{ id: string }>();
+  const { createPlayerPotRef } = useContext(AnimationContext);
+  const potRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    createPlayerPotRef(potRef);
+  }, []);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -192,6 +198,71 @@ const PlayerInfo = ({ position, player }: Props) => {
     );
   };
 
+  const renderButtons = () => {
+    const playerTurn = gameState?.playerTurn;
+    const callAmount = gameState!.lastBet - playerTurn!.playerPot;
+
+    const canCheck = callAmount <= 0;
+    const allIn = gameState?.players.some((player) => player.coins === 0);
+
+    return (
+      <>
+        <button
+          onClick={handleFold}
+          className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
+        >
+          FOLD
+        </button>
+        {!canCheck && (
+          <button
+            onClick={() => handleCall(callAmount!)}
+            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
+          >
+            <span>CALL</span>
+            <div className="flex items-center space-x-1">
+              <span>{callAmount}</span>
+              <img src={chip} className="w-4 h-4" />
+            </div>
+          </button>
+        )}
+
+        {canCheck && (
+          <button
+            onClick={handleCheck}
+            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
+          >
+            <span>CHECK</span>
+          </button>
+        )}
+
+        {!allIn && (
+          <button
+            onClick={() => setOpenRaiseBar(true)}
+            className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
+          >
+            RAISE
+          </button>
+        )}
+      </>
+    );
+  };
+
+  const handleCall = (amount: number) => {
+    socket?.emit("playerCall", { roomId: id, amount });
+  };
+
+  const handleCheck = () => {
+    socket?.emit("playerCheck", { roomId: id });
+  };
+
+  const handleFold = () => {
+    socket?.emit("playerFold", { roomId: id });
+  };
+
+  const handleRaise = (amount: number) => {
+    socket?.emit("playerRaise", { roomId: id, amount });
+  };
+
   return (
     <div
       className={classNames(
@@ -209,13 +280,6 @@ const PlayerInfo = ({ position, player }: Props) => {
       )}
     >
       <div className="relative h-[7rem] w-[7rem] flex flex-col items-center">
-        {playerPot > 0 && (
-          <div className="absolute top-[-2rem] text-white font-bold flex items-center space-x-2 bg-[rgba(0,0,0,0.5)] py-[0.1rem] rounded-full px-1">
-            <img src={chip} className="w-5 h-5" />
-            <span>{playerPot}</span>
-          </div>
-        )}
-
         {gameState?.winner &&
           gameState?.winner.userId === player.playerInfo?.userId && (
             <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
@@ -274,7 +338,12 @@ const PlayerInfo = ({ position, player }: Props) => {
             {playerInfo?.userName}
           </div>
           <div className="flex items-center py-1 space-x-2">
-            <img src={chip} className="w-[1.2rem] h-[1.2rem]" />
+            <img
+              id={playerInfo.userId.toString()}
+              ref={potRef}
+              src={chip}
+              className="relative chip w-[1.2rem] chip h-[1.2rem]"
+            />
             <span>{coins}</span>
           </div>
 
@@ -285,8 +354,23 @@ const PlayerInfo = ({ position, player }: Props) => {
           )}
         </div>
       </div>
+
+      {loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
+        loggedUserInfo?.userId === player.playerInfo.userId && (
+          <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
+            {!openRaiseBar && renderButtons()}
+
+            {openRaiseBar && (
+              <RaiseBar
+                setOpenRaiseBar={setOpenRaiseBar}
+                handleRaise={handleRaise}
+                maxAmount={gameState?.playerTurn.coins}
+                minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
+              />
+            )}
+          </div>
+        )}
     </div>
   );
 };
-
-export default PlayerInfo;
+export default Player;

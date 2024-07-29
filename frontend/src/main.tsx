@@ -8,13 +8,16 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SocketContextProvider } from "./context/SocketContext.tsx";
 import "./index.css";
+import { AnimationContextProvider } from "./context/AnimationContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Provider store={store}>
         <SocketContextProvider>
-          <App />
+          <AnimationContextProvider>
+            <App />
+          </AnimationContextProvider>
         </SocketContextProvider>
         <ToastContainer />
       </Provider>

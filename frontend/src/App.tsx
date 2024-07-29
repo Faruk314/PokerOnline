@@ -11,11 +11,13 @@ import "./App.css";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
-import game, { setGameState } from "./store/slices/game";
+import { setGameState } from "./store/slices/game";
 import { IGame } from "./types/types";
+import { AnimationContext } from "./context/AnimationContext";
 
 function App() {
   const { socket } = useContext(SocketContext);
+  const { moveChip } = useContext(AnimationContext);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -60,13 +62,27 @@ function App() {
   useEffect(() => {
     socket?.on(
       "playerMoved",
-      ({ gameState, roomId }: { gameState: IGame; roomId: string }) => {
+      ({
+        gameState,
+        roomId,
+        action,
+        playerId,
+      }: {
+        gameState: IGame;
+        roomId: string;
+        action: string;
+        playerId: number;
+      }) => {
         console.log(gameState, "gameState after player moves");
 
         if (gameState.winner || gameState.draw.isDraw) {
           setTimeout(() => {
             socket.emit("resetGame", { roomId });
           }, 3000);
+        }
+
+        if (action === "raise" || action === "call") {
+          moveChip(playerId);
         }
 
         dispatch(setGameState(gameState));
@@ -76,7 +92,7 @@ function App() {
     return () => {
       socket?.off("playerMoved");
     };
-  }, [socket, dispatch]);
+  }, [socket, dispatch, moveChip]);
 
   return (
     <Suspense fallback={<Loader />}>
@@ -85,7 +101,6 @@ function App() {
           <Route path="/menu" element={<Menu />} />
           <Route path="/game/:id" element={<Game />} />
         </Route>
-
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

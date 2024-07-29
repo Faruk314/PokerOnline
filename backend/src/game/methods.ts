@@ -123,7 +123,7 @@ const initializeGame = async (roomId: string) => {
 
     room.gameState.lastBet = bigBindAmount;
     room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
-    room.gameState.totalPot = 0;
+    room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
     room.gameState.communityCards = [];
   }
 

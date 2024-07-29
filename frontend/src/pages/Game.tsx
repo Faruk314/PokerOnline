@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import table from "../assets/images/table.jpg";
-import PlayerInfo from "../components/PlayerInfo";
 import chip from "../assets/images/chip.png";
 import { GiHamburgerMenu } from "react-icons/gi";
 import Menu from "../modals/Menu";
@@ -13,11 +12,10 @@ import { IPlayer } from "../types/types";
 import { SocketContext } from "../context/SocketContext";
 import { pokerCards } from "../utils/cards";
 import classNames from "classnames";
-import RaiseBar from "../components/RaiseBar";
-import { current } from "@reduxjs/toolkit";
+import Player from "../components/Player";
+import { AnimationContext } from "../context/AnimationContext";
 
 const Game = () => {
-  const [openRaiseBar, setOpenRaiseBar] = useState(false);
   const positions = [
     "bottomCenter",
     "bottomLeft",
@@ -34,6 +32,7 @@ const Game = () => {
   const { gameState, isLoading } = useAppSelector((state) => state.game);
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
+  const { tablePotRef } = useContext(AnimationContext);
 
   useEffect(() => {
     dispatch(getGameState(id));
@@ -92,68 +91,6 @@ const Game = () => {
     );
   };
 
-  const renderButtons = () => {
-    const playerTurn = gameState?.playerTurn;
-    const callAmount = gameState!.lastBet - playerTurn!.playerPot;
-
-    const canCheck = callAmount <= 0;
-
-    return (
-      <>
-        <button
-          onClick={handleFold}
-          className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
-        >
-          FOLD
-        </button>
-        {!canCheck && (
-          <button
-            onClick={() => handleCall(callAmount!)}
-            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
-          >
-            <span>CALL</span>
-            <div className="flex items-center space-x-1">
-              <span>{callAmount}</span>
-              <img src={chip} className="w-4 h-4" />
-            </div>
-          </button>
-        )}
-
-        {canCheck && (
-          <button
-            onClick={handleCheck}
-            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
-          >
-            <span>CHECK</span>
-          </button>
-        )}
-
-        <button
-          onClick={() => setOpenRaiseBar(true)}
-          className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
-        >
-          RAISE
-        </button>
-      </>
-    );
-  };
-
-  const handleCall = (amount: number) => {
-    socket?.emit("playerCall", { roomId: id, amount });
-  };
-
-  const handleCheck = () => {
-    socket?.emit("playerCheck", { roomId: id });
-  };
-
-  const handleFold = () => {
-    socket?.emit("playerFold", { roomId: id });
-  };
-
-  const handleRaise = (amount: number) => {
-    socket?.emit("playerRaise", { roomId: id, amount });
-  };
-
   if (isLoading) {
     return <Loader />;
   }
@@ -177,24 +114,10 @@ const Game = () => {
         </div>
       </div>
 
-      {gameState?.playerTurn?.playerInfo.userId === loggedUserInfo?.userId && (
-        <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
-          {!openRaiseBar && renderButtons()}
-
-          {openRaiseBar && (
-            <RaiseBar
-              setOpenRaiseBar={setOpenRaiseBar}
-              handleRaise={handleRaise}
-              maxAmount={gameState?.playerTurn.coins}
-              minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
-            />
-          )}
-        </div>
-      )}
       <div className="relative">
         {determineTablePositions()?.map((player, index) => {
           return (
-            <PlayerInfo
+            <Player
               key={player.playerInfo.userId}
               player={player}
               position={positions[index]}
@@ -205,11 +128,16 @@ const Game = () => {
         <div className="relative flex items-center justify-center h-[33rem] rounded-full w-[60rem] styled-border">
           <img src={table} className="absolute w-full h-full rounded-full" />
 
+          <div className="absolute top-[30%] text-white font-bold flex items-center space-x-2 bg-[rgba(0,0,0,0.5)] py-[0.1rem] rounded-full px-1">
+            <img
+              ref={tablePotRef}
+              src={chip}
+              className="w-[1.2rem] h-[1.2rem]"
+            />
+            <span>{gameState?.totalPot}</span>
+          </div>
+
           <div className="relative flex flex-col items-center">
-            <div className="relative top-[-1rem] text-white font-bold flex items-center space-x-2 bg-[rgba(0,0,0,0.5)] py-[0.1rem] rounded-full px-1">
-              <img src={chip} className="w-5 h-5" />
-              <span>{gameState?.totalPot}</span>
-            </div>
             <div className="flex space-x-2 w-[22rem]">
               {gameState?.communityCards.map((c, index) => {
                 return findCard(c, index);

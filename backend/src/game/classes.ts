@@ -77,7 +77,7 @@ class Game {
       return;
     }
 
-    const allIn = playersNotFold.every((player) => player.coins === 0);
+    const allIn = playersNotFold.some((player) => player.coins === 0);
 
     const lastMove = this.movesCount === playersNotFold.length;
 
@@ -120,7 +120,6 @@ class Game {
     this.movesCount = 0;
 
     this.players.forEach((player) => {
-      this.totalPot += player.playerPot;
       player.playerPot = 0;
       player.isCall = false;
       player.playerRaise.isRaise = false;
@@ -783,7 +782,7 @@ class Game {
   resetGame() {
     this.deck = generateDeck();
 
-    this.players.forEach((player) => {
+    this.players.forEach((player, index) => {
       const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
       const firstCard = this.deck.splice(firstRandomCardIndex, 1);
       const secondRandomCardIndex = Math.floor(
@@ -791,6 +790,12 @@ class Game {
       );
       const secondCard = this.deck.splice(secondRandomCardIndex, 1);
 
+      //temporary
+      if (index === 0) {
+        player.coins = 5000;
+      } else {
+        player.coins = 10000;
+      }
       player.playerPot = 0;
       player.isCall = false;
       player.isFold = false;
@@ -805,7 +810,7 @@ class Game {
 
     const bigBindAmount = 50;
     this.currentRound = "preFlop";
-    this.totalPot = 0;
+    this.totalPot = bigBindAmount + bigBindAmount / 2;
     this.communityCards = [];
     this.winner = null;
     this.lastBet = 0;
@@ -894,12 +899,15 @@ class Player {
       isRaise: true,
       amount: amount,
     };
+    this.isCall = false;
   }
 
   call(amount: number) {
     this.playerPot += amount;
     this.coins -= amount;
     this.isCall = true;
+    this.playerRaise.isRaise = false;
+    this.playerRaise.amount = 0;
   }
 
   check() {

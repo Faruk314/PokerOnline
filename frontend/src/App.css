@@ -107,3 +107,37 @@
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1),
     0 0 20px rgba(255, 255, 255, 0.1);
 }
+
+.cardContainer {
+  position: relative;
+  width: 4.5rem;
+  height: 6rem;
+}
+
+.card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 100ms ease;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.card-front {
+  transform: rotateY(180deg);
+}
+
+.card.flip {
+  transform: rotateY(180deg);
+}
+
+.chip {
+  transition: top 1s ease, left 1s ease;
+}

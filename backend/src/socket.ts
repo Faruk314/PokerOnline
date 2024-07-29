@@ -128,7 +128,12 @@ export default function setupSocket() {
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
-          io.to(roomId).emit("playerMoved", { gameState: game, roomId });
+          io.to(roomId).emit("playerMoved", {
+            gameState: game,
+            roomId,
+            action: "fold",
+            playerId: socket.userId,
+          });
         }
       }
     });
@@ -158,6 +163,8 @@ export default function setupSocket() {
 
           playerTurn.raise(raiseAmount);
 
+          game.totalPot += raiseAmount;
+
           game.movesCount = 1;
 
           game.switchTurns();
@@ -165,7 +172,12 @@ export default function setupSocket() {
           const data = await saveGameState(roomId, game);
 
           if (data.status === "success") {
-            io.to(roomId).emit("playerMoved", { gameState: game, roomId });
+            io.to(roomId).emit("playerMoved", {
+              gameState: game,
+              roomId,
+              action: "raise",
+              playerId: socket.userId,
+            });
           }
         }
       }
@@ -185,6 +197,8 @@ export default function setupSocket() {
 
           playerTurn.call(amount);
 
+          game.totalPot += amount;
+
           game.isRoundOver();
 
           game.switchTurns();
@@ -192,7 +206,12 @@ export default function setupSocket() {
           const data = await saveGameState(roomId, game);
 
           if (data.status === "success") {
-            io.to(roomId).emit("playerMoved", { gameState: game, roomId });
+            io.to(roomId).emit("playerMoved", {
+              gameState: game,
+              roomId,
+              action: "call",
+              playerId: socket.userId,
+            });
           }
         }
       }
