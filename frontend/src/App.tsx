@@ -56,6 +56,8 @@ function App() {
     }: IPlayerMoveArgs) => {
       if (!socket) return;
 
+      let updatedGameState = { ...gameState };
+
       if (gameState.winner) {
         if (gameState.winner.hand) {
           animateMoveChip(gameState.winner.userId, true);
@@ -78,19 +80,48 @@ function App() {
       }
 
       if (gameState.currentRound === "preFlop" && !action) {
-        gameState.players
-          .filter((p) => p.isBigBind || p.isSmallBind)
-          .forEach((player, index) => {
-            setTimeout(() => {
-              animateMoveChip(player.playerInfo.userId);
-            }, 500 * index);
-          });
-
         gameState.players.forEach((player) => {
           animateCard(player.playerInfo.userId);
         });
 
-        dispatch(setGameState(gameState));
+        const triggerMoveChipTime = gameState.players.length * 600;
+
+        setTimeout(() => {
+          const smallBlindPlayer = gameState.players.find((p) => p.isSmallBind);
+
+          if (!smallBlindPlayer) return;
+
+          animateMoveChip(smallBlindPlayer.playerInfo.userId);
+
+          updatedGameState = {
+            ...gameState,
+            totalPot: updatedGameState.totalPot + smallBlindPlayer.playerPot,
+          };
+
+          dispatch(setGameState(updatedGameState));
+        }, triggerMoveChipTime);
+
+        setTimeout(() => {
+          const bigBlindPlayer = gameState.players.find((p) => p.isBigBind);
+
+          if (!bigBlindPlayer) return;
+
+          animateMoveChip(bigBlindPlayer.playerInfo.userId);
+
+          updatedGameState = {
+            ...gameState,
+            totalPot: updatedGameState.totalPot + bigBlindPlayer.playerPot,
+          };
+
+          dispatch(setGameState(updatedGameState));
+        }, triggerMoveChipTime + 500);
+
+        updatedGameState = {
+          ...gameState,
+          totalPot: 0,
+        };
+
+        dispatch(setGameState(updatedGameState));
         return;
       }
 
