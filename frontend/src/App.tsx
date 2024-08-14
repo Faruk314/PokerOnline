@@ -1,10 +1,10 @@
-import { Suspense, act, useContext, useEffect } from "react";
+import { Suspense, useContext, useEffect } from "react";
 import Game from "./pages/Game";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { useAppDispatch } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { getLoginStatus } from "./store/slices/auth";
 import Loader from "./components/Loader";
 import "./App.css";
@@ -12,13 +12,14 @@ import ProtectedRoutes from "./protection/ProtectedRoutes";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
 import { setGameState } from "./store/slices/game";
-import { IGame } from "./types/types";
+import { IPlayerMoveArgs } from "./types/types";
 import { AnimationContext } from "./context/AnimationContext";
 
 function App() {
   const { socket } = useContext(SocketContext);
-  const { animateMoveChip, setAnimateFlop, setActionAnimation } =
+  const { animateMoveChip, setAnimateFlop, setActionAnimation, animateCard } =
     useContext(AnimationContext);
+  const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -47,87 +48,86 @@ function App() {
   }, [socket]);
 
   useEffect(() => {
-    socket?.on(
-      "gameStarted",
-      ({ roomId, gameState }: { roomId: string; gameState: IGame }) => {
-        dispatch(setGameState(gameState));
-        navigate(`/game/${roomId}`);
+    const handlePlayerMoved = ({
+      gameState,
+      roomId,
+      action,
+      playerId,
+    }: IPlayerMoveArgs) => {
+      if (!socket) return;
+
+      if (gameState.winner) {
+        if (gameState.winner.hand) {
+          animateMoveChip(gameState.winner.userId, true);
+        }
+        setTimeout(() => {
+          socket.emit("resetGame", { roomId });
+        }, 3000);
       }
-    );
 
-    return () => {
-      socket?.off("gameStarted");
-    };
-  }, [socket, navigate, dispatch]);
-
-  useEffect(() => {
-    socket?.on(
-      "playerMoved",
-      ({
-        gameState,
-        roomId,
-        action,
-        playerId,
-      }: {
-        gameState: IGame;
-        roomId: string;
-        action: string;
-        playerId: number;
-      }) => {
-        console.log(gameState, "gameState after player moves");
-
-        if (gameState.winner) {
-          gameState.winner.hand &&
-            animateMoveChip(gameState.winner.userId, true);
-
+      if (gameState.draw.isDraw) {
+        gameState.draw.potSpliters.forEach((player, index: number) => {
           setTimeout(() => {
-            socket.emit("resetGame", { roomId });
-          }, 3000);
-        }
-
-        if (gameState.draw.isDraw) {
-          gameState.draw.potSpliters.forEach((player) => {
             animateMoveChip(player.userId, true);
-          });
-
-          setTimeout(() => {
-            socket.emit("resetGame", { roomId });
-          }, 3000);
-        }
-
-        if (gameState.currentRound === "preFlop" && !action) {
-          gameState.players
-            .filter((p) => p.isBigBind || p.isSmallBind)
-            .forEach((player) => animateMoveChip(player.playerInfo.userId));
-
-          return dispatch(setGameState(gameState));
-        }
-
-        if (gameState.currentRound === "flop") {
-          setAnimateFlop(true);
-        }
-
-        if (action === "fold" || action === "check") {
-          setActionAnimation({ state: action, playerId });
-        }
-
-        if (action === "raise" || action === "call") {
-          setActionAnimation({ state: action, playerId });
-
-          animateMoveChip(playerId, false);
-        }
+          }, 500 * index);
+        });
 
         setTimeout(() => {
-          setActionAnimation({ state: null, playerId: null });
-        }, 1000);
-        dispatch(setGameState(gameState));
+          socket.emit("resetGame", { roomId });
+        }, 3000);
       }
-    );
+
+      if (gameState.currentRound === "preFlop" && !action) {
+        gameState.players
+          .filter((p) => p.isBigBind || p.isSmallBind)
+          .forEach((player, index) => {
+            setTimeout(() => {
+              animateMoveChip(player.playerInfo.userId);
+            }, 500 * index);
+          });
+
+        gameState.players.forEach((player) => {
+          animateCard(player.playerInfo.userId);
+        });
+
+        dispatch(setGameState(gameState));
+        return;
+      }
+
+      if (gameState.currentRound === "flop") {
+        setAnimateFlop(true);
+      }
+
+      if (action === "fold" || action === "check") {
+        setActionAnimation({ state: action, playerId });
+      }
+
+      if (action === "raise" || action === "call") {
+        setActionAnimation({ state: action, playerId });
+        animateMoveChip(playerId, false);
+      }
+
+      setTimeout(() => {
+        setActionAnimation({ state: null, playerId: null });
+      }, 1000);
+
+      dispatch(setGameState(gameState));
+    };
+
+    socket?.on("playerMoved", handlePlayerMoved);
 
     return () => {
       socket?.off("playerMoved");
     };
-  }, [socket, dispatch, animateMoveChip, setAnimateFlop, setActionAnimation]);
+  }, [
+    socket,
+    dispatch,
+    animateMoveChip,
+    setAnimateFlop,
+    setActionAnimation,
+    loggedUserInfo?.userId,
+    animateCard,
+  ]);
 
   return (
     <Suspense fallback={<Loader />}>

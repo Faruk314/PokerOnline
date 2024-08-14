@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 interface UserData {
   userName?: string;
   email: string;
@@ -75,6 +77,15 @@ interface UserInfo {
   image: string;
 }
 
+interface IPlayerMoveArgs {
+  gameState: IGame;
+  roomId: string;
+  action: string;
+  playerId: number;
+}
+
+type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
+
 export type {
   UserData,
   UserInfo,
@@ -83,5 +94,7 @@ export type {
   IGame,
   IPlayer,
   IActionAnimation,
+  IPlayerMoveArgs,
+  TCardRefsMap,
   Hand,
 };

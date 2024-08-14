@@ -19,9 +19,7 @@ interface Props {
 const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
   const { playerInfo, coins, isFold, isDealer, cards } = player;
-
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
-  const isLoggedUser = loggedUserInfo?.userId === player.playerInfo.userId;
   const [openRaiseBar, setOpenRaiseBar] = useState(false);
   const { socket } = useContext(SocketContext);
   const { id } = useParams<{ id: string }>();
@@ -266,15 +264,17 @@ const Player = ({ player, position }: Props) => {
         {!isFold && (
           <div className="absolute bottom-0 flex">
             <Card
-              isLoggedUser={isLoggedUser}
+              playerId={playerInfo.userId}
               card={cards[0]}
               style="cardContainer rotate-[-5deg] left-3 rounded-sm"
+              cardIndex={0}
             />
 
             <Card
-              isLoggedUser={isLoggedUser}
+              playerId={playerInfo.userId}
               card={cards[1]}
               style={"cardContainer rotate-[5deg] relative right-3"}
+              cardIndex={1}
             />
           </div>
         )}

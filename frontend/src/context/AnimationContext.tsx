@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 import chip from "../assets/images/chip.png";
-import { IActionAnimation } from "../types/types";
+import { IActionAnimation, TCardRefsMap } from "../types/types";
 
 const initialAnimationContextData: any = {};
 
@@ -29,6 +29,18 @@ export const AnimationContextProvider = ({
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
   >([]);
+  const cardRefsMap: TCardRefsMap = useRef(new Map<number, HTMLElement[]>());
+
+  const assignCardRef =
+    (playerId: number, index: number) => (el: HTMLElement | null) => {
+      if (el) {
+        let refs = cardRefsMap.current.get(playerId) || [];
+        refs[index] = el;
+        cardRefsMap.current.set(playerId, refs);
+      }
+    };
+
+  console.log(cardRefsMap, "map");
 
   const createPlayerPotRef = useCallback(
     (ref: RefObject<HTMLImageElement>) => {
@@ -106,6 +118,43 @@ export const AnimationContextProvider = ({
     [playerPotRefs]
   );
 
+  const animateCard = (playerId: number) => {
+    const cardRefs = cardRefsMap.current.get(playerId);
+    if (cardRefs) {
+      cardRefs.forEach((cardRef, cardIndex) => {
+        if (cardRef) {
+          if (!tablePotRef.current) return;
+
+          cardRef.style.transition = "none";
+
+          const tablePotRect = tablePotRef.current.getBoundingClientRect();
+          const cardRect = cardRef.getBoundingClientRect();
+
+          const cardTop = tablePotRect.top - cardRect.top + cardRef.offsetTop;
+          const cardLeft =
+            tablePotRect.left - cardRect.left + cardRef.offsetLeft;
+
+          cardRef.style.top = `${cardTop}px`;
+          cardRef.style.left = `${cardLeft}px`;
+
+          let duration = 600;
+
+          if (cardIndex === 1) duration = 500;
+
+          setTimeout(() => {
+            cardRef.style.top = "0px";
+            cardRef.style.transition = "top 0.6s ease, left 0.6s ease";
+
+            if (cardIndex === 1)
+              cardRef.style.transition = "top 0.5s ease, left 0.5s ease";
+
+            cardRef.style.left = "0px";
+          }, duration);
+        }
+      });
+    }
+  };
+
   const contextValue: any = {
     tablePotRef,
     playerPotRefs,
@@ -113,8 +162,10 @@ export const AnimationContextProvider = ({
     actionAnimation,
     createPlayerPotRef,
     animateMoveChip,
+    animateCard,
     setAnimateFlop,
     setActionAnimation,
+    assignCardRef,
   };
 
   return (
