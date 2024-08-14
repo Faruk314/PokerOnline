@@ -134,8 +134,10 @@ export const AnimationContextProvider = ({
           const cardLeft =
             tablePotRect.left - cardRect.left + cardRef.offsetLeft;
 
-          cardRef.style.top = `${cardTop}px`;
-          cardRef.style.left = `${cardLeft}px`;
+          setTimeout(() => {
+            cardRef.style.top = `${cardTop}px`;
+            cardRef.style.left = `${cardLeft}px`;
+          }, 0);
 
           let duration = 600;
 
