@@ -9,42 +9,8 @@ interface Props {
   cardIndex: number;
 }
 
-const Card = ({ card, style, playerId, cardIndex }: Props) => {
+const Card = ({ style, playerId, cardIndex }: Props) => {
   const { assignCardRef } = useContext(AnimationContext);
-
-  // useEffect(() => {
-  //   if (isLoggedUser && gameState?.currentRound === "preFlop") {
-  //     const pokerCard = pokerCards.find((c) => c.card === card);
-
-  //     if (!pokerCard) return;
-
-  //     if (!cardFrontRef.current || !cardRef.current || !cardBackRef.current)
-  //       return;
-
-  //     cardFrontRef.current!.src = pokerCard.image;
-
-  //     setTimeout(() => {
-  //       cardRef.current!.classList.add("flip");
-  //     }, 1000);
-  //   }
-
-  //   if (gameState?.currentRound === "showdown") {
-  //     setTimeout(() => {
-  //       cardRef.current!.classList.remove("flip");
-  //     }, 3000);
-
-  //     const pokerCard = pokerCards.find((c) => c.card === card);
-
-  //     if (!pokerCard) return;
-
-  //     if (!cardFrontRef.current || !cardRef.current || !cardBackRef.current)
-  //       return;
-
-  //     cardFrontRef.current!.src = pokerCard.image;
-
-  //     cardRef.current!.classList.add("flip");
-  //   }
-  // }, [card, isLoggedUser, gameState?.currentRound]);
 
   return (
     <div className={style}>

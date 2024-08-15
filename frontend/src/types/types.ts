@@ -1,5 +1,3 @@
-import { RefObject } from "react";
-
 interface UserData {
   userName?: string;
   email: string;

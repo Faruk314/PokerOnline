@@ -8,6 +8,9 @@ import {
 } from "react";
 import chip from "../assets/images/chip.png";
 import { IActionAnimation, TCardRefsMap } from "../types/types";
+import { useAppSelector } from "../store/hooks";
+import pokerCards from "../utils/cards";
+import cardBack from "../assets/images/back.png";
 
 const initialAnimationContextData: any = {};
 
@@ -30,6 +33,7 @@ export const AnimationContextProvider = ({
     RefObject<HTMLImageElement>[]
   >([]);
   const cardRefsMap: TCardRefsMap = useRef(new Map<number, HTMLElement[]>());
+  const { loggedUserInfo } = useAppSelector((state) => state.auth);
 
   const assignCardRef =
     (playerId: number, index: number) => (el: HTMLElement | null) => {
@@ -118,6 +122,38 @@ export const AnimationContextProvider = ({
     [playerPotRefs]
   );
 
+  const animateCardFlip = (playerCards: string[]) => {
+    if (!loggedUserInfo?.userId) return;
+
+    const cardRefs = cardRefsMap.current.get(loggedUserInfo?.userId);
+
+    cardRefs?.forEach((cardRef, index) => {
+      const cardFront = cardRef.lastElementChild as HTMLImageElement;
+
+      if (!cardRef) return;
+
+      if (!cardRef.firstElementChild) return;
+
+      const foundCard = pokerCards.find((c) => c.card === playerCards[index]);
+
+      cardRef.style.transition = "transform 500ms ease";
+      let duration = 500;
+
+      if (index === 1) {
+        cardRef.style.transition = "transform 400ms ease";
+        duration = 400;
+      }
+
+      if (!foundCard?.image) return;
+
+      cardFront.src = foundCard?.image;
+
+      setTimeout(() => {
+        cardRef.classList.add("flip");
+      }, duration);
+    });
+  };
+
   const animateCard = (playerId: number) => {
     const cardRefs = cardRefsMap.current.get(playerId);
     if (cardRefs) {
@@ -126,6 +162,7 @@ export const AnimationContextProvider = ({
           if (!tablePotRef.current) return;
 
           cardRef.style.transition = "none";
+          cardRef.classList.remove("flip");
 
           const tablePotRect = tablePotRef.current.getBoundingClientRect();
           const cardRect = cardRef.getBoundingClientRect();
@@ -165,6 +202,7 @@ export const AnimationContextProvider = ({
     createPlayerPotRef,
     animateMoveChip,
     animateCard,
+    animateCardFlip,
     setAnimateFlop,
     setActionAnimation,
     assignCardRef,

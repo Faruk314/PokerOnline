@@ -12,13 +12,18 @@ import ProtectedRoutes from "./protection/ProtectedRoutes";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
 import { setGameState } from "./store/slices/game";
-import { IPlayerMoveArgs } from "./types/types";
+import { IGame, IPlayerMoveArgs } from "./types/types";
 import { AnimationContext } from "./context/AnimationContext";
 
 function App() {
   const { socket } = useContext(SocketContext);
-  const { animateMoveChip, setAnimateFlop, setActionAnimation, animateCard } =
-    useContext(AnimationContext);
+  const {
+    animateMoveChip,
+    setAnimateFlop,
+    setActionAnimation,
+    animateCard,
+    animateCardFlip,
+  } = useContext(AnimationContext);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -46,6 +51,92 @@ function App() {
       socket?.off("roomFull");
     };
   }, [socket]);
+
+  useEffect(() => {
+    const handleGameStart = ({
+      gameState,
+      roomId,
+    }: {
+      gameState: IGame;
+      roomId: string;
+    }) => {
+      navigate(`/game/${roomId}`);
+
+      const delay = 500;
+
+      let updatedGameState = { ...gameState };
+
+      setTimeout(() => {
+        gameState.players.forEach((player) => {
+          animateCard(player.playerInfo.userId);
+        });
+      }, delay);
+
+      const triggerMoveChipTime = gameState.players.length * 600 + delay;
+
+      setTimeout(() => {
+        const smallBlindPlayer = gameState.players.find((p) => p.isSmallBind);
+
+        if (!smallBlindPlayer) return;
+
+        animateMoveChip(smallBlindPlayer.playerInfo.userId);
+
+        updatedGameState = {
+          ...gameState,
+          totalPot: updatedGameState.totalPot + smallBlindPlayer.playerPot,
+        };
+
+        dispatch(setGameState(updatedGameState));
+      }, triggerMoveChipTime);
+
+      setTimeout(() => {
+        const bigBlindPlayer = gameState.players.find((p) => p.isBigBind);
+
+        if (!bigBlindPlayer) return;
+
+        animateMoveChip(bigBlindPlayer.playerInfo.userId);
+
+        updatedGameState = {
+          ...gameState,
+          totalPot: updatedGameState.totalPot + bigBlindPlayer.playerPot,
+        };
+
+        dispatch(setGameState(updatedGameState));
+      }, triggerMoveChipTime + 500);
+
+      setTimeout(() => {
+        if (!loggedUserInfo?.userId) return;
+
+        const player = gameState.players.find(
+          (p) => p.playerInfo.userId === loggedUserInfo?.userId
+        );
+
+        animateCardFlip(player?.cards);
+      }, triggerMoveChipTime + 1000);
+
+      updatedGameState = {
+        ...gameState,
+        totalPot: 0,
+      };
+
+      dispatch(setGameState(updatedGameState));
+      return;
+    };
+
+    socket?.on("gameStarted", handleGameStart);
+
+    return () => {
+      socket?.off("gameStarted", handleGameStart);
+    };
+  }, [
+    socket,
+    dispatch,
+    navigate,
+    loggedUserInfo?.userId,
+    animateCard,
+    animateCardFlip,
+    animateMoveChip,
+  ]);
 
   useEffect(() => {
     const handlePlayerMoved = ({
@@ -116,6 +207,16 @@ function App() {
           dispatch(setGameState(updatedGameState));
         }, triggerMoveChipTime + 500);
 
+        setTimeout(() => {
+          if (!loggedUserInfo?.userId) return;
+
+          const player = gameState.players.find(
+            (p) => p.playerInfo.userId === loggedUserInfo?.userId
+          );
+
+          animateCardFlip(player?.cards);
+        }, triggerMoveChipTime + 1000);
+
         updatedGameState = {
           ...gameState,
           totalPot: 0,
@@ -148,7 +249,7 @@ function App() {
     socket?.on("playerMoved", handlePlayerMoved);
 
     return () => {
-      socket?.off("playerMoved");
+      socket?.off("playerMoved", handlePlayerMoved);
     };
   }, [
     socket,
@@ -158,6 +259,7 @@ function App() {
     setActionAnimation,
     loggedUserInfo?.userId,
     animateCard,
+    animateCardFlip,
   ]);
 
   return (
