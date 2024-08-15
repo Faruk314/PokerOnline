@@ -7,10 +7,8 @@ import {
   useCallback,
 } from "react";
 import chip from "../assets/images/chip.png";
-import { IActionAnimation, TCardRefsMap } from "../types/types";
-import { useAppSelector } from "../store/hooks";
+import { IActionAnimation, IPlayer, TCardRefsMap } from "../types/types";
 import pokerCards from "../utils/cards";
-import cardBack from "../assets/images/back.png";
 
 const initialAnimationContextData: any = {};
 
@@ -33,7 +31,6 @@ export const AnimationContextProvider = ({
     RefObject<HTMLImageElement>[]
   >([]);
   const cardRefsMap: TCardRefsMap = useRef(new Map<number, HTMLElement[]>());
-  const { loggedUserInfo } = useAppSelector((state) => state.auth);
 
   const assignCardRef =
     (playerId: number, index: number) => (el: HTMLElement | null) => {
@@ -43,8 +40,6 @@ export const AnimationContextProvider = ({
         cardRefsMap.current.set(playerId, refs);
       }
     };
-
-  console.log(cardRefsMap, "map");
 
   const createPlayerPotRef = useCallback(
     (ref: RefObject<HTMLImageElement>) => {
@@ -122,10 +117,8 @@ export const AnimationContextProvider = ({
     [playerPotRefs]
   );
 
-  const animateCardFlip = (playerCards: string[]) => {
-    if (!loggedUserInfo?.userId) return;
-
-    const cardRefs = cardRefsMap.current.get(loggedUserInfo?.userId);
+  const animateCardFlip = (player: IPlayer) => {
+    const cardRefs = cardRefsMap.current.get(player.playerInfo.userId);
 
     cardRefs?.forEach((cardRef, index) => {
       const cardFront = cardRef.lastElementChild as HTMLImageElement;
@@ -134,7 +127,7 @@ export const AnimationContextProvider = ({
 
       if (!cardRef.firstElementChild) return;
 
-      const foundCard = pokerCards.find((c) => c.card === playerCards[index]);
+      const foundCard = pokerCards.find((c) => c.card === player?.cards[index]);
 
       cardRef.style.transition = "transform 500ms ease";
       let duration = 500;

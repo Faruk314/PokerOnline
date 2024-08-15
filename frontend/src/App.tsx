@@ -111,7 +111,7 @@ function App() {
           (p) => p.playerInfo.userId === loggedUserInfo?.userId
         );
 
-        animateCardFlip(player?.cards);
+        animateCardFlip(player);
       }, triggerMoveChipTime + 1000);
 
       updatedGameState = {
@@ -153,6 +153,11 @@ function App() {
         if (gameState.winner.hand) {
           animateMoveChip(gameState.winner.userId, true);
         }
+
+        gameState.players.forEach((player) => {
+          animateCardFlip(player);
+        });
+
         setTimeout(() => {
           socket.emit("resetGame", { roomId });
         }, 3000);
@@ -160,9 +165,14 @@ function App() {
 
       if (gameState.draw.isDraw) {
         gameState.draw.potSpliters.forEach((player, index: number) => {
+          const duration = 500 * index;
           setTimeout(() => {
             animateMoveChip(player.userId, true);
-          }, 500 * index);
+          }, duration);
+        });
+
+        gameState.players.forEach((player) => {
+          animateCardFlip(player);
         });
 
         setTimeout(() => {
@@ -214,7 +224,7 @@ function App() {
             (p) => p.playerInfo.userId === loggedUserInfo?.userId
           );
 
-          animateCardFlip(player?.cards);
+          animateCardFlip(player);
         }, triggerMoveChipTime + 1000);
 
         updatedGameState = {
