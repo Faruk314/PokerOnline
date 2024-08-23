@@ -42,6 +42,11 @@ interface Hand {
   userId?: number;
 }
 
+interface ITime {
+  startTime: Date;
+  endTime: Date;
+}
+
 interface IPlayer {
   coins: number;
   playerInfo: { userId: number; userName: string };
@@ -55,6 +60,7 @@ interface IPlayer {
   isCall: boolean;
   isCheck: boolean;
   hand: Hand | null;
+  time: ITime | null;
 }
 
 interface RoomData {
@@ -92,6 +98,7 @@ export type {
   IGame,
   IPlayer,
   IRaise,
+  ITime,
   CardsMap,
   Hand,
   RanksMap,

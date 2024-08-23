@@ -6,6 +6,7 @@ import {
   Hand,
   RanksMap,
   IDraw,
+  ITime,
 } from "../types/types";
 import { generateDeck } from "./methods";
 
@@ -171,6 +172,9 @@ class Game {
 
   switchTurns() {
     if (!this.playerTurn) return;
+
+    this.playerTurn.time = null;
+
     let playerTurnIndex = -1;
 
     //Find a playerTurnIndex in a players array
@@ -198,6 +202,16 @@ class Game {
         break;
       }
     }
+
+    const start = Date.now();
+    const turnDuration = 30000;
+
+    if (this.winner || this.draw.isDraw) return;
+
+    this.playerTurn.time = {
+      startTime: new Date(start),
+      endTime: new Date(start + turnDuration),
+    };
   }
 
   getCommunityCardsCombinations(arr: string[], length: number): string[][] {
@@ -840,6 +854,14 @@ class Game {
 
     this.lastBet = bigBindAmount;
     this.playerTurn = this.players[playerTurnIndex];
+
+    const start = Date.now();
+    const turnDuration = 30000;
+
+    this.playerTurn.time = {
+      startTime: new Date(start),
+      endTime: new Date(start + turnDuration),
+    };
   }
 }
 
@@ -859,6 +881,7 @@ class Player {
     amount: 0,
   };
   hand: Hand | null = null;
+  time: ITime | null = null;
 
   constructor({
     coins,
@@ -873,6 +896,7 @@ class Player {
     isCheck,
     cards,
     hand,
+    time,
   }: IPlayer) {
     this.coins = coins;
     this.playerInfo = playerInfo;
@@ -886,6 +910,7 @@ class Player {
     this.cards = cards;
     this.isCheck = isCheck;
     this.hand = hand;
+    this.time = time;
   }
 
   fold() {

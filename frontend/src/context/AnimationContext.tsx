@@ -92,6 +92,7 @@ export const AnimationContextProvider = ({
         chipElement = createChipElement(tablePotRect.top, tablePotRect.left);
 
         document.body.appendChild(chipElement);
+
         animationDuration = 1000;
       } else {
         chipElement = createChipElement(playerPotRect.top, playerPotRect.left);

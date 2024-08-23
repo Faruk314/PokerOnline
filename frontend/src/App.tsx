@@ -157,10 +157,6 @@ function App() {
         gameState.players.forEach((player) => {
           animateCardFlip(player);
         });
-
-        setTimeout(() => {
-          socket.emit("resetGame", { roomId });
-        }, 3000);
       }
 
       if (gameState.draw.isDraw) {
@@ -174,16 +170,14 @@ function App() {
         gameState.players.forEach((player) => {
           animateCardFlip(player);
         });
-
-        setTimeout(() => {
-          socket.emit("resetGame", { roomId });
-        }, 3000);
       }
 
       if (gameState.currentRound === "preFlop" && !action) {
-        gameState.players.forEach((player) => {
-          animateCard(player.playerInfo.userId);
-        });
+        setTimeout(() => {
+          gameState.players.forEach((player) => {
+            animateCard(player.playerInfo.userId);
+          });
+        }, 20);
 
         const triggerMoveChipTime = gameState.players.length * 600;
 
@@ -256,10 +250,10 @@ function App() {
       dispatch(setGameState(gameState));
     };
 
-    socket?.on("playerMoved", handlePlayerMoved);
+    socket?.on("updateGame", handlePlayerMoved);
 
     return () => {
-      socket?.off("playerMoved", handlePlayerMoved);
+      socket?.off("updateGame", handlePlayerMoved);
     };
   }, [
     socket,

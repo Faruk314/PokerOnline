@@ -10,6 +10,7 @@ import { SocketContext } from "../context/SocketContext";
 import { useParams } from "react-router-dom";
 import RaiseBar from "./RaiseBar";
 import { AnimationContext } from "../context/AnimationContext";
+import TimeBar from "./TimeBar";
 
 interface Props {
   position: string;
@@ -25,6 +26,9 @@ const Player = ({ player, position }: Props) => {
   const { id } = useParams<{ id: string }>();
   const { createPlayerPotRef, actionAnimation } = useContext(AnimationContext);
   const potRef = useRef<HTMLImageElement>(null);
+  const isCurrentPlayer =
+    loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
+    loggedUserInfo?.userId === player.playerInfo.userId;
 
   useEffect(() => {
     createPlayerPotRef(potRef);
@@ -309,6 +313,7 @@ const Player = ({ player, position }: Props) => {
           <div className="border-b border-gray-700 py-1 w-full text-center">
             {playerInfo?.userName}
           </div>
+
           <div className="flex items-center py-1 space-x-2">
             <img
               id={playerInfo.userId.toString()}
@@ -319,6 +324,12 @@ const Player = ({ player, position }: Props) => {
             <span>{coins}</span>
           </div>
 
+          {gameState?.playerTurn.playerInfo.userId ===
+            player.playerInfo.userId &&
+            gameState.playerTurn.time && (
+              <TimeBar time={gameState.playerTurn.time} />
+            )}
+
           {isDealer && (
             <div className="absolute top-[-0.5rem] right-[-0.5rem] z-20 bg-yellow-600 text-white rounded-full w-7 h-7 flex items-center justify-center border-2">
               D
@@ -327,21 +338,22 @@ const Player = ({ player, position }: Props) => {
         </div>
       </div>
 
-      {loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
-        loggedUserInfo?.userId === player.playerInfo.userId && (
-          <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
-            {!openRaiseBar && renderButtons()}
+      {isCurrentPlayer && (
+        <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
+          {!openRaiseBar &&
+            (!gameState?.winner || gameState?.draw.isDraw) &&
+            renderButtons()}
 
-            {openRaiseBar && (
-              <RaiseBar
-                setOpenRaiseBar={setOpenRaiseBar}
-                handleRaise={handleRaise}
-                maxAmount={gameState?.playerTurn.coins}
-                minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
-              />
-            )}
-          </div>
-        )}
+          {openRaiseBar && (
+            <RaiseBar
+              setOpenRaiseBar={setOpenRaiseBar}
+              handleRaise={handleRaise}
+              maxAmount={gameState?.playerTurn.coins}
+              minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -53,6 +53,11 @@ interface Hand {
   userId?: number;
 }
 
+interface ITime {
+  startTime: Date;
+  endTime: Date;
+}
+
 interface IPlayer {
   coins: number;
   playerInfo: { userId: number; userName: string };
@@ -66,6 +71,7 @@ interface IPlayer {
   playerPot: number;
   playerRaise: IRaise;
   hand: Hand | null;
+  time: ITime | null;
 }
 
 interface UserInfo {
@@ -91,6 +97,7 @@ export type {
   AuthResponse,
   IGame,
   IPlayer,
+  ITime,
   IActionAnimation,
   IPlayerMoveArgs,
   TCardRefsMap,

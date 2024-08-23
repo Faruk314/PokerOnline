@@ -93,6 +93,7 @@ const initializeGame = async (roomId: string) => {
         },
         playerPot: 0,
         hand: null,
+        time: null,
       };
 
       room.gameState?.players.push(player);
@@ -123,6 +124,14 @@ const initializeGame = async (roomId: string) => {
 
     room.gameState.lastBet = bigBindAmount;
     room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
+
+    const start = Date.now();
+    const turnDuration = 30000;
+
+    room.gameState.playerTurn.time = {
+      startTime: new Date(start),
+      endTime: new Date(start + turnDuration),
+    };
     room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
     room.gameState.communityCards = [];
   }
