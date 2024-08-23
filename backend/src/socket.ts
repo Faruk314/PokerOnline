@@ -9,8 +9,9 @@ import {
   initializeGame,
   retrieveGameState,
   saveGameState,
+  initializeCountdown,
+  resetGame,
 } from "./game/methods";
-import cron from "node-cron";
 dotenv.config();
 
 export default function setupSocket() {
@@ -39,104 +40,6 @@ export default function setupSocket() {
       console.log(error);
     }
   });
-
-  let countdown: any = null;
-  let resetGameCountdown: any = null;
-
-  const resetGame = async (roomId: string) => {
-    const resetTimer = 5;
-
-    if (countdown) countdown.stop();
-
-    if (resetGameCountdown) resetGameCountdown.stop();
-
-    resetGameCountdown = cron.schedule(
-      `*/${resetTimer} * * * * *`,
-      async () => {
-        const response = await retrieveGameState(roomId);
-
-        if (response.status === "success" && response.gameState) {
-          const game = response.gameState;
-
-          game.resetGame();
-
-          const playerTurn = game.playerTurn;
-
-          await initializeCountdown(roomId, playerTurn?.time?.endTime!);
-
-          await saveGameState(roomId, game);
-
-          io.to(roomId).emit("updateGame", { gameState: game, roomId });
-
-          resetGameCountdown.stop();
-        }
-      }
-    );
-
-    resetGameCountdown.start();
-  };
-
-  const initializeCountdown = async (roomId: string, targetDate: Date) => {
-    if (countdown) {
-      countdown.stop();
-    }
-
-    if (!targetDate)
-      return console.log(
-        "target date missing in initialize countdown",
-        targetDate
-      );
-
-    const seconds = targetDate.getSeconds();
-    const minutes = targetDate.getMinutes();
-    const hours = targetDate.getHours();
-    const dayOfMonth = targetDate.getDate();
-    const month = targetDate.getMonth() + 1;
-    const dayOfWeek = "*";
-
-    countdown = cron.schedule(
-      `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`,
-      async () => {
-        await handleTimePassed(roomId);
-      }
-    );
-
-    countdown.start();
-  };
-
-  const handleTimePassed = async (roomId: string) => {
-    const response = await retrieveGameState(roomId);
-
-    if (response.status === "success" && response.gameState) {
-      const playerTurn = response.gameState.playerTurn;
-      const game = response.gameState;
-
-      if (!playerTurn?.time) return;
-
-      playerTurn.fold();
-
-      game.isRoundOver();
-
-      game.switchTurns();
-
-      if (game.draw.isDraw || game.winner) {
-        await resetGame(roomId);
-      } else {
-        await initializeCountdown(roomId, game.playerTurn?.time?.endTime!);
-      }
-
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: playerTurn.playerInfo.userId,
-        });
-      }
-    }
-  };
 
   io.on("connection", (socket: Socket) => {
     if (socket.userId && socket.userName && socket.id) {
@@ -200,10 +103,12 @@ export default function setupSocket() {
         if (!gameInfo) return;
 
         if (gameInfo) {
-          await initializeCountdown(
+          const data = {
             roomId,
-            gameInfo.gameState?.playerTurn?.time?.endTime!
-          );
+            targetDate: gameInfo.gameState?.playerTurn?.time?.endTime,
+            io,
+          };
+          await initializeCountdown(data);
 
           io.to(roomId).emit("gameStarted", gameInfo);
         }
@@ -231,9 +136,14 @@ export default function setupSocket() {
         game.switchTurns();
 
         if (game.draw.isDraw || game.winner) {
-          await resetGame(roomId);
+          await resetGame({ roomId, io });
         } else {
-          await initializeCountdown(roomId, game.playerTurn?.time?.endTime!);
+          const data = {
+            roomId,
+            targetDate: game.playerTurn?.time?.endTime!,
+            io,
+          };
+          await initializeCountdown(data);
         }
 
         const data = await saveGameState(roomId, game);
@@ -280,7 +190,13 @@ export default function setupSocket() {
 
           game.switchTurns();
 
-          await initializeCountdown(roomId, game.playerTurn?.time?.endTime!);
+          const args = {
+            roomId,
+            targetDate: game.playerTurn?.time?.endTime,
+            io,
+          };
+
+          await initializeCountdown(args);
 
           const data = await saveGameState(roomId, game);
 
@@ -317,9 +233,13 @@ export default function setupSocket() {
           game.switchTurns();
 
           if (game.draw.isDraw || game.winner) {
-            await resetGame(roomId);
+            await resetGame({ roomId, io });
           } else {
-            await initializeCountdown(roomId, game.playerTurn?.time?.endTime!);
+            await initializeCountdown({
+              roomId,
+              targetDate: game.playerTurn?.time?.endTime!,
+              io,
+            });
           }
 
           const data = await saveGameState(roomId, game);
@@ -352,9 +272,14 @@ export default function setupSocket() {
         game.switchTurns();
 
         if (game.draw.isDraw || game.winner) {
-          await resetGame(roomId);
+          await resetGame({ roomId, io });
         } else {
-          await initializeCountdown(roomId, game.playerTurn?.time?.endTime!);
+          const data = {
+            roomId,
+            targetDate: game.playerTurn?.time?.endTime,
+            io,
+          };
+          await initializeCountdown(data);
         }
 
         const data = await saveGameState(roomId, game);
