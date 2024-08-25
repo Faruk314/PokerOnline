@@ -221,39 +221,41 @@ const handleTimePassed = async ({
 }) => {
   const response = await retrieveGameState(roomId);
 
-  if (response.status === "success" && response.gameState) {
-    const playerTurn = response.gameState.playerTurn;
-    const game = response.gameState;
+  if (response.status !== "success") return;
 
-    if (!playerTurn?.time) return;
+  if (!response.gameState) return;
 
-    playerTurn.fold();
+  const playerTurn = response.gameState.playerTurn;
+  const game = response.gameState;
 
-    game.isRoundOver();
+  if (!playerTurn?.time) return;
 
-    game.switchTurns();
+  playerTurn.fold();
 
-    if (game.draw.isDraw || game.winner) {
-      await resetGame({ roomId, io });
-    } else {
-      const data = {
-        roomId,
-        targetTime: game.playerTurn?.time?.endTime,
-        io,
-      };
-      await initializeCountdown(data);
-    }
+  game.isRoundOver();
 
-    const data = await saveGameState(roomId, game);
+  game.switchTurns();
 
-    if (data.status === "success") {
-      io.to(roomId).emit("updateGame", {
-        gameState: game,
-        roomId,
-        action: "fold",
-        playerId: playerTurn.playerInfo.userId,
-      });
-    }
+  if (game.draw.isDraw || game.winner) {
+    await resetGame({ roomId, io });
+  } else {
+    const data = {
+      roomId,
+      targetDate: game.playerTurn?.time?.endTime,
+      io,
+    };
+    await initializeCountdown(data);
+  }
+
+  const data = await saveGameState(roomId, game);
+
+  if (data.status === "success") {
+    io.to(roomId).emit("updateGame", {
+      gameState: game,
+      roomId,
+      action: "fold",
+      playerId: playerTurn.playerInfo.userId,
+    });
   }
 };
 
@@ -266,9 +268,7 @@ const initializeCountdown = async ({
   targetDate?: Date;
   io: Server;
 }) => {
-  if (countdown) {
-    countdown.stop();
-  }
+  if (countdown) countdown.stop();
 
   if (!targetDate)
     return console.log(
