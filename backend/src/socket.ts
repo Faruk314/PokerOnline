@@ -4,13 +4,20 @@ import jwt from "jsonwebtoken";
 import { VerifiedToken } from "./types/types";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
-import { addUser, createRoom, joinRoom } from "./socket/socketMethods";
+import {
+  addUser,
+  createRoom,
+  getUser,
+  joinRoom,
+  leaveRoom,
+} from "./socket/socketMethods";
 import {
   initializeGame,
   retrieveGameState,
   saveGameState,
   initializeCountdown,
   resetGame,
+  deleteGameState,
 } from "./game/methods";
 dotenv.config();
 
@@ -41,7 +48,7 @@ export default function setupSocket() {
     }
   });
 
-  io.on("connection", (socket: Socket) => {
+  io.on("connection", async (socket: Socket) => {
     if (socket.userId && socket.userName && socket.id) {
       const userInfo = {
         userId: socket.userId,
@@ -49,7 +56,9 @@ export default function setupSocket() {
         userSocketId: socket.id,
       };
 
-      addUser(userInfo);
+      console.log(`${socket.userName}`, `${socket.id}`);
+
+      await addUser(userInfo);
     }
 
     socket.on("reconnectToRoom", (roomId: string) => {
@@ -119,43 +128,101 @@ export default function setupSocket() {
       }
     });
 
+    socket.on("leaveRoom", async ({ roomId }: { roomId: string }) => {
+      if (!socket.userId) return;
+
+      const playerLeft = await leaveRoom({ roomId, userId: socket.userId });
+
+      if (!playerLeft) return;
+
+      const response = await retrieveGameState(roomId);
+
+      if (response.status !== "success") return;
+
+      if (!response.gameState) return;
+
+      const game = response.gameState;
+
+      game.disconnect(socket.userId);
+
+      if (game.players.length === 1) {
+        const lastPlayerId = game.players[0].playerInfo.userId;
+
+        await deleteGameState(roomId);
+
+        const lastPlayerData = await getUser(lastPlayerId);
+
+        if (!lastPlayerData) return;
+
+        console.log(lastPlayerData.userSocketId, "socket id");
+
+        io.to(lastPlayerData?.userSocketId).emit("gameEnd");
+
+        return socket.rooms.delete(roomId);
+      }
+
+      if (game.draw.isDraw || game.winner) {
+        await resetGame({ roomId, io });
+      } else {
+        const data = {
+          roomId,
+          targetDate: game.playerTurn?.time?.endTime!,
+          io,
+        };
+        await initializeCountdown(data);
+      }
+
+      const data = await saveGameState(roomId, game);
+
+      if (data.status === "success") {
+        io.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "fold",
+          playerId: socket.userId,
+        });
+      }
+    });
+
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
       const response = await retrieveGameState(roomId);
 
-      if (response.status === "success" && response.gameState) {
-        const game = response.gameState;
+      if (response.status !== "success") return;
 
-        const playerTurn = game.playerTurn;
+      if (!response.gameState) return;
 
-        if (!playerTurn) return;
+      const game = response.gameState;
 
-        playerTurn.fold();
+      const playerTurn = game.playerTurn;
 
-        game.isRoundOver();
+      if (!playerTurn) return;
 
-        game.switchTurns();
+      playerTurn.fold();
 
-        if (game.draw.isDraw || game.winner) {
-          await resetGame({ roomId, io });
-        } else {
-          const data = {
-            roomId,
-            targetDate: game.playerTurn?.time?.endTime!,
-            io,
-          };
-          await initializeCountdown(data);
-        }
+      game.isRoundOver();
 
-        const data = await saveGameState(roomId, game);
+      game.switchTurns();
 
-        if (data.status === "success") {
-          io.to(roomId).emit("updateGame", {
-            gameState: game,
-            roomId,
-            action: "fold",
-            playerId: socket.userId,
-          });
-        }
+      if (game.draw.isDraw || game.winner) {
+        await resetGame({ roomId, io });
+      } else {
+        const data = {
+          roomId,
+          targetDate: game.playerTurn?.time?.endTime!,
+          io,
+        };
+        await initializeCountdown(data);
+      }
+
+      const data = await saveGameState(roomId, game);
+
+      if (data.status === "success") {
+        io.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "fold",
+          playerId: socket.userId,
+        });
       }
     });
 
@@ -164,50 +231,52 @@ export default function setupSocket() {
       async ({ roomId, amount }: { roomId: string; amount: number }) => {
         const response = await retrieveGameState(roomId);
 
-        if (response.status === "success" && response.gameState) {
-          const game = response.gameState;
+        if (response.status !== "success") return;
 
-          const playerTurn = game.playerTurn;
+        if (!response.gameState) return;
 
-          if (!playerTurn) return;
+        const game = response.gameState;
 
-          let raiseAmount = amount - playerTurn.playerPot;
+        const playerTurn = game.playerTurn;
 
-          const allIn = amount === playerTurn.coins;
+        if (!playerTurn) return;
 
-          if (allIn) {
-            raiseAmount = amount;
-            game.lastBet = amount + playerTurn.playerPot;
-          } else {
-            game.lastBet = amount;
-          }
+        let raiseAmount = amount - playerTurn.playerPot;
 
-          playerTurn.raise(raiseAmount);
+        const allIn = amount === playerTurn.coins;
 
-          game.totalPot += raiseAmount;
+        if (allIn) {
+          raiseAmount = amount;
+          game.lastBet = amount + playerTurn.playerPot;
+        } else {
+          game.lastBet = amount;
+        }
 
-          game.movesCount = 1;
+        playerTurn.raise(raiseAmount);
 
-          game.switchTurns();
+        game.totalPot += raiseAmount;
 
-          const args = {
+        game.movesCount = 1;
+
+        game.switchTurns();
+
+        const args = {
+          roomId,
+          targetDate: game.playerTurn?.time?.endTime,
+          io,
+        };
+
+        await initializeCountdown(args);
+
+        const data = await saveGameState(roomId, game);
+
+        if (data.status === "success") {
+          io.to(roomId).emit("updateGame", {
+            gameState: game,
             roomId,
-            targetDate: game.playerTurn?.time?.endTime,
-            io,
-          };
-
-          await initializeCountdown(args);
-
-          const data = await saveGameState(roomId, game);
-
-          if (data.status === "success") {
-            io.to(roomId).emit("updateGame", {
-              gameState: game,
-              roomId,
-              action: "raise",
-              playerId: socket.userId,
-            });
-          }
+            action: "raise",
+            playerId: socket.userId,
+          });
         }
       }
     );
@@ -217,55 +286,19 @@ export default function setupSocket() {
       async ({ roomId, amount }: { roomId: string; amount: number }) => {
         const response = await retrieveGameState(roomId);
 
-        if (response.status === "success" && response.gameState) {
-          const game = response.gameState;
+        if (response.status !== "success") return;
 
-          const playerTurn = game.playerTurn;
+        if (!response.gameState) return;
 
-          if (!playerTurn) return;
-
-          playerTurn.call(amount);
-
-          game.totalPot += amount;
-
-          game.isRoundOver();
-
-          game.switchTurns();
-
-          if (game.draw.isDraw || game.winner) {
-            await resetGame({ roomId, io });
-          } else {
-            await initializeCountdown({
-              roomId,
-              targetDate: game.playerTurn?.time?.endTime!,
-              io,
-            });
-          }
-
-          const data = await saveGameState(roomId, game);
-
-          if (data.status === "success") {
-            io.to(roomId).emit("updateGame", {
-              gameState: game,
-              roomId,
-              action: "call",
-              playerId: socket.userId,
-            });
-          }
-        }
-      }
-    );
-
-    socket.on("playerCheck", async ({ roomId }: { roomId: string }) => {
-      const response = await retrieveGameState(roomId);
-      if (response.status === "success" && response.gameState) {
         const game = response.gameState;
 
         const playerTurn = game.playerTurn;
 
         if (!playerTurn) return;
 
-        playerTurn.check();
+        playerTurn.call(amount);
+
+        game.totalPot += amount;
 
         game.isRoundOver();
 
@@ -274,12 +307,11 @@ export default function setupSocket() {
         if (game.draw.isDraw || game.winner) {
           await resetGame({ roomId, io });
         } else {
-          const data = {
+          await initializeCountdown({
             roomId,
-            targetDate: game.playerTurn?.time?.endTime,
+            targetDate: game.playerTurn?.time?.endTime!,
             io,
-          };
-          await initializeCountdown(data);
+          });
         }
 
         const data = await saveGameState(roomId, game);
@@ -288,10 +320,51 @@ export default function setupSocket() {
           io.to(roomId).emit("updateGame", {
             gameState: game,
             roomId,
-            action: "check",
+            action: "call",
             playerId: socket.userId,
           });
         }
+      }
+    );
+
+    socket.on("playerCheck", async ({ roomId }: { roomId: string }) => {
+      const response = await retrieveGameState(roomId);
+      if (response.status !== "success") return;
+
+      if (!response.gameState) return;
+
+      const game = response.gameState;
+
+      const playerTurn = game.playerTurn;
+
+      if (!playerTurn) return;
+
+      playerTurn.check();
+
+      game.isRoundOver();
+
+      game.switchTurns();
+
+      if (game.draw.isDraw || game.winner) {
+        await resetGame({ roomId, io });
+      } else {
+        const data = {
+          roomId,
+          targetDate: game.playerTurn?.time?.endTime,
+          io,
+        };
+        await initializeCountdown(data);
+      }
+
+      const data = await saveGameState(roomId, game);
+
+      if (data.status === "success") {
+        io.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "check",
+          playerId: socket.userId,
+        });
       }
     });
   });

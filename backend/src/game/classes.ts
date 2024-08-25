@@ -24,6 +24,7 @@ const handRanks = [
 ];
 
 class Game {
+  roomId: string;
   totalPot: number;
   playerTurn: Player | null;
   deck: string[];
@@ -39,6 +40,7 @@ class Game {
   };
 
   constructor({
+    roomId,
     totalPot,
     playerTurn,
     players,
@@ -50,6 +52,7 @@ class Game {
     winner,
     draw,
   }: IGame) {
+    this.roomId = roomId;
     this.totalPot = totalPot;
     this.players = players.map((player) => new Player(player));
     this.playerTurn = playerTurn
@@ -66,6 +69,16 @@ class Game {
     this.draw = draw;
   }
 
+  disconnect(playerId: number) {
+    this.players = this.players.filter(
+      (player) => player.playerInfo.userId !== playerId
+    );
+
+    this.switchTurns();
+
+    this.isRoundOver();
+  }
+
   isRoundOver() {
     if (!this.playerTurn?.isFold) this.movesCount += 1;
 
@@ -80,7 +93,7 @@ class Game {
 
     const allIn = playersNotFold.some((player) => player.coins === 0);
 
-    const lastMove = this.movesCount === playersNotFold.length;
+    const lastMove = this.movesCount >= playersNotFold.length;
 
     if (lastMove && allIn && this.currentRound === "preFlop") {
       this.resetRound();

@@ -172,6 +172,8 @@ const Player = ({ player, position }: Props) => {
   };
 
   const renderButtons = () => {
+    if (gameState?.winner || gameState?.draw.isDraw) return null;
+
     const playerTurn = gameState?.playerTurn;
     const callAmount = gameState!.lastBet - playerTurn!.playerPot;
 
@@ -340,9 +342,7 @@ const Player = ({ player, position }: Props) => {
 
       {isCurrentPlayer && (
         <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
-          {!openRaiseBar &&
-            (!gameState?.winner || gameState?.draw.isDraw) &&
-            renderButtons()}
+          {!openRaiseBar && renderButtons()}
 
           {openRaiseBar && (
             <RaiseBar

@@ -15,6 +15,7 @@ interface IDraw {
 }
 
 interface IGame {
+  roomId: string;
   totalPot: number;
   playerTurn: IPlayer | null;
   deck: string[];

@@ -1,4 +1,4 @@
-import { Suspense, useContext, useEffect } from "react";
+import { Suspense, useContext, useEffect, useState } from "react";
 import Game from "./pages/Game";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Menu from "./pages/Menu";
@@ -14,8 +14,10 @@ import { toast } from "react-toastify";
 import { setGameState } from "./store/slices/game";
 import { IGame, IPlayerMoveArgs } from "./types/types";
 import { AnimationContext } from "./context/AnimationContext";
+import GameOver from "./modals/GameOver";
 
 function App() {
+  const [openEndGame, setOpenEndGame] = useState(false);
   const { socket } = useContext(SocketContext);
   const {
     animateMoveChip,
@@ -31,6 +33,13 @@ function App() {
   useEffect(() => {
     dispatch(getLoginStatus());
   }, [dispatch]);
+
+  useEffect(() => {
+    socket?.on("gameEnd", () => {
+      setOpenEndGame(true);
+      navigate("/menu");
+    });
+  }, [socket, navigate]);
 
   useEffect(() => {
     socket?.on("roomJoined", ({ roomId }) => {
@@ -268,6 +277,7 @@ function App() {
 
   return (
     <Suspense fallback={<Loader />}>
+      {openEndGame && <GameOver setOpenModal={setOpenEndGame} />}
       <Routes>
         <Route element={<ProtectedRoutes />}>
           <Route path="/menu" element={<Menu />} />

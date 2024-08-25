@@ -1,43 +1,31 @@
-import { GetUserCallback, RoomData, UserData } from "../types/types";
+import { RoomData, UserData } from "../types/types";
 import { client } from "./../index";
 
 const ROOMS_KEY = "rooms";
 
-const addUser = (userInfo: UserData) => {
+const addUser = async (userInfo: UserData): Promise<void> => {
   const { userId } = userInfo;
 
-  client
-    .hsetnx("users", userId.toString(), JSON.stringify(userInfo))
-    .then((added) => {
-      if (added === 1) {
-        console.log(`User ${userId} added to Redis`);
-      } else {
-        console.log(`User ${userId} already exists in Redis`);
-      }
-    })
-    .catch((err: Error) => {
-      console.error("Error adding user to Redis:", err);
-    });
+  try {
+    await client.hset("users", userId.toString(), JSON.stringify(userInfo));
+    console.log(`User ${userId} has been added/updated in Redis`);
+  } catch (err) {
+    console.error("Error adding/updating user in Redis:", err);
+  }
 };
 
 const removeUser = (userId: number) => {
   client.hdel("users", userId.toString());
 };
 
-const getUser = (userId: number, callback: GetUserCallback) => {
-  client.hget("users", userId.toString(), (err, userJSON) => {
-    if (err) {
-      console.error("Error fetching user from Redis:", err);
-      callback(null);
-      return;
-    }
-    if (userJSON) {
-      const userInfo = JSON.parse(userJSON);
-      callback(userInfo);
-    } else {
-      callback(null);
-    }
-  });
+const getUser = async (userId: number): Promise<UserData | null> => {
+  try {
+    const userJSON = await client.hget("users", userId.toString());
+    return userJSON ? JSON.parse(userJSON) : null;
+  } catch (err) {
+    console.error("Error fetching user from Redis:", err);
+    return null;
+  }
 };
 
 const createRoom = async (roomData: RoomData) => {
@@ -49,11 +37,15 @@ const createRoom = async (roomData: RoomData) => {
     return false;
   }
 
-  await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(roomData));
-  console.log(
-    `Room ${roomId} created in Redis with max ${maxPlayers} players.`
-  );
-  return true;
+  try {
+    await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(roomData));
+    console.log(
+      `Room ${roomId} created in Redis with max ${maxPlayers} players.`
+    );
+    return true;
+  } catch (err) {
+    return false;
+  }
 };
 
 const joinRoom = async ({
@@ -92,30 +84,41 @@ const joinRoom = async ({
   return { status: "roomJoined" };
 };
 
-// const leaveRoom = async (roomId: string, userId: number) => {
-//   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
+const leaveRoom = async ({
+  roomId,
+  userId,
+}: {
+  roomId: string;
+  userId: number;
+}) => {
+  const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
-//   if (!roomJSON) {
-//     console.log(`Room ${roomId} does not exist in Redis.`);
-//     return false; // Room doesn't exist
-//   }
+  if (!roomJSON) {
+    console.log(`Room ${roomId} does not exist in Redis.`);
+    return false; // Room doesn't exist
+  }
 
-//   const room: RoomData = JSON.parse(roomJSON);
+  const room: RoomData = JSON.parse(roomJSON);
 
-//   const
-//   // Check if the player is in the room
-//   if (!room.players.includes(userId)) {
-//     console.log(`Player ${userId} is not in room ${roomId}.`);
-//     return false; // Player is not in the room
-//   }
+  // Check if the player is in the room
+  if (!room.players.some((player) => player.userId === userId)) {
+    console.log(`Player ${userId} is not in room ${roomId}.`);
+    return false; // Player is not in the room
+  }
 
-//   // Remove player from room
-//   room.players = room.players.filter((player) => player.userId !== userId);
-//   await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
-//   console.log(`Player ${userId} left room ${roomId} in Redis.`);
+  // Remove player from room
+  room.players = room.players.filter((player) => player.userId !== userId);
 
-//   return true;
-// };
+  try {
+    await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
+    console.log(`Player ${userId} left room ${roomId} in Redis.`);
+
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
 
 const getRooms = async (): Promise<RoomData[]> => {
   const roomKeys = await client.keys(`${ROOMS_KEY}:*`);
@@ -139,8 +142,12 @@ const getRooms = async (): Promise<RoomData[]> => {
   return roomDataArray;
 };
 
-const getRoom = async (roomKey: string) => {
-  const roomJSON = await client.get("");
+export {
+  addUser,
+  removeUser,
+  getUser,
+  createRoom,
+  joinRoom,
+  getRooms,
+  leaveRoom,
 };
-
-export { addUser, removeUser, getUser, createRoom, joinRoom, getRooms };

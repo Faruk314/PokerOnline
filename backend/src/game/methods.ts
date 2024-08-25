@@ -48,6 +48,7 @@ const initializeGame = async (roomId: string) => {
   const room: RoomData = JSON.parse(roomJSON);
 
   room.gameState = {
+    roomId,
     totalPot: 0,
     playerTurn: null,
     communityCards: [],
@@ -194,6 +195,23 @@ const saveGameState = async (roomId: string, gameState: IGame) => {
   }
 };
 
+const deleteGameState = async (roomId: string) => {
+  try {
+    const result = await client.del(`${ROOMS_KEY}:${roomId}`);
+
+    if (result === 1) {
+      return { status: "success" };
+    } else {
+      return {
+        status: "error",
+        message: "Room does not exist or could not be deleted",
+      };
+    }
+  } catch (error) {
+    return { status: "error", message: "Failed to delete room from Redis" };
+  }
+};
+
 const handleTimePassed = async ({
   roomId,
   io,
@@ -315,6 +333,7 @@ export {
   initializeGame,
   retrieveGameState,
   saveGameState,
+  deleteGameState,
   generateDeck,
   initializeCountdown,
   resetGame,
