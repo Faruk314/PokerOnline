@@ -9,18 +9,21 @@ import "react-toastify/dist/ReactToastify.css";
 import { SocketContextProvider } from "./context/SocketContext.tsx";
 import "./index.css";
 import { AnimationContextProvider } from "./context/AnimationContext.tsx";
+import { GameContextProvider } from "./context/GameContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Provider store={store}>
-        <SocketContextProvider>
-          <AnimationContextProvider>
+  // <React.StrictMode>
+  <BrowserRouter>
+    <Provider store={store}>
+      <SocketContextProvider>
+        <AnimationContextProvider>
+          <GameContextProvider>
             <App />
-          </AnimationContextProvider>
-        </SocketContextProvider>
-        <ToastContainer />
-      </Provider>
-    </BrowserRouter>
-  </React.StrictMode>
+          </GameContextProvider>
+        </AnimationContextProvider>
+      </SocketContextProvider>
+      <ToastContainer />
+    </Provider>
+  </BrowserRouter>
+  // </React.StrictMode>
 );

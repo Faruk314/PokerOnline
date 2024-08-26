@@ -9,11 +9,9 @@ const TimeBar = ({ time }: Props) => {
   const timeBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Convert to Date objects if needed
     const startTime = new Date(time.startTime);
     const endTime = new Date(time.endTime);
 
-    // Ensure valid Date objects
     if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       console.error("Invalid date objects:", { startTime, endTime });
       return;
@@ -31,13 +29,10 @@ const TimeBar = ({ time }: Props) => {
       }
     };
 
-    // Initial update
     updateTimeBar();
 
-    // Update width every second
     const intervalId = setInterval(updateTimeBar, 1000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, [time.startTime, time.endTime]);
 
