@@ -38,7 +38,7 @@ const RaiseBar = ({
 
           if (parsedAm === 1) return;
 
-          const newAmount = parsedAm - 1;
+          const newAmount = parsedAm - 25;
 
           setAmount(newAmount.toString());
         }}
@@ -53,12 +53,13 @@ const RaiseBar = ({
         className="slider"
         min={(minAmout! * 2).toString() || "1"}
         max={maxAmount}
+        step={25}
         value={amount}
       />
 
       <button
         onClick={() => {
-          const newAmount = parseInt(amount) + 1;
+          const newAmount = parseInt(amount) + 25;
 
           setAmount(newAmount.toString());
         }}
