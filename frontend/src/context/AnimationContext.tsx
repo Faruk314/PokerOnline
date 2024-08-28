@@ -5,10 +5,15 @@ import {
   RefObject,
   useState,
   useCallback,
+  useContext,
 } from "react";
 import chip from "../assets/images/chip.png";
 import { IActionAnimation, IPlayer, TCardRefsMap } from "../types/types";
 import pokerCards from "../utils/cards";
+import { AudioContext } from "./AudioContext";
+import chipMove from "../assets/audio/chipMove.mp3";
+import cardFlip from "../assets/audio/cardFlip.mp3";
+import cardDeal from "../assets/audio/dealCard.wav";
 
 const initialAnimationContextData: any = {};
 
@@ -21,6 +26,7 @@ type AnimationContextProviderProps = {
 export const AnimationContextProvider = ({
   children,
 }: AnimationContextProviderProps) => {
+  const { playAudio } = useContext(AudioContext);
   const tablePotRef = useRef<HTMLImageElement>(null);
   const [actionAnimation, setActionAnimation] = useState<IActionAnimation>({
     state: null,
@@ -105,9 +111,11 @@ export const AnimationContextProvider = ({
         if (winner) {
           chipElement.style.top = `${playerPotRect.top}px`;
           chipElement.style.left = `${playerPotRect.left}px`;
+          playAudio(chipMove);
         } else {
           chipElement.style.top = `${tablePotRect.top}px`;
           chipElement.style.left = `${tablePotRect.left}px`;
+          playAudio(chipMove);
         }
 
         setTimeout(() => {
@@ -115,7 +123,7 @@ export const AnimationContextProvider = ({
         }, 500);
       }, animationDuration);
     },
-    [playerPotRefs]
+    [playerPotRefs, playAudio]
   );
 
   const animateCardFlip = (player: IPlayer) => {
@@ -144,6 +152,7 @@ export const AnimationContextProvider = ({
 
       setTimeout(() => {
         cardRef.classList.add("flip");
+        playAudio(cardFlip);
       }, duration);
     });
   };
@@ -182,6 +191,8 @@ export const AnimationContextProvider = ({
               cardRef.style.transition = "top 0.5s ease, left 0.5s ease";
 
             cardRef.style.left = "0px";
+
+            playAudio(cardDeal);
           }, duration);
         }
       });

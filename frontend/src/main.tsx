@@ -10,17 +10,20 @@ import { SocketContextProvider } from "./context/SocketContext.tsx";
 import "./index.css";
 import { AnimationContextProvider } from "./context/AnimationContext.tsx";
 import { GameContextProvider } from "./context/GameContext.tsx";
+import { AudioContextProvider } from "./context/AudioContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>
   <BrowserRouter>
     <Provider store={store}>
       <SocketContextProvider>
-        <AnimationContextProvider>
-          <GameContextProvider>
-            <App />
-          </GameContextProvider>
-        </AnimationContextProvider>
+        <AudioContextProvider>
+          <AnimationContextProvider>
+            <GameContextProvider>
+              <App />
+            </GameContextProvider>
+          </AnimationContextProvider>
+        </AudioContextProvider>
       </SocketContextProvider>
       <ToastContainer />
     </Provider>

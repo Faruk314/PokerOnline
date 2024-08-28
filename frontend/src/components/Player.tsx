@@ -10,7 +10,9 @@ import { SocketContext } from "../context/SocketContext";
 import { useParams } from "react-router-dom";
 import RaiseBar from "./RaiseBar";
 import { AnimationContext } from "../context/AnimationContext";
+import { AudioContext } from "../context/AudioContext";
 import TimeBar from "./TimeBar";
+import click from "../assets/audio/click.wav";
 
 interface Props {
   position: string;
@@ -21,6 +23,7 @@ const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
   const { playerInfo, coins, isFold, isDealer, cards } = player;
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
+  const { playAudio } = useContext(AudioContext);
   const [openRaiseBar, setOpenRaiseBar] = useState(false);
   const { socket } = useContext(SocketContext);
   const { id } = useParams<{ id: string }>();
@@ -183,14 +186,20 @@ const Player = ({ player, position }: Props) => {
     return (
       <>
         <button
-          onClick={handleFold}
+          onClick={() => {
+            playAudio(click);
+            handleFold();
+          }}
           className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
         >
           FOLD
         </button>
         {!canCheck && (
           <button
-            onClick={() => handleCall(callAmount!)}
+            onClick={() => {
+              playAudio(click);
+              handleCall(callAmount!);
+            }}
             className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
           >
             <span>CALL</span>
@@ -203,7 +212,10 @@ const Player = ({ player, position }: Props) => {
 
         {canCheck && (
           <button
-            onClick={handleCheck}
+            onClick={() => {
+              playAudio(click);
+              handleCheck();
+            }}
             className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
           >
             <span>CHECK</span>
@@ -212,7 +224,10 @@ const Player = ({ player, position }: Props) => {
 
         {!allIn && (
           <button
-            onClick={() => setOpenRaiseBar(true)}
+            onClick={() => {
+              playAudio(click);
+              setOpenRaiseBar(true);
+            }}
             className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
           >
             RAISE

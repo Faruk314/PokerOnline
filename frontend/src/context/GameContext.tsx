@@ -4,6 +4,8 @@ import { IGame, IPlayerMoveArgs } from "../types/types";
 import { SocketContext } from "./SocketContext";
 import { AnimationContext } from "./AnimationContext";
 import { setGameState } from "../store/slices/game";
+import cardSlide from "../assets/audio/cardSlide.wav";
+import { AudioContext } from "./AudioContext";
 
 const initialGameContextData: any = {};
 
@@ -17,12 +19,14 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
   const dispatch = useAppDispatch();
   const { socket } = useContext(SocketContext);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
+  const { playAudio } = useContext(AudioContext);
   const {
     animateMoveChip,
     animateCardFlip,
     setActionAnimation,
     setAnimateFlop,
     animateCard,
+    animateFlop,
   } = useContext(AnimationContext);
 
   const handlePreFlopUpdates = useCallback(
@@ -122,7 +126,8 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         return handlePreFlopUpdates({ gameState, delay: 0 });
       }
 
-      if (gameState.currentRound === "flop") {
+      if (gameState.currentRound === "flop" && !animateFlop) {
+        playAudio(cardSlide);
         setAnimateFlop(true);
       }
 
@@ -149,6 +154,8 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       setActionAnimation,
       socket,
       setAnimateFlop,
+      playAudio,
+      animateFlop,
     ]
   );
 
