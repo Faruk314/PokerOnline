@@ -97,17 +97,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ]
   );
 
-  const handleUpdateGame = useCallback(
-    ({ gameState, action, playerId }: IPlayerMoveArgs) => {
-      if (!socket) return;
-
-      if (gameState.winner) {
-        gameState.winner.hand && animateMoveChip(gameState.winner.userId, true);
-
-        gameState.players.forEach((player) => {
-          animateCardFlip(player);
-        });
-      }
+  const handleGameOverUpdates = useCallback(
+    ({ gameState }: { gameState: IGame }) => {
+      const updatedGameState = { ...gameState };
 
       if (gameState.draw.isDraw) {
         gameState.draw.potSpliters.forEach((player, index: number) => {
@@ -120,6 +112,24 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         gameState.players.forEach((player) => {
           animateCardFlip(player);
         });
+      } else {
+        animateMoveChip(gameState.winner.userId, true);
+        gameState.players.forEach((player) => {
+          animateCardFlip(player);
+        });
+      }
+
+      dispatch(setGameState(updatedGameState));
+    },
+    [animateCardFlip, animateMoveChip, dispatch]
+  );
+
+  const handleUpdateGame = useCallback(
+    ({ gameState, action, playerId }: IPlayerMoveArgs) => {
+      if (!socket) return;
+
+      if (gameState.winner || gameState.draw.isDraw) {
+        return handleGameOverUpdates({ gameState });
       }
 
       if (gameState.currentRound === "preFlop" && !action) {
@@ -147,7 +157,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       dispatch(setGameState(gameState));
     },
     [
-      animateCardFlip,
       dispatch,
       animateMoveChip,
       handlePreFlopUpdates,
@@ -156,6 +165,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       setAnimateFlop,
       playAudio,
       animateFlop,
+      handleGameOverUpdates,
     ]
   );
 

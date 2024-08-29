@@ -88,6 +88,7 @@ class Game {
 
     if (playersNotFold.length === 1) {
       this.winner = { userId: playersNotFold[0].playerInfo.userId };
+      this.handlePayout();
       return;
     }
 
@@ -380,14 +381,13 @@ class Game {
       }
     }
 
-    console.log(handOrder, "hand order");
-
     if (handOrder.length === 1) {
-      console.log(handOrder[0], "winner length 1");
-      return (this.winner = {
+      this.winner = {
         userId: handOrder[0].userId!,
         hand: handOrder[0],
-      });
+      };
+
+      return this.handlePayout();
     }
 
     for (let i = 0; i < 1; i++) {
@@ -417,15 +417,31 @@ class Game {
 
         if (hand.name === handTwo.name && hand.kicker === handTwo.kicker) {
           const potSpliterTwo = { userId: handTwo.userId!, hand: handTwo };
-
           this.draw.isDraw = true;
           this.draw.potSpliters.push(potSpliterTwo);
         }
       }
     }
 
-    console.log(this.winner, "winner");
-    console.log(this.draw.potSpliters[0], this.draw.potSpliters[1], "pot");
+    if (this.winner || this.draw.isDraw) this.handlePayout();
+  }
+
+  handlePayout() {
+    if (this.draw.isDraw) {
+      const potSpliters = this.draw.potSpliters;
+
+      this.players.forEach((player, index) => {
+        if (player.playerInfo.userId === potSpliters[index].userId) {
+          player.coins += this.totalPot / potSpliters.length;
+        }
+      });
+    } else {
+      const winnerId = this.players.findIndex(
+        (p) => p.playerInfo.userId === this.winner?.userId
+      );
+
+      this.players[winnerId].coins += this.totalPot;
+    }
   }
 
   getSuit(card: string) {
@@ -817,12 +833,6 @@ class Game {
       );
       const secondCard = this.deck.splice(secondRandomCardIndex, 1);
 
-      //temporary
-      if (index === 0) {
-        player.coins = 5000;
-      } else {
-        player.coins = 10000;
-      }
       player.playerPot = 0;
       player.isCall = false;
       player.isFold = false;
@@ -954,49 +964,3 @@ class Player {
 }
 
 export { Game, Player };
-
-// const testCombinations = [
-//   // Three of a Kind Examples
-//   ["HA", "DA", "CA", "H2", "S3"], // Three Aces with Two and Three kickers
-//   ["HQ", "SQ", "CQ", "H9", "D5"], // Three Queens with Nine and Five kickers
-//   ["HQ", "DQ", "CQ", "HJ", "SJ"], //full house
-//   ["HA", "D2", "C3", "S4", "H5"], //straight
-//   ["HK", "DK", "CK", "H10", "S4"], // Three Kings with Ten and Four kickers
-//   ["H7", "D7", "C7", "S3", "H4"], // Three Sevens with Three and Four kickers
-//   ["H9", "D9", "C9", "H7", "S6"], // Three Nines with Seven and Six kickers
-
-//   ["H5", "D6", "C7", "S8", "H9"], //straight
-//   ["HA", "DA", "CA", "HK", "SK"], //full house
-//   ["HA", "H2", "H3", "H4", "H5"], //straight flush
-// ];
-
-// const arr = testCombinations.map((c) => {
-//   // const cardsMap = this.getCardsMap(c);
-//   const nKind = this.isNKind(c);
-//   const pair = this.isPair(c);
-//   const flush = this.isFlush(c);
-//   const fullHouse = this.isFullHouse(c);
-//   const straight = this.isStraight(c);
-
-//   if (flush) {
-//     return flush;
-//   }
-
-//   if (fullHouse) {
-//     return fullHouse;
-//   }
-
-//   if (straight) {
-//     return straight;
-//   }
-
-//   if (nKind) {
-//     return nKind;
-//   }
-
-//   if (pair) {
-//     return pair;
-//   }
-// });
-
-// console.log(arr);
