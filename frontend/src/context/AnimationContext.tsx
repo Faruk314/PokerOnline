@@ -41,7 +41,7 @@ export const AnimationContextProvider = ({
   const assignCardRef =
     (playerId: number, index: number) => (el: HTMLElement | null) => {
       if (el) {
-        let refs = cardRefsMap.current.get(playerId) || [];
+        const refs = cardRefsMap.current.get(playerId) || [];
         refs[index] = el;
         cardRefsMap.current.set(playerId, refs);
       }

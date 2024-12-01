@@ -6,6 +6,7 @@ import { AnimationContext } from "./AnimationContext";
 import { setGameState } from "../store/slices/game";
 import cardSlide from "../assets/audio/cardSlide.wav";
 import { AudioContext } from "./AudioContext";
+import HandName from "../components/HandName";
 
 const initialGameContextData: any = {};
 
@@ -19,6 +20,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
   const dispatch = useAppDispatch();
   const { socket } = useContext(SocketContext);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
+  const { gameState } = useAppSelector((state) => state.game);
   const { playAudio } = useContext(AudioContext);
   const {
     animateMoveChip,
@@ -28,6 +30,57 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     animateCard,
     animateFlop,
   } = useContext(AnimationContext);
+
+  const handleRaise = (amount: number, roomId: string) => {
+    socket?.emit("playerRaise", { roomId, amount });
+  };
+
+  const handleCall = (amount: number, roomId: string) => {
+    socket?.emit("playerCall", { roomId, amount });
+  };
+
+  const handleFold = (roomId: string) => {
+    socket?.emit("playerFold", { roomId });
+  };
+
+  const handleCheck = (roomId: string) => {
+    socket?.emit("playerCheck", { roomId });
+  };
+
+  const getRank = (rank: number) => {
+    if (rank === 11) {
+      return "J";
+    }
+
+    if (rank === 12) {
+      return "Q";
+    }
+
+    if (rank === 13) {
+      return "K";
+    }
+
+    if (rank === 14) {
+      return "A";
+    }
+
+    return rank.toString();
+  };
+
+  const findPotSpliter = (playerId: number) => {
+    const potSpliter = gameState?.draw.potSpliters.find(
+      (p) => p.userId === playerId
+    );
+
+    if (!potSpliter) return null;
+
+    return (
+      <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
+        <span>DRAW</span>
+        <HandName hand={potSpliter.hand} />
+      </div>
+    );
+  };
 
   const handlePreFlopUpdates = useCallback(
     ({ gameState, delay }: { gameState: IGame; delay: number }) => {
@@ -169,7 +222,16 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ]
   );
 
-  const contextValue: any = { handleUpdateGame, handlePreFlopUpdates };
+  const contextValue: any = {
+    handleUpdateGame,
+    handlePreFlopUpdates,
+    handleRaise,
+    handleFold,
+    handleCheck,
+    handleCall,
+    findPotSpliter,
+    getRank,
+  };
 
   return (
     <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>

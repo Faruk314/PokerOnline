@@ -23,7 +23,7 @@ const Wrapper = ({ children, modalRef, setOpenModal }: Props) => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [setOpenModal]);
+  }, [setOpenModal, modalRef]);
 
   return (
     <div className="fixed top-0 bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-center text-center bg-[rgb(0,0,0,0.2)]">

@@ -27,7 +27,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
     return () => {
       socket?.off("roomCreated", handleCreateRoom);
     };
-  }, [socket]);
+  }, [socket, setOpenModal]);
 
   const handleConfirm = () => {
     if (roomName.length === 0) {

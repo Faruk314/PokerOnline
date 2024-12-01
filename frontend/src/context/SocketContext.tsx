@@ -40,21 +40,20 @@ export const SocketContextProvider = ({
   };
 
   useEffect(() => {
-    let newSocket: Socket | null = null;
+    const socketRef = { current: null as Socket | null };
 
     if (loggedUserInfo) {
-      newSocket = io("http://localhost:5001", {
+      socketRef.current = io("http://localhost:5001", {
         transports: ["websocket"],
         auth: {
           token: getCookie("token"),
         },
       });
+      setSocket(socketRef.current);
     }
 
-    setSocket(newSocket);
-
     return () => {
-      socket?.disconnect();
+      socketRef.current?.disconnect();
     };
   }, [loggedUserInfo]);
 

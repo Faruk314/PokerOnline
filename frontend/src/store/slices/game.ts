@@ -8,6 +8,7 @@ interface GameState {
   isError: boolean;
   isSuccess: boolean;
   isLoading: boolean;
+  openRaiseBar: boolean;
 }
 
 const initialState: GameState = {
@@ -16,6 +17,7 @@ const initialState: GameState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
+  openRaiseBar: false,
 };
 
 export const fetchRooms = createAsyncThunk<
@@ -58,6 +60,10 @@ const gameSlice = createSlice({
       state.gameState = action.payload;
     },
 
+    setOpenRaiseBar(state, action: PayloadAction<boolean>) {
+      state.openRaiseBar = action.payload;
+    },
+
     reset(state) {
       state.isError = false;
       state.isSuccess = false;
@@ -98,6 +104,6 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setGameState } = gameSlice.actions;
+export const { setGameState, setOpenRaiseBar } = gameSlice.actions;
 
 export default gameSlice.reducer;

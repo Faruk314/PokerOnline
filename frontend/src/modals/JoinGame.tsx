@@ -4,9 +4,7 @@ import { IoClose, IoPersonSharp } from "react-icons/io5";
 import logo from "../assets/images/pokerlogo.png";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchRooms } from "../store/slices/game";
-import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
-import { toast } from "react-toastify";
 
 interface Props {
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;

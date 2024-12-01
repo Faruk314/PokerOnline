@@ -1,22 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { IoCaretBackOutline } from "react-icons/io5";
 import chip from "../assets/images/chip.png";
 import { FaMinus, FaPlus } from "react-icons/fa";
-
+import { useContext } from "react";
+import { GameContext } from "../context/GameContext";
+import { useParams } from "react-router-dom";
+import { useAppDispatch } from "../store/hooks";
+import { setOpenRaiseBar } from "../store/slices/game";
 interface Props {
-  setOpenRaiseBar: React.Dispatch<React.SetStateAction<boolean>>;
-  handleRaise: (amount: number) => void;
   maxAmount?: number;
   minAmout?: number;
 }
 
-const RaiseBar = ({
-  setOpenRaiseBar,
-  handleRaise,
-  maxAmount,
-  minAmout,
-}: Props) => {
+const RaiseBar = ({ maxAmount, minAmout }: Props) => {
+  const dispatch = useAppDispatch();
   const [amount, setAmount] = useState((minAmout! * 2).toString());
+  const { handleRaise } = useContext(GameContext);
+  const { id } = useParams<{ id: string }>();
 
   return (
     <div className="flex items-center space-x-4">
@@ -70,8 +70,8 @@ const RaiseBar = ({
 
       <button
         onClick={() => {
-          handleRaise(parseInt(amount));
-          setOpenRaiseBar(false);
+          handleRaise(parseInt(amount), id);
+          dispatch(setOpenRaiseBar(false));
         }}
         className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
       >

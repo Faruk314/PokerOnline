@@ -3,16 +3,15 @@ import person from "../assets/images/person.png";
 import classNames from "classnames";
 import chip from "../assets/images/chip.png";
 import { useAppSelector } from "../store/hooks";
-import { IPlayer, Hand } from "../types/types";
-import { useEffect, useState } from "react";
+import { IPlayer } from "../types/types";
+import { useEffect } from "react";
 import Card from "./Card";
-import { SocketContext } from "../context/SocketContext";
-import { useParams } from "react-router-dom";
 import RaiseBar from "./RaiseBar";
 import { AnimationContext } from "../context/AnimationContext";
-import { AudioContext } from "../context/AudioContext";
 import TimeBar from "./TimeBar";
-import click from "../assets/audio/click.wav";
+import Buttons from "./Buttons";
+import { GameContext } from "../context/GameContext";
+import HandName from "./HandName";
 
 interface Props {
   position: string;
@@ -20,14 +19,11 @@ interface Props {
 }
 
 const Player = ({ player, position }: Props) => {
-  const { gameState } = useAppSelector((state) => state.game);
-  const { playerInfo, coins, isFold, isDealer, cards } = player;
+  const { gameState, openRaiseBar } = useAppSelector((state) => state.game);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
-  const { playAudio } = useContext(AudioContext);
-  const [openRaiseBar, setOpenRaiseBar] = useState(false);
-  const { socket } = useContext(SocketContext);
-  const { id } = useParams<{ id: string }>();
+  const { playerInfo, coins, isFold, isDealer, cards } = player;
   const { createPlayerPotRef, actionAnimation } = useContext(AnimationContext);
+  const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
   const isCurrentPlayer =
     loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
@@ -35,223 +31,9 @@ const Player = ({ player, position }: Props) => {
 
   useEffect(() => {
     createPlayerPotRef(potRef);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getRank = (rank: number) => {
-    if (rank === 11) {
-      return "J";
-    }
-
-    if (rank === 12) {
-      return "Q";
-    }
-
-    if (rank === 13) {
-      return "K";
-    }
-
-    if (rank === 14) {
-      return "A";
-    }
-
-    return rank.toString();
-  };
-
-  const findHandName = (hand: Hand) => {
-    if (!hand) return;
-
-    let rank: string = "";
-    let rankTwo: string = "";
-
-    if (hand.rank) {
-      rank = getRank(hand.rank);
-    }
-
-    if (hand.rankTwo) {
-      rankTwo = getRank(hand.rankTwo);
-    }
-
-    if (hand.name === "twoPair") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>
-            Two pair {rank} and {rankTwo}
-          </span>
-        </div>
-      );
-    }
-
-    if (hand.name === "highCard") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>High Card, {rank}</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "onePair") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Pair of {rank}</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "straight") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Straight</span>
-          <span>{rank} high</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "straightFlush") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Straight flush</span>
-          <span>{rank} high</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "flush") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Flush</span>
-          <span>{rank} high</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "royalFlush") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Royal Flush</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "3Kind") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Three of a Kind, {rank}</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "4Kind") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>Four of a Kind, {rank}</span>
-        </div>
-      );
-    }
-
-    if (hand.name === "fullHouse") {
-      return (
-        <div className="text-xl flex space-x-2 text-white font-bold whitespace-nowrap">
-          <span>
-            Full House {rank} Full of {rankTwo}
-          </span>
-        </div>
-      );
-    }
-  };
-
-  const findPotSpliter = (playerId: number) => {
-    const potSpliter = gameState?.draw.potSpliters.find(
-      (p) => p.userId === playerId
-    );
-
-    if (!potSpliter) return null;
-
-    return (
-      <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
-        <span>DRAW</span>
-        {findHandName(potSpliter.hand)}
-      </div>
-    );
-  };
-
-  const renderButtons = () => {
-    if (gameState?.winner || gameState?.draw.isDraw) return null;
-
-    const playerTurn = gameState?.playerTurn;
-    const callAmount = gameState!.lastBet - playerTurn!.playerPot;
-
-    const canCheck = callAmount <= 0;
-    const allIn = gameState?.players.some((player) => player.coins === 0);
-
-    return (
-      <>
-        <button
-          onClick={() => {
-            playAudio(click);
-            handleFold();
-          }}
-          className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
-        >
-          FOLD
-        </button>
-        {!canCheck && (
-          <button
-            onClick={() => {
-              playAudio(click);
-              handleCall(callAmount!);
-            }}
-            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
-          >
-            <span>CALL</span>
-            <div className="flex items-center space-x-1">
-              <span>{callAmount}</span>
-              <img src={chip} className="w-4 h-4" />
-            </div>
-          </button>
-        )}
-
-        {canCheck && (
-          <button
-            onClick={() => {
-              playAudio(click);
-              handleCheck();
-            }}
-            className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
-          >
-            <span>CHECK</span>
-          </button>
-        )}
-
-        {!allIn && (
-          <button
-            onClick={() => {
-              playAudio(click);
-              setOpenRaiseBar(true);
-            }}
-            className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
-          >
-            RAISE
-          </button>
-        )}
-      </>
-    );
-  };
-
-  const handleCall = (amount: number) => {
-    socket?.emit("playerCall", { roomId: id, amount });
-  };
-
-  const handleCheck = () => {
-    socket?.emit("playerCheck", { roomId: id });
-  };
-
-  const handleFold = () => {
-    socket?.emit("playerFold", { roomId: id });
-  };
-
-  const handleRaise = (amount: number) => {
-    socket?.emit("playerRaise", { roomId: id, amount });
-  };
 
   return (
     <div
@@ -274,7 +56,7 @@ const Player = ({ player, position }: Props) => {
           gameState?.winner.userId === player.playerInfo?.userId && (
             <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
               <span>WINNER</span>
-              {findHandName(gameState.winner.hand)}
+              <HandName hand={gameState.winner.hand} />
             </div>
           )}
 
@@ -357,12 +139,10 @@ const Player = ({ player, position }: Props) => {
 
       {isCurrentPlayer && (
         <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
-          {!openRaiseBar && renderButtons()}
+          {!openRaiseBar && <Buttons />}
 
           {openRaiseBar && (
             <RaiseBar
-              setOpenRaiseBar={setOpenRaiseBar}
-              handleRaise={handleRaise}
               maxAmount={gameState?.playerTurn.coins}
               minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
             />

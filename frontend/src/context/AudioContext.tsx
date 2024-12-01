@@ -20,7 +20,7 @@ export const AudioContextProvider = ({
     sound.play();
   };
 
-  const contextValue: any = { playAudio };
+  const contextValue = { playAudio };
 
   return (
     <AudioContext.Provider value={contextValue}>
