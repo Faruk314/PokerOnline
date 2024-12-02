@@ -18,6 +18,7 @@ import {
   initializeCountdown,
   resetGame,
   deleteGameState,
+  handleGameOutcome,
 } from "./game/methods";
 dotenv.config();
 
@@ -161,27 +162,15 @@ export default function setupSocket() {
         return socket.rooms.delete(roomId);
       }
 
-      if (game.draw.isDraw || game.winner) {
-        await resetGame({ roomId, io });
-      } else {
-        const data = {
-          roomId,
-          targetDate: game.playerTurn?.time?.endTime!,
-          io,
-        };
-        await initializeCountdown(data);
-      }
+      const data = {
+        game,
+        roomId,
+        io,
+        userId: socket.userId!,
+        action: "fold",
+      };
 
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: socket.userId,
-        });
-      }
+      await handleGameOutcome(data);
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
@@ -203,27 +192,15 @@ export default function setupSocket() {
 
       game.switchTurns();
 
-      if (game.draw.isDraw || game.winner) {
-        await resetGame({ roomId, io });
-      } else {
-        const data = {
-          roomId,
-          targetDate: game.playerTurn?.time?.endTime!,
-          io,
-        };
-        await initializeCountdown(data);
-      }
+      const data = {
+        game,
+        roomId,
+        io,
+        userId: socket.userId!,
+        action: "fold",
+      };
 
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: socket.userId,
-        });
-      }
+      await handleGameOutcome(data);
     });
 
     socket.on(
@@ -304,26 +281,15 @@ export default function setupSocket() {
 
         game.switchTurns();
 
-        if (game.draw.isDraw || game.winner) {
-          await resetGame({ roomId, io });
-        } else {
-          await initializeCountdown({
-            roomId,
-            targetDate: game.playerTurn?.time?.endTime!,
-            io,
-          });
-        }
+        const data = {
+          game,
+          roomId,
+          io,
+          userId: socket.userId!,
+          action: "call",
+        };
 
-        const data = await saveGameState(roomId, game);
-
-        if (data.status === "success") {
-          io.to(roomId).emit("updateGame", {
-            gameState: game,
-            roomId,
-            action: "call",
-            playerId: socket.userId,
-          });
-        }
+        await handleGameOutcome(data);
       }
     );
 
@@ -345,27 +311,15 @@ export default function setupSocket() {
 
       game.switchTurns();
 
-      if (game.draw.isDraw || game.winner) {
-        await resetGame({ roomId, io });
-      } else {
-        const data = {
-          roomId,
-          targetDate: game.playerTurn?.time?.endTime,
-          io,
-        };
-        await initializeCountdown(data);
-      }
+      const data = {
+        game,
+        roomId,
+        io,
+        userId: socket.userId!,
+        action: "check",
+      };
 
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "check",
-          playerId: socket.userId,
-        });
-      }
+      await handleGameOutcome(data);
     });
   });
 

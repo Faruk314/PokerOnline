@@ -8,6 +8,42 @@ const ROOMS_KEY = "rooms";
 let countdown: any = null;
 let resetGameCountdown: any = null;
 
+const handleGameOutcome = async ({
+  game,
+  roomId,
+  io,
+  userId,
+  action,
+}: {
+  game: Game;
+  roomId: string;
+  io: Server;
+  userId: number;
+  action: string;
+}) => {
+  if (game.draw.isDraw || game.winner) {
+    await resetGame({ roomId, io });
+  } else {
+    const data = {
+      roomId,
+      targetDate: game.playerTurn?.time?.endTime,
+      io,
+    };
+    await initializeCountdown(data);
+  }
+
+  const data = await saveGameState(roomId, game);
+
+  if (data.status === "success") {
+    io.to(roomId).emit("updateGame", {
+      gameState: game,
+      roomId,
+      action,
+      playerId: userId,
+    });
+  }
+};
+
 const generateDeck = () => {
   const suits = ["H", "D", "C", "S"];
   const ranks = [
@@ -236,27 +272,15 @@ const handleTimePassed = async ({
 
   game.switchTurns();
 
-  if (game.draw.isDraw || game.winner) {
-    await resetGame({ roomId, io });
-  } else {
-    const data = {
-      roomId,
-      targetDate: game.playerTurn?.time?.endTime,
-      io,
-    };
-    await initializeCountdown(data);
-  }
+  const data = {
+    game,
+    roomId,
+    io,
+    userId: playerTurn.playerInfo.userId,
+    action: "fold",
+  };
 
-  const data = await saveGameState(roomId, game);
-
-  if (data.status === "success") {
-    io.to(roomId).emit("updateGame", {
-      gameState: game,
-      roomId,
-      action: "fold",
-      playerId: playerTurn.playerInfo.userId,
-    });
-  }
+  await handleGameOutcome(data);
 };
 
 const initializeCountdown = async ({
@@ -337,4 +361,5 @@ export {
   generateDeck,
   initializeCountdown,
   resetGame,
+  handleGameOutcome,
 };
