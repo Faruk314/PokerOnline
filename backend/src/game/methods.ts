@@ -1,48 +1,12 @@
 import { IGame, RoomData, IPlayer } from "../types/types";
 import { client } from "../index";
 import { Game } from "./classes";
-import cron from "node-cron";
 import { Server } from "socket.io";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ROOMS_KEY = "rooms";
-let countdown: any = null;
-let resetGameCountdown: any = null;
-
-const handleGameOutcome = async ({
-  game,
-  roomId,
-  io,
-  userId,
-  action,
-}: {
-  game: Game;
-  roomId: string;
-  io: Server;
-  userId: number;
-  action: string;
-}) => {
-  if (game.draw.isDraw || game.winner) {
-    await resetGame({ roomId, io });
-  } else {
-    const data = {
-      roomId,
-      targetDate: game.playerTurn?.time?.endTime,
-      io,
-    };
-    await initializeCountdown(data);
-  }
-
-  const data = await saveGameState(roomId, game);
-
-  if (data.status === "success") {
-    io.to(roomId).emit("updateGame", {
-      gameState: game,
-      roomId,
-      action,
-      playerId: userId,
-    });
-  }
-};
 
 const generateDeck = () => {
   const suits = ["H", "D", "C", "S"];
@@ -84,6 +48,7 @@ const initializeGame = async (roomId: string) => {
   const room: RoomData = JSON.parse(roomJSON);
 
   room.gameState = {
+    io: null,
     roomId,
     totalPot: 0,
     playerTurn: null,
@@ -186,7 +151,7 @@ const initializeGame = async (roomId: string) => {
   }
 };
 
-const retrieveGameState = async (roomId: string) => {
+const retrieveGameState = async (roomId: string, io: Server) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
   if (!roomJSON) {
@@ -203,6 +168,7 @@ const retrieveGameState = async (roomId: string) => {
 
     const game = new Game({
       ...gameState,
+      io,
     });
 
     return { status: "success", gameState: game };
@@ -222,6 +188,7 @@ const saveGameState = async (roomId: string, gameState: IGame) => {
   const room: RoomData = JSON.parse(roomJSON);
 
   room.gameState = gameState;
+  room.gameState.io = null;
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
@@ -248,118 +215,10 @@ const deleteGameState = async (roomId: string) => {
   }
 };
 
-const handleTimePassed = async ({
-  roomId,
-  io,
-}: {
-  roomId: string;
-  io: Server;
-}) => {
-  const response = await retrieveGameState(roomId);
-
-  if (response.status !== "success") return;
-
-  if (!response.gameState) return;
-
-  const playerTurn = response.gameState.playerTurn;
-  const game = response.gameState;
-
-  if (!playerTurn?.time) return;
-
-  playerTurn.fold();
-
-  game.isRoundOver();
-
-  game.switchTurns();
-
-  const data = {
-    game,
-    roomId,
-    io,
-    userId: playerTurn.playerInfo.userId,
-    action: "fold",
-  };
-
-  await handleGameOutcome(data);
-};
-
-const initializeCountdown = async ({
-  roomId,
-  targetDate,
-  io,
-}: {
-  roomId: string;
-  targetDate?: Date;
-  io: Server;
-}) => {
-  if (countdown) countdown.stop();
-
-  if (!targetDate)
-    return console.log(
-      "target date missing in initialize countdown",
-      targetDate
-    );
-
-  const seconds = targetDate.getSeconds();
-  const minutes = targetDate.getMinutes();
-  const hours = targetDate.getHours();
-  const dayOfMonth = targetDate.getDate();
-  const month = targetDate.getMonth() + 1;
-  const dayOfWeek = "*";
-
-  countdown = cron.schedule(
-    `${seconds} ${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`,
-    async () => {
-      await handleTimePassed({ roomId, io });
-    }
-  );
-
-  countdown.start();
-};
-
-const resetGame = async ({ roomId, io }: { roomId: string; io: Server }) => {
-  const resetTimer = 5;
-
-  if (countdown) countdown.stop();
-
-  if (resetGameCountdown) resetGameCountdown.stop();
-
-  resetGameCountdown = cron.schedule(`*/${resetTimer} * * * * *`, async () => {
-    const response = await retrieveGameState(roomId);
-
-    if (response.status === "success" && response.gameState) {
-      const game = response.gameState;
-
-      game.resetGame();
-
-      const playerTurn = game.playerTurn;
-
-      const data = {
-        roomId,
-        targetDate: playerTurn?.time?.endTime!,
-        io,
-      };
-
-      await initializeCountdown(data);
-
-      await saveGameState(roomId, game);
-
-      io.to(roomId).emit("updateGame", { gameState: game, roomId });
-
-      resetGameCountdown.stop();
-    }
-  });
-
-  resetGameCountdown.start();
-};
-
 export {
   initializeGame,
   retrieveGameState,
   saveGameState,
   deleteGameState,
   generateDeck,
-  initializeCountdown,
-  resetGame,
-  handleGameOutcome,
 };

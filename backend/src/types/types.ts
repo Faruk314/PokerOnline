@@ -1,3 +1,5 @@
+import { Server } from "socket.io";
+
 interface VerifiedToken {
   userId: number;
   userName: string;
@@ -15,6 +17,7 @@ interface IDraw {
 }
 
 interface IGame {
+  io: Server | null;
   roomId: string;
   totalPot: number;
   playerTurn: IPlayer | null;

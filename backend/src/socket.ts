@@ -15,17 +15,13 @@ import {
   initializeGame,
   retrieveGameState,
   saveGameState,
-  initializeCountdown,
-  resetGame,
   deleteGameState,
-  handleGameOutcome,
 } from "./game/methods";
+import { playerTimerQueue } from "./jobs/queues/playerTimerQueue";
 dotenv.config();
 
-export default function setupSocket() {
-  const server = http.createServer();
-
-  const io = new Server(server, {
+export default function setupSocket(httpServer: http.Server) {
+  const io = new Server(httpServer, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
@@ -70,6 +66,8 @@ export default function setupSocket() {
     socket.on(
       "createRoom",
       async (data: { maxPlayers: number; roomName: string }) => {
+        if (!io) return console.log("IO does not exist");
+
         const roomId = uuidv4();
         const { maxPlayers, roomName } = data;
 
@@ -101,7 +99,6 @@ export default function setupSocket() {
 
       if (response.status === "roomJoined") {
         socket.join(roomId);
-
         io.to(socket.id).emit("roomJoined", { roomId });
       }
 
@@ -110,18 +107,18 @@ export default function setupSocket() {
 
         const gameInfo = await initializeGame(roomId);
 
-        if (!gameInfo) return;
+        if (!gameInfo) return console.log("Could not initialize game");
 
-        if (gameInfo) {
-          const data = {
-            roomId,
-            targetDate: gameInfo.gameState?.playerTurn?.time?.endTime,
-            io,
-          };
-          await initializeCountdown(data);
+        const playerTurnId = gameInfo.gameState?.playerTurn?.playerInfo.userId!;
+        const endDate = gameInfo.gameState?.playerTurn?.time?.endTime!;
 
-          io.to(roomId).emit("gameStarted", gameInfo);
-        }
+        await playerTimerQueue
+          .getInstance()
+          .addTimer(roomId, playerTurnId, endDate);
+
+        console.log("game started and initliazed");
+
+        io.to(roomId).emit("gameStarted", gameInfo);
       }
 
       if (response.status === "roomFull") {
@@ -136,7 +133,7 @@ export default function setupSocket() {
 
       if (!playerLeft) return;
 
-      const response = await retrieveGameState(roomId);
+      const response = await retrieveGameState(roomId, io);
 
       if (response.status !== "success") return;
 
@@ -162,19 +159,20 @@ export default function setupSocket() {
         return socket.rooms.delete(roomId);
       }
 
-      const data = {
-        game,
-        roomId,
-        io,
-        userId: socket.userId!,
-        action: "fold",
-      };
+      const data = await saveGameState(roomId, game);
 
-      await handleGameOutcome(data);
+      if (data.status === "success") {
+        io.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "fold",
+          playerId: socket.userId,
+        });
+      }
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
-      const response = await retrieveGameState(roomId);
+      const response = await retrieveGameState(roomId, io);
 
       if (response.status !== "success") return;
 
@@ -186,27 +184,30 @@ export default function setupSocket() {
 
       if (!playerTurn) return;
 
+      await playerTimerQueue
+        .getInstance()
+        .removeTimer(roomId, playerTurn.playerInfo.userId);
+
       playerTurn.fold();
 
       game.isRoundOver();
 
-      game.switchTurns();
+      const data = await saveGameState(roomId, game);
 
-      const data = {
-        game,
-        roomId,
-        io,
-        userId: socket.userId!,
-        action: "fold",
-      };
-
-      await handleGameOutcome(data);
+      if (data.status === "success") {
+        io!.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "fold",
+          playerId: socket.userId,
+        });
+      }
     });
 
     socket.on(
       "playerRaise",
       async ({ roomId, amount }: { roomId: string; amount: number }) => {
-        const response = await retrieveGameState(roomId);
+        const response = await retrieveGameState(roomId, io);
 
         if (response.status !== "success") return;
 
@@ -217,6 +218,10 @@ export default function setupSocket() {
         const playerTurn = game.playerTurn;
 
         if (!playerTurn) return;
+
+        await playerTimerQueue
+          .getInstance()
+          .removeTimer(roomId, playerTurn.playerInfo.userId);
 
         let raiseAmount = amount - playerTurn.playerPot;
 
@@ -237,14 +242,6 @@ export default function setupSocket() {
 
         game.switchTurns();
 
-        const args = {
-          roomId,
-          targetDate: game.playerTurn?.time?.endTime,
-          io,
-        };
-
-        await initializeCountdown(args);
-
         const data = await saveGameState(roomId, game);
 
         if (data.status === "success") {
@@ -261,7 +258,7 @@ export default function setupSocket() {
     socket.on(
       "playerCall",
       async ({ roomId, amount }: { roomId: string; amount: number }) => {
-        const response = await retrieveGameState(roomId);
+        const response = await retrieveGameState(roomId, io);
 
         if (response.status !== "success") return;
 
@@ -273,28 +270,32 @@ export default function setupSocket() {
 
         if (!playerTurn) return;
 
+        await playerTimerQueue
+          .getInstance()
+          .removeTimer(roomId, playerTurn.playerInfo.userId);
+
         playerTurn.call(amount);
 
         game.totalPot += amount;
 
         game.isRoundOver();
 
-        game.switchTurns();
+        const data = await saveGameState(roomId, game);
 
-        const data = {
-          game,
-          roomId,
-          io,
-          userId: socket.userId!,
-          action: "call",
-        };
-
-        await handleGameOutcome(data);
+        if (data.status === "success") {
+          io.to(roomId).emit("updateGame", {
+            gameState: game,
+            roomId,
+            action: "call",
+            playerId: socket.userId,
+          });
+        }
       }
     );
 
     socket.on("playerCheck", async ({ roomId }: { roomId: string }) => {
-      const response = await retrieveGameState(roomId);
+      const response = await retrieveGameState(roomId, io);
+
       if (response.status !== "success") return;
 
       if (!response.gameState) return;
@@ -305,23 +306,28 @@ export default function setupSocket() {
 
       if (!playerTurn) return;
 
+      await playerTimerQueue
+        .getInstance()
+        .removeTimer(roomId, playerTurn.playerInfo.userId);
+
       playerTurn.check();
 
       game.isRoundOver();
 
-      game.switchTurns();
+      const data = await saveGameState(roomId, game);
 
-      const data = {
-        game,
-        roomId,
-        io,
-        userId: socket.userId!,
-        action: "check",
-      };
-
-      await handleGameOutcome(data);
+      if (data.status === "success") {
+        io.to(roomId).emit("updateGame", {
+          gameState: game,
+          roomId,
+          action: "check",
+          playerId: socket.userId,
+        });
+      }
     });
   });
 
   io.listen(process.env.WS_PORT ? parseInt(process.env.WS_PORT) : 5001);
+
+  return io;
 }

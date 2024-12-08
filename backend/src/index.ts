@@ -7,8 +7,9 @@ import authRoutes from "./routes/auth";
 import gameRoutes from "./routes/game";
 import http from "http";
 import setupSocket from "./socket";
+import playerTimerWorker from "./jobs/workers/playerTimerWorker";
+import resetGameWorker from "./jobs/workers/resetGameWorker";
 import { Redis } from "ioredis";
-
 dotenv.config();
 
 const app = express();
@@ -16,7 +17,7 @@ const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
-setupSocket();
+export const io = setupSocket(server);
 
 app.use(
   cors({
@@ -28,7 +29,7 @@ app.use(
   })
 );
 
-const redisPort = parseInt(
+export const redisPort = parseInt(
   process.env.REDIS_PORT ? process.env.REDIS_PORT : "6379"
 );
 
@@ -51,3 +52,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/game", gameRoutes);
 
 app.use(errorHandler);
+
+resetGameWorker.run();
+playerTimerWorker.run();

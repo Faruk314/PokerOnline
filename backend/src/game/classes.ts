@@ -1,3 +1,4 @@
+import { Server } from "socket.io";
 import {
   IPlayer,
   IGame,
@@ -9,6 +10,8 @@ import {
   ITime,
 } from "../types/types";
 import { generateDeck } from "./methods";
+import { resetGameQueue } from "../jobs/queues/resetGameQueue";
+import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
 
 const handRanks = [
   "highCard",
@@ -24,6 +27,7 @@ const handRanks = [
 ];
 
 class Game {
+  io: Server | null;
   roomId: string;
   totalPot: number;
   playerTurn: Player | null;
@@ -40,6 +44,7 @@ class Game {
   };
 
   constructor({
+    io,
     roomId,
     totalPot,
     playerTurn,
@@ -52,6 +57,7 @@ class Game {
     winner,
     draw,
   }: IGame) {
+    this.io = io;
     this.roomId = roomId;
     this.totalPot = totalPot;
     this.players = players.map((player) => new Player(player));
@@ -79,7 +85,7 @@ class Game {
     this.isRoundOver();
   }
 
-  isRoundOver() {
+  async isRoundOver() {
     if (!this.playerTurn?.isFold) this.movesCount += 1;
 
     const playersNotFold = this.players.filter(
@@ -89,12 +95,17 @@ class Game {
     if (playersNotFold.length === 1) {
       this.winner = { userId: playersNotFold[0].playerInfo.userId };
       this.handlePayout();
+      await resetGameQueue.getInstance().addTimer(this.roomId);
       return;
     }
 
     const allIn = playersNotFold.some((player) => player.coins === 0);
 
     const lastMove = this.movesCount >= playersNotFold.length;
+
+    if (!lastMove) {
+      return this.switchTurns();
+    }
 
     if (lastMove && allIn && this.currentRound === "preFlop") {
       this.resetRound();
@@ -114,12 +125,13 @@ class Game {
     if (lastMove && allIn && this.currentRound === "turn") {
       this.resetRound();
       this.startRiver();
-
       return this.startShowdown();
     }
 
     if (lastMove) {
       this.resetRound();
+
+      if (this.currentRound !== "river") this.switchTurns();
 
       if (this.currentRound === "preFlop") return this.startFlop();
 
@@ -184,7 +196,7 @@ class Game {
     this.findBestHand();
   }
 
-  switchTurns() {
+  async switchTurns() {
     if (!this.playerTurn) return;
 
     this.playerTurn.time = null;
@@ -220,12 +232,18 @@ class Game {
     const start = Date.now();
     const turnDuration = 30000;
 
-    if (this.winner || this.draw.isDraw) return;
-
     this.playerTurn.time = {
       startTime: new Date(start),
       endTime: new Date(start + turnDuration),
     };
+
+    await playerTimerQueue
+      .getInstance()
+      .addTimer(
+        this.roomId,
+        this.playerTurn.playerInfo.userId,
+        this.playerTurn.time.endTime
+      );
   }
 
   getCommunityCardsCombinations(arr: string[], length: number): string[][] {
@@ -357,7 +375,7 @@ class Game {
     });
   }
 
-  findBestHand() {
+  async findBestHand() {
     const handOrder: Hand[] = [];
 
     for (let i = 0; i < this.players.length; i++) {
@@ -386,7 +404,7 @@ class Game {
         userId: handOrder[0].userId!,
         hand: handOrder[0],
       };
-
+      await resetGameQueue.getInstance().addTimer(this.roomId);
       return this.handlePayout();
     }
 
@@ -423,7 +441,10 @@ class Game {
       }
     }
 
-    if (this.winner || this.draw.isDraw) this.handlePayout();
+    if (this.winner || this.draw.isDraw) {
+      await resetGameQueue.getInstance().addTimer(this.roomId);
+      this.handlePayout();
+    }
   }
 
   handlePayout() {
@@ -822,7 +843,7 @@ class Game {
     };
   }
 
-  resetGame() {
+  async resetGame() {
     this.deck = generateDeck();
 
     this.players.forEach((player, index) => {
@@ -885,6 +906,14 @@ class Game {
       startTime: new Date(start),
       endTime: new Date(start + turnDuration),
     };
+
+    await playerTimerQueue
+      .getInstance()
+      .addTimer(
+        this.roomId,
+        this.playerTurn.playerInfo.userId,
+        this.playerTurn.time.endTime
+      );
   }
 }
 
@@ -938,6 +967,7 @@ class Player {
 
   fold() {
     this.isFold = true;
+    this.time = null;
   }
 
   raise(amount: number) {
@@ -948,6 +978,7 @@ class Player {
       amount: amount,
     };
     this.isCall = false;
+    this.time = null;
   }
 
   call(amount: number) {
@@ -956,10 +987,12 @@ class Player {
     this.isCall = true;
     this.playerRaise.isRaise = false;
     this.playerRaise.amount = 0;
+    this.time = null;
   }
 
   check() {
     this.isCheck = true;
+    this.time = null;
   }
 }
 
