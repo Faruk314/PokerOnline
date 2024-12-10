@@ -50,6 +50,7 @@ const initializeGame = async (roomId: string) => {
   room.gameState = {
     io: null,
     roomId,
+    minRaiseAmount: 0,
     totalPot: 0,
     playerTurn: null,
     communityCards: [],
@@ -84,7 +85,7 @@ const initializeGame = async (roomId: string) => {
       const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
       const player: IPlayer = {
-        coins: 10000,
+        coins: 1000,
         playerInfo: user,
         isDealer: false,
         isSmallBind: false,
@@ -138,6 +139,7 @@ const initializeGame = async (roomId: string) => {
       startTime: new Date(start),
       endTime: new Date(start + turnDuration),
     };
+    room.gameState.minRaiseAmount = bigBindAmount * 2;
     room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
     room.gameState.communityCards = [];
   }

@@ -30,6 +30,7 @@ class Game {
   io: Server | null;
   roomId: string;
   totalPot: number;
+  minRaiseAmount: number;
   playerTurn: Player | null;
   deck: string[];
   communityCards: string[] = [];
@@ -47,6 +48,7 @@ class Game {
     io,
     roomId,
     totalPot,
+    minRaiseAmount,
     playerTurn,
     players,
     deck,
@@ -60,6 +62,7 @@ class Game {
     this.io = io;
     this.roomId = roomId;
     this.totalPot = totalPot;
+    this.minRaiseAmount = minRaiseAmount;
     this.players = players.map((player) => new Player(player));
     this.playerTurn = playerTurn
       ? this.players.find(
@@ -897,6 +900,7 @@ class Game {
     const playerTurnIndex = (smallBindIndex + 2) % this.players.length;
 
     this.lastBet = bigBindAmount;
+    this.minRaiseAmount = bigBindAmount * 2;
     this.playerTurn = this.players[playerTurnIndex];
 
     const start = Date.now();

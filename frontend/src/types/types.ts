@@ -27,7 +27,9 @@ interface IActionAnimation {
 }
 
 interface IGame {
+  roomId: string;
   totalPot: number;
+  minRaiseAmount: number;
   playerTurn: IPlayer;
   deck: string[];
   communityCards: string[];

@@ -219,24 +219,21 @@ export default function setupSocket(httpServer: http.Server) {
 
         if (!playerTurn) return;
 
+        if (amount < game.minRaiseAmount || amount > game.playerTurn?.coins!) {
+          return console.log("Invalid raise amount!");
+        }
+
         await playerTimerQueue
           .getInstance()
           .removeTimer(roomId, playerTurn.playerInfo.userId);
 
-        let raiseAmount = amount - playerTurn.playerPot;
+        playerTurn.raise(amount);
 
-        const allIn = amount === playerTurn.coins;
+        game.lastBet = playerTurn.playerPot;
 
-        if (allIn) {
-          raiseAmount = amount;
-          game.lastBet = amount + playerTurn.playerPot;
-        } else {
-          game.lastBet = amount;
-        }
+        game.totalPot += amount;
 
-        playerTurn.raise(raiseAmount);
-
-        game.totalPot += raiseAmount;
+        game.minRaiseAmount = amount * 2;
 
         game.movesCount = 1;
 
@@ -269,6 +266,10 @@ export default function setupSocket(httpServer: http.Server) {
         const playerTurn = game.playerTurn;
 
         if (!playerTurn) return;
+
+        const callAmount = game.lastBet - playerTurn.playerPot;
+
+        if (amount !== callAmount) return console.log("Invalid call amount");
 
         await playerTimerQueue
           .getInstance()
@@ -305,6 +306,12 @@ export default function setupSocket(httpServer: http.Server) {
       const playerTurn = game.playerTurn;
 
       if (!playerTurn) return;
+
+      const callAmount = game.lastBet - playerTurn.playerPot;
+
+      const canCheck = callAmount <= 0;
+
+      if (!canCheck) return console.log("Invalid check");
 
       await playerTimerQueue
         .getInstance()

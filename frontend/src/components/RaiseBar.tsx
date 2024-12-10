@@ -1,82 +1,113 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { IoCaretBackOutline } from "react-icons/io5";
 import chip from "../assets/images/chip.png";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { useContext } from "react";
 import { GameContext } from "../context/GameContext";
 import { useParams } from "react-router-dom";
-import { useAppDispatch } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setOpenRaiseBar } from "../store/slices/game";
-interface Props {
-  maxAmount?: number;
-  minAmout?: number;
-}
 
-const RaiseBar = ({ maxAmount, minAmout }: Props) => {
+const RaiseBar = () => {
+  const { gameState } = useAppSelector((state) => state.game);
   const dispatch = useAppDispatch();
-  const [amount, setAmount] = useState((minAmout! * 2).toString());
+  const [amount, setAmount] = useState(gameState?.minRaiseAmount || 0);
+  const minRaiseAmount = gameState?.minRaiseAmount;
+  const maxRaiseAmmount = gameState?.playerTurn.coins;
   const { handleRaise } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();
 
+  const handleIncrement = () => {
+    if (amount === maxRaiseAmmount) return;
+
+    const newAmount = amount + 25;
+    setAmount(newAmount);
+  };
+
+  const handleDecrement = () => {
+    if (amount === minRaiseAmount) return;
+
+    const newAmount = amount - 25;
+    setAmount(newAmount);
+  };
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const newAmount = parseInt(e.target.value);
+
+    if (!maxRaiseAmmount || !minRaiseAmount) return;
+
+    if (newAmount > maxRaiseAmmount) {
+      return setAmount(maxRaiseAmmount);
+    }
+
+    if (newAmount <= minRaiseAmount) {
+      return setAmount(minRaiseAmount);
+    }
+
+    if (!isNaN(newAmount)) {
+      setAmount(newAmount);
+    }
+  };
+
+  const handleMove = () => {
+    handleRaise(amount, id);
+    dispatch(setOpenRaiseBar(false));
+  };
+
   return (
-    <div className="flex items-center space-x-4">
-      <div className="text-black border-black text-white flex space-x-2 items-center">
-        <span>{amount}</span>
-        <img src={chip} className="h-6 w-6" />
+    <div className="flex flex-col space-y-2">
+      <div className="flex items-center space-x-2 self-end">
+        <input
+          type="number"
+          onChange={handleInput}
+          placeholder="Enter amount"
+          className="text-black w-[8rem] h-[3rem] px-2 text-[0.7rem] rounded-md outline-none"
+        />
       </div>
+      <div className="flex items-center space-x-4">
+        <div className="text-black border-black text-white flex space-x-2 items-center">
+          <span>{amount}</span>
+          <img src={chip} className="h-6 w-6" />
+        </div>
 
-      <button
-        onClick={() => setOpenRaiseBar(false)}
-        className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
-      >
-        <IoCaretBackOutline size={30} />
-      </button>
+        <button
+          onClick={() => dispatch(setOpenRaiseBar(false))}
+          className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
+        >
+          <IoCaretBackOutline size={30} />
+        </button>
 
-      <button
-        onClick={() => {
-          const parsedAm = parseInt(amount);
+        <button
+          onClick={handleDecrement}
+          className="button-border flex space-x-3 items-center p-2 bg-red-600 text-xl hover:bg-red-500 rounded-full"
+        >
+          <FaMinus />
+        </button>
 
-          if (parsedAm === 1) return;
+        <input
+          onChange={(e) => setAmount(parseInt(e.target.value))}
+          type="range"
+          className="slider"
+          min={minRaiseAmount}
+          max={maxRaiseAmmount}
+          step={25}
+          value={amount}
+        />
 
-          const newAmount = parsedAm - 25;
+        <button
+          onClick={handleIncrement}
+          className="button-border flex space-x-3 items-center p-2 bg-green-600 text-xl hover:bg-green-500 rounded-full"
+        >
+          <FaPlus />
+        </button>
 
-          setAmount(newAmount.toString());
-        }}
-        className="button-border flex space-x-3 items-center p-2 bg-red-600 text-xl hover:bg-red-500 rounded-full"
-      >
-        <FaMinus />
-      </button>
-
-      <input
-        onChange={(e) => setAmount(e.target.value)}
-        type="range"
-        className="slider"
-        min={(minAmout! * 2).toString() || "1"}
-        max={maxAmount}
-        step={25}
-        value={amount}
-      />
-
-      <button
-        onClick={() => {
-          const newAmount = parseInt(amount) + 25;
-
-          setAmount(newAmount.toString());
-        }}
-        className="button-border flex space-x-3 items-center p-2 bg-green-600 text-xl hover:bg-green-500 rounded-full"
-      >
-        <FaPlus />
-      </button>
-
-      <button
-        onClick={() => {
-          handleRaise(parseInt(amount), id);
-          dispatch(setOpenRaiseBar(false));
-        }}
-        className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
-      >
-        OK
-      </button>
+        <button
+          onClick={handleMove}
+          className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
+        >
+          OK
+        </button>
+      </div>
     </div>
   );
 };

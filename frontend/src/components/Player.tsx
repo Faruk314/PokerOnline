@@ -123,6 +123,15 @@ const Player = ({ player, position }: Props) => {
             <span>{coins}</span>
           </div>
 
+          <div className="flex items-center space-x-1">
+            <span>pot: {player.playerPot}</span>
+            <img
+              id={playerInfo.userId.toString()}
+              src={chip}
+              className="relative chip w-[0.8rem] chip h-[0.8rem]"
+            />
+          </div>
+
           {gameState?.playerTurn.playerInfo.userId ===
             player.playerInfo.userId &&
             gameState.playerTurn.time && (
@@ -141,12 +150,7 @@ const Player = ({ player, position }: Props) => {
         <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
           {!openRaiseBar && <Buttons />}
 
-          {openRaiseBar && (
-            <RaiseBar
-              maxAmount={gameState?.playerTurn.coins}
-              minAmout={gameState!.lastBet > 0 ? gameState?.lastBet : 1}
-            />
-          )}
+          {openRaiseBar && <RaiseBar />}
         </div>
       )}
     </div>

@@ -19,6 +19,7 @@ interface IDraw {
 interface IGame {
   io: Server | null;
   roomId: string;
+  minRaiseAmount: number;
   totalPot: number;
   playerTurn: IPlayer | null;
   deck: string[];
