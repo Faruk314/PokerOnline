@@ -184,6 +184,9 @@ export default function setupSocket(httpServer: http.Server) {
 
       if (!playerTurn) return;
 
+      if (playerTurn.playerInfo.userId !== socket.userId)
+        return console.log("Current player is not on a move");
+
       await playerTimerQueue
         .getInstance()
         .removeTimer(roomId, playerTurn.playerInfo.userId);
@@ -218,6 +221,9 @@ export default function setupSocket(httpServer: http.Server) {
         const playerTurn = game.playerTurn;
 
         if (!playerTurn) return;
+
+        if (playerTurn.playerInfo.userId !== socket.userId)
+          return console.log("Current player is not on a move");
 
         if (amount < game.minRaiseAmount || amount > game.playerTurn?.coins!) {
           return console.log("Invalid raise amount!");
@@ -267,6 +273,9 @@ export default function setupSocket(httpServer: http.Server) {
 
         if (!playerTurn) return;
 
+        if (playerTurn.playerInfo.userId !== socket.userId)
+          return console.log("Current player is not on a move");
+
         const callAmount = game.lastBet - playerTurn.playerPot;
 
         if (amount !== callAmount) return console.log("Invalid call amount");
@@ -306,6 +315,9 @@ export default function setupSocket(httpServer: http.Server) {
       const playerTurn = game.playerTurn;
 
       if (!playerTurn) return;
+
+      if (playerTurn.playerInfo.userId !== socket.userId)
+        return console.log("Current player is not on a move");
 
       const callAmount = game.lastBet - playerTurn.playerPot;
 
