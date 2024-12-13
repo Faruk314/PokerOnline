@@ -1,7 +1,6 @@
 import { RESET_GAME_QUEUE_NAME } from "../queues/resetGameQueue";
 import { retrieveGameState, saveGameState } from "../../game/methods";
 import { io } from "../..";
-
 import { Worker, Job } from "bullmq";
 import connection from "../connection";
 
@@ -19,10 +18,6 @@ const resetGameWorker = new Worker(
         const game = response.gameState;
 
         game.resetGame();
-
-        await saveGameState(roomId, game);
-
-        io.to(roomId).emit("updateGame", { gameState: game, roomId });
 
         console.log(`Game in room ${roomId} has been reset.`);
       }

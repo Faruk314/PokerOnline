@@ -24,17 +24,6 @@ const playerTimerWorker = new Worker(
       playerTurn.fold();
 
       game.isRoundOver();
-
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: playerTurn.playerInfo.userId,
-        });
-      }
     } catch (error) {
       console.error(
         `Error processing job for player ${playerId} in room ${roomId}:`,

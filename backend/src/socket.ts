@@ -158,17 +158,6 @@ export default function setupSocket(httpServer: http.Server) {
 
         return socket.rooms.delete(roomId);
       }
-
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: socket.userId,
-        });
-      }
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
@@ -194,17 +183,6 @@ export default function setupSocket(httpServer: http.Server) {
       playerTurn.fold();
 
       game.isRoundOver();
-
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io!.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "fold",
-          playerId: socket.userId,
-        });
-      }
     });
 
     socket.on(
@@ -244,17 +222,6 @@ export default function setupSocket(httpServer: http.Server) {
         game.movesCount = 1;
 
         game.switchTurns();
-
-        const data = await saveGameState(roomId, game);
-
-        if (data.status === "success") {
-          io.to(roomId).emit("updateGame", {
-            gameState: game,
-            roomId,
-            action: "raise",
-            playerId: socket.userId,
-          });
-        }
       }
     );
 
@@ -289,17 +256,6 @@ export default function setupSocket(httpServer: http.Server) {
         game.totalPot += amount;
 
         game.isRoundOver();
-
-        const data = await saveGameState(roomId, game);
-
-        if (data.status === "success") {
-          io.to(roomId).emit("updateGame", {
-            gameState: game,
-            roomId,
-            action: "call",
-            playerId: socket.userId,
-          });
-        }
       }
     );
 
@@ -332,17 +288,6 @@ export default function setupSocket(httpServer: http.Server) {
       playerTurn.check();
 
       game.isRoundOver();
-
-      const data = await saveGameState(roomId, game);
-
-      if (data.status === "success") {
-        io.to(roomId).emit("updateGame", {
-          gameState: game,
-          roomId,
-          action: "check",
-          playerId: socket.userId,
-        });
-      }
     });
   });
 

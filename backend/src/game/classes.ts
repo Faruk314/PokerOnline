@@ -9,7 +9,7 @@ import {
   IDraw,
   ITime,
 } from "../types/types";
-import { generateDeck } from "./methods";
+import { generateDeck, saveGameState } from "./methods";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
 
@@ -78,6 +78,54 @@ class Game {
     this.draw = draw;
   }
 
+  async updateGameState() {
+    const sockets = await this.io!.in(this.roomId).fetchSockets();
+    const currentPlayerId = this.playerTurn?.playerInfo.userId;
+    const playerTurnIndex = this.players.findIndex(
+      (player) => player.playerInfo.userId === currentPlayerId
+    );
+
+    const previousPlayerIndex =
+      (playerTurnIndex - 1 + this.players.length) % this.players.length;
+
+    const previousPlayer = this.players[previousPlayerIndex];
+
+    let action = "";
+
+    if (previousPlayer.isCall) action = "call";
+
+    if (previousPlayer.playerRaise.isRaise) action = "raise";
+
+    if (previousPlayer.isCheck) action = "check";
+
+    if (previousPlayer.isFold) action = "fold";
+
+    sockets.forEach((socket: any) => {
+      const updatedGameState = { ...this } as any;
+      delete updatedGameState.io;
+
+      const updatedPlayers = updatedGameState.players.map((player: any) => ({
+        ...player,
+        cards:
+          player.playerInfo.userId === socket.userId ? player.cards : ["", ""],
+      }));
+
+      updatedGameState.players = updatedPlayers;
+
+      this.io!.to(socket.id).emit("updateGame", {
+        gameState: updatedGameState,
+        roomId: this.roomId,
+        action,
+        playerId: previousPlayer.playerInfo.userId,
+      });
+    });
+
+    const updatedGameState = { ...this } as any;
+    delete updatedGameState.io;
+
+    await saveGameState(this.roomId, updatedGameState);
+  }
+
   disconnect(playerId: number) {
     this.players = this.players.filter(
       (player) => player.playerInfo.userId !== playerId
@@ -98,6 +146,7 @@ class Game {
     if (playersNotFold.length === 1) {
       this.winner = { userId: playersNotFold[0].playerInfo.userId };
       this.handlePayout();
+      this.updateGameState();
       await resetGameQueue.getInstance().addTimer(this.roomId);
       return;
     }
@@ -247,6 +296,8 @@ class Game {
         this.playerTurn.playerInfo.userId,
         this.playerTurn.time.endTime
       );
+
+    await this.updateGameState();
   }
 
   getCommunityCardsCombinations(arr: string[], length: number): string[][] {
@@ -407,8 +458,10 @@ class Game {
         userId: handOrder[0].userId!,
         hand: handOrder[0],
       };
+      this.handlePayout();
+      this.updateGameState();
       await resetGameQueue.getInstance().addTimer(this.roomId);
-      return this.handlePayout();
+      return;
     }
 
     for (let i = 0; i < 1; i++) {
@@ -447,6 +500,7 @@ class Game {
     if (this.winner || this.draw.isDraw) {
       await resetGameQueue.getInstance().addTimer(this.roomId);
       this.handlePayout();
+      this.updateGameState();
     }
   }
 
@@ -849,7 +903,13 @@ class Game {
   async resetGame() {
     this.deck = generateDeck();
 
-    this.players.forEach((player, index) => {
+    this.players = this.players.filter((player) => {
+      if (player.coins === 0) {
+        // Player has no coins, so remove them from the game
+        return false;
+      }
+
+      // If player has coins, continue to reset their state
       const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
       const firstCard = this.deck.splice(firstRandomCardIndex, 1);
       const secondRandomCardIndex = Math.floor(
@@ -867,6 +927,8 @@ class Game {
         isRaise: false,
         amount: 0,
       };
+
+      return true;
     });
 
     const bigBindAmount = 50;
@@ -918,6 +980,8 @@ class Game {
         this.playerTurn.playerInfo.userId,
         this.playerTurn.time.endTime
       );
+
+    await this.updateGameState();
   }
 }
 
@@ -971,6 +1035,10 @@ class Player {
 
   fold() {
     this.isFold = true;
+    this.isCheck = false;
+    this.isCall = false;
+    this.playerRaise.isRaise = false;
+    this.playerRaise.amount = 0;
     this.time = null;
   }
 
@@ -982,6 +1050,8 @@ class Player {
       amount: amount,
     };
     this.isCall = false;
+    this.isCheck = false;
+    this.isFold = false;
     this.time = null;
   }
 
@@ -989,6 +1059,8 @@ class Player {
     this.playerPot += amount;
     this.coins -= amount;
     this.isCall = true;
+    this.isFold = false;
+    this.isCheck = false;
     this.playerRaise.isRaise = false;
     this.playerRaise.amount = 0;
     this.time = null;
@@ -996,6 +1068,10 @@ class Player {
 
   check() {
     this.isCheck = true;
+    this.isFold = false;
+    this.isCall = false;
+    this.playerRaise.isRaise = false;
+    this.playerRaise.amount = 0;
     this.time = null;
   }
 }
