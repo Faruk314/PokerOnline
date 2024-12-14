@@ -9,9 +9,10 @@ import {
   IDraw,
   ITime,
 } from "../types/types";
-import { generateDeck, saveGameState } from "./methods";
+import { deleteGameState, generateDeck, saveGameState } from "./methods";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
+import { getUser } from "../socket/socketMethods";
 
 const handRanks = [
   "highCard",
@@ -126,10 +127,29 @@ class Game {
     await saveGameState(this.roomId, updatedGameState);
   }
 
-  disconnect(playerId: number) {
+  async initGameOver(reason: string) {
+    const lastPlayerId = this.players[0].playerInfo.userId;
+
+    await deleteGameState(this.roomId);
+
+    const lastPlayerData = await getUser(lastPlayerId);
+
+    if (!lastPlayerData) return;
+
+    this.io!.to(lastPlayerData?.userSocketId).emit("gameEnd", { reason });
+
+    this.io!.in(this.roomId).socketsLeave(lastPlayerData.userSocketId);
+  }
+
+  async disconnect(playerId: number) {
     this.players = this.players.filter(
       (player) => player.playerInfo.userId !== playerId
     );
+
+    if (this.players.length === 1) {
+      await this.initGameOver("opponentLeft");
+      return;
+    }
 
     this.switchTurns();
 
@@ -903,13 +923,25 @@ class Game {
   async resetGame() {
     this.deck = generateDeck();
 
-    this.players = this.players.filter((player) => {
+    for (let i = this.players.length - 1; i >= 0; i--) {
+      const player = this.players[i];
+
       if (player.coins === 0) {
-        // Player has no coins, so remove them from the game
-        return false;
+        // Player has no coins, remove them from the game
+        const playerData = await getUser(player.playerInfo.userId);
+
+        if (playerData) {
+          this.io?.to(playerData.userSocketId).emit("gameEnd", {
+            reason: "insufficientFunds",
+          });
+        }
+
+        // Remove player from the array
+        this.players.splice(i, 1);
+        continue;
       }
 
-      // If player has coins, continue to reset their state
+      // Reset player state if they have coins
       const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
       const firstCard = this.deck.splice(firstRandomCardIndex, 1);
       const secondRandomCardIndex = Math.floor(
@@ -927,9 +959,12 @@ class Game {
         isRaise: false,
         amount: 0,
       };
+    }
 
-      return true;
-    });
+    if (this.players.length === 1) {
+      await this.initGameOver("opponentInsufficientFunds");
+      return;
+    }
 
     const bigBindAmount = 50;
     this.currentRound = "preFlop";

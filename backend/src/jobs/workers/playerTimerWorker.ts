@@ -14,8 +14,6 @@ const playerTimerWorker = new Worker(
 
       if (response.status !== "success" || !response.gameState) return;
 
-      console.log(`Player timer expired for ${playerId} in room ${roomId}.`);
-
       const playerTurn = response.gameState.playerTurn;
       const game = response.gameState;
 

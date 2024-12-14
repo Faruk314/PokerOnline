@@ -31,7 +31,6 @@ export class resetGameQueue {
           removeOnFail: true,
         }
       );
-      console.log(`Reset game timer scheduled for room ${roomId}`);
     } catch (error) {
       console.error("Error scheduling reset game timer:", error);
     }

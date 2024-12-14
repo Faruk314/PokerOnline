@@ -35,10 +35,6 @@ export class playerTimerQueue {
           removeOnFail: true,
         }
       );
-
-      console.log(
-        `Player timer for player ${playerId} in room ${roomId} has been scheduled`
-      );
     } catch (error) {
       console.error("Failed to schedule player timer:", error);
     }

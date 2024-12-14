@@ -10,13 +10,14 @@ import Loader from "./components/Loader";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
-import { IGame } from "./types/types";
+import { IGame, IGameEndData, TGameEndReason } from "./types/types";
 import GameOver from "./modals/GameOver";
 import { GameContext } from "./context/GameContext";
 import "./App.css";
 
 function App() {
   const [openEndGame, setOpenEndGame] = useState(false);
+  const [reason, setReason] = useState<TGameEndReason | null>(null);
   const { socket } = useContext(SocketContext);
   const { handleUpdateGame, handlePreFlopUpdates } = useContext(GameContext);
   const navigate = useNavigate();
@@ -27,10 +28,15 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    socket?.on("gameEnd", () => {
+    socket?.on("gameEnd", (data: IGameEndData) => {
       setOpenEndGame(true);
+      setReason(data.reason);
       navigate("/menu");
     });
+
+    return () => {
+      socket?.off("gameEnd");
+    };
   }, [socket, navigate]);
 
   useEffect(() => {
@@ -83,7 +89,9 @@ function App() {
 
   return (
     <Suspense fallback={<Loader />}>
-      {openEndGame && <GameOver setOpenModal={setOpenEndGame} />}
+      {openEndGame && (
+        <GameOver reason={reason} setOpenModal={setOpenEndGame} />
+      )}
       <Routes>
         <Route element={<ProtectedRoutes />}>
           <Route path="/menu" element={<Menu />} />

@@ -90,6 +90,14 @@ interface IPlayerMoveArgs {
   playerId: number;
 }
 
+interface IGameEndData {
+  reason: TGameEndReason;
+}
+
+type TGameEndReason =
+  | "opponentLeft"
+  | "insufficientFunds"
+  | "opponentInsufficientFunds";
 type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
 
 export type {
@@ -104,4 +112,6 @@ export type {
   IPlayerMoveArgs,
   TCardRefsMap,
   Hand,
+  IGameEndData,
+  TGameEndReason,
 };

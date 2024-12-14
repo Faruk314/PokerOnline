@@ -12,14 +12,10 @@ const resetGameWorker = new Worker(
     try {
       const response = await retrieveGameState(roomId, io);
 
-      console.log("resetGameCountdown triggered!");
-
       if (response.status === "success" && response.gameState) {
         const game = response.gameState;
 
         game.resetGame();
-
-        console.log(`Game in room ${roomId} has been reset.`);
       }
     } catch (error) {
       console.error(`Error resetting game in room ${roomId}:`, error);

@@ -7,16 +7,10 @@ import { v4 as uuidv4 } from "uuid";
 import {
   addUser,
   createRoom,
-  getUser,
   joinRoom,
   leaveRoom,
 } from "./socket/socketMethods";
-import {
-  initializeGame,
-  retrieveGameState,
-  saveGameState,
-  deleteGameState,
-} from "./game/methods";
+import { initializeGame, retrieveGameState } from "./game/methods";
 import { playerTimerQueue } from "./jobs/queues/playerTimerQueue";
 dotenv.config();
 
@@ -116,8 +110,6 @@ export default function setupSocket(httpServer: http.Server) {
           .getInstance()
           .addTimer(roomId, playerTurnId, endDate);
 
-        console.log("game started and initliazed");
-
         io.to(roomId).emit("gameStarted", gameInfo);
       }
 
@@ -142,22 +134,6 @@ export default function setupSocket(httpServer: http.Server) {
       const game = response.gameState;
 
       game.disconnect(socket.userId);
-
-      if (game.players.length === 1) {
-        const lastPlayerId = game.players[0].playerInfo.userId;
-
-        await deleteGameState(roomId);
-
-        const lastPlayerData = await getUser(lastPlayerId);
-
-        if (!lastPlayerData) return;
-
-        console.log(lastPlayerData.userSocketId, "socket id");
-
-        io.to(lastPlayerData?.userSocketId).emit("gameEnd");
-
-        return socket.rooms.delete(roomId);
-      }
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
