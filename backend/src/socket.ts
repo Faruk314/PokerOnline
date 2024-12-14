@@ -133,6 +133,11 @@ export default function setupSocket(httpServer: http.Server) {
 
       const game = response.gameState;
 
+      const playerTurnId = game.playerTurn?.playerInfo.userId;
+
+      if (playerTurnId === socket.userId)
+        await playerTimerQueue.getInstance().removeTimer(roomId, socket.userId);
+
       game.disconnect(socket.userId);
     });
 

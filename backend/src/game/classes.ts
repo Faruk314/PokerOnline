@@ -226,6 +226,7 @@ class Game {
     });
 
     this.lastBet = 0;
+    this.minRaiseAmount = 50;
   }
 
   startFlop() {
