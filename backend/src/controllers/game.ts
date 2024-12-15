@@ -18,13 +18,52 @@ export const fetchRooms = asyncHandler(async (req: Request, res: Response) => {
 export const getGameState = asyncHandler(
   async (req: Request, res: Response) => {
     const roomId = req.body.roomId;
+    const userId = req.user?.userId;
 
     try {
       const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
       if (roomJSON) {
         const room: RoomData = JSON.parse(roomJSON);
-        res.status(200).json(room.gameState);
+
+        const updatedGameState = { ...room.gameState };
+
+        if (!updatedGameState) {
+          res.status(404);
+          throw new Error("Game state not found in getGameState controller");
+        }
+
+        if (!updatedGameState.players) {
+          res.status(404);
+          throw new Error(
+            "Players array not found in gameState in getGameState controller"
+          );
+        }
+
+        const updatedPlayers = updatedGameState.players.map((player: any) => {
+          if (updatedGameState.winner || updatedGameState.draw!.isDraw) {
+            return {
+              ...player,
+              cards: player.cards,
+            };
+          }
+
+          if (player.playerInfo.userId === userId) {
+            return {
+              ...player,
+              cards: player.cards,
+            };
+          }
+
+          return {
+            ...player,
+            cards: ["", ""],
+          };
+        });
+
+        updatedGameState.players = updatedPlayers;
+
+        res.status(200).json(updatedGameState);
       }
     } catch (error) {
       res.status(404);
