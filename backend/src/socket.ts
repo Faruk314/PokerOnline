@@ -12,6 +12,7 @@ import {
 } from "./socket/socketMethods";
 import { initializeGame, retrieveGameState } from "./game/methods";
 import { playerTimerQueue } from "./jobs/queues/playerTimerQueue";
+import { Game } from "./game/classes";
 dotenv.config();
 
 export default function setupSocket(httpServer: http.Server) {
@@ -106,11 +107,16 @@ export default function setupSocket(httpServer: http.Server) {
         const playerTurnId = gameInfo.gameState?.playerTurn?.playerInfo.userId!;
         const endDate = gameInfo.gameState?.playerTurn?.time?.endTime!;
 
+        const game = new Game({
+          ...gameInfo.gameState!,
+          io,
+        });
+
         await playerTimerQueue
           .getInstance()
           .addTimer(roomId, playerTurnId, endDate);
 
-        io.to(roomId).emit("gameStarted", gameInfo);
+        game.updateGameState("gameStarted");
       }
 
       if (response.status === "roomFull") {

@@ -79,8 +79,7 @@ class Game {
     this.draw = draw;
   }
 
-  async updateGameState() {
-    const sockets = await this.io!.in(this.roomId).fetchSockets();
+  getPreviousPlayer() {
     const currentPlayerId = this.playerTurn?.playerInfo.userId;
     const playerTurnIndex = this.players.findIndex(
       (player) => player.playerInfo.userId === currentPlayerId
@@ -100,6 +99,15 @@ class Game {
     if (previousPlayer.isCheck) action = "check";
 
     if (previousPlayer.isFold) action = "fold";
+
+    return { userId: previousPlayer.playerInfo.userId, action };
+  }
+
+  async updateGameState(status: "inProgress" | "gameStarted" = "inProgress") {
+    const sockets = await this.io!.in(this.roomId).fetchSockets();
+    let prevPlayerData = { userId: 0, action: "" };
+
+    if (status === "inProgress") prevPlayerData = this.getPreviousPlayer();
 
     sockets.forEach((socket: any) => {
       const updatedGameState = { ...this } as any;
@@ -128,12 +136,19 @@ class Game {
 
       updatedGameState.players = updatedPlayers;
 
-      this.io!.to(socket.id).emit("updateGame", {
-        gameState: updatedGameState,
-        roomId: this.roomId,
-        action,
-        playerId: previousPlayer.playerInfo.userId,
-      });
+      if (status === "inProgress") {
+        this.io!.to(socket.id).emit("updateGame", {
+          gameState: updatedGameState,
+          roomId: this.roomId,
+          action: prevPlayerData.action,
+          playerId: prevPlayerData.userId,
+        });
+      } else {
+        this.io!.to(socket.id).emit("gameStarted", {
+          gameState: updatedGameState,
+          roomId: this.roomId,
+        });
+      }
     });
 
     const updatedGameState = { ...this } as any;
