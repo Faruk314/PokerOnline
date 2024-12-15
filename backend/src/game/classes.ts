@@ -105,11 +105,26 @@ class Game {
       const updatedGameState = { ...this } as any;
       delete updatedGameState.io;
 
-      const updatedPlayers = updatedGameState.players.map((player: any) => ({
-        ...player,
-        cards:
-          player.playerInfo.userId === socket.userId ? player.cards : ["", ""],
-      }));
+      const updatedPlayers = updatedGameState.players.map((player: any) => {
+        if (this.winner || this.draw.isDraw) {
+          return {
+            ...player,
+            cards: player.cards, // Show the opponents' cards when it's time
+          };
+        }
+
+        if (player.playerInfo.userId === socket.userId) {
+          return {
+            ...player,
+            cards: player.cards, // Keep the user's cards visible
+          };
+        }
+
+        return {
+          ...player,
+          cards: ["", ""], // Hide the opponents' cards
+        };
+      });
 
       updatedGameState.players = updatedPlayers;
 
