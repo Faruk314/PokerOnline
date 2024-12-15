@@ -171,10 +171,12 @@ class Game {
     this.io!.in(this.roomId).socketsLeave(lastPlayerData.userSocketId);
   }
 
-  async disconnect(playerId: number) {
+  async disconnect(playerId: number, userName: string) {
     this.players = this.players.filter(
       (player) => player.playerInfo.userId !== playerId
     );
+
+    this.io?.to(this.roomId).emit("playerLeft", { playerId, userName });
 
     if (this.players.length === 1) {
       await this.initGameOver("opponentLeft");

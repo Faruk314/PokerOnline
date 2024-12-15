@@ -144,7 +144,7 @@ export default function setupSocket(httpServer: http.Server) {
       if (playerTurnId === socket.userId)
         await playerTimerQueue.getInstance().removeTimer(roomId, socket.userId);
 
-      game.disconnect(socket.userId);
+      game.disconnect(socket.userId, socket.userName!);
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {

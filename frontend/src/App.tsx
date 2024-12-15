@@ -4,7 +4,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { useAppDispatch } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { getLoginStatus } from "./store/slices/auth";
 import Loader from "./components/Loader";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
@@ -20,6 +20,9 @@ function App() {
   const [reason, setReason] = useState<TGameEndReason | null>(null);
   const { socket } = useContext(SocketContext);
   const { handleUpdateGame, handlePreFlopUpdates } = useContext(GameContext);
+  const loggedUserId = useAppSelector(
+    (state) => state.auth.loggedUserInfo?.userId
+  );
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -58,6 +61,17 @@ function App() {
       socket?.off("roomFull");
     };
   }, [socket]);
+
+  useEffect(() => {
+    socket?.on("playerLeft", ({ playerId, userName }) => {
+      const user = loggedUserId === playerId ? `You` : `Player ${userName}`;
+      toast.error(`${user} left the game`);
+    });
+
+    return () => {
+      socket?.off("playerLeft");
+    };
+  }, [socket, loggedUserId]);
 
   useEffect(() => {
     const handleGameStart = ({
