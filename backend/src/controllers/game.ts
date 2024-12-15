@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { getRooms } from "../socket/socketMethods";
 import { client } from "../index";
-import { RoomData } from "../types/types";
+import { IPlayer, RoomData } from "../types/types";
 
 const ROOMS_KEY = "rooms";
 
@@ -27,6 +27,7 @@ export const getGameState = asyncHandler(
         const room: RoomData = JSON.parse(roomJSON);
 
         const updatedGameState = { ...room.gameState };
+        const currentPlayerId = updatedGameState.playerTurn?.playerInfo.userId;
 
         if (!updatedGameState) {
           res.status(404);
@@ -44,14 +45,14 @@ export const getGameState = asyncHandler(
           if (updatedGameState.winner || updatedGameState.draw!.isDraw) {
             return {
               ...player,
-              cards: player.cards,
+              cards: [...player.cards],
             };
           }
 
           if (player.playerInfo.userId === userId) {
             return {
               ...player,
-              cards: player.cards,
+              cards: [...player.cards],
             };
           }
 
@@ -62,6 +63,12 @@ export const getGameState = asyncHandler(
         });
 
         updatedGameState.players = updatedPlayers;
+
+        if (currentPlayerId !== userId) {
+          const playerTurnClone = { ...updatedGameState.playerTurn } as IPlayer;
+          playerTurnClone.cards = ["", ""];
+          updatedGameState.playerTurn = playerTurnClone;
+        }
 
         res.status(200).json(updatedGameState);
       }

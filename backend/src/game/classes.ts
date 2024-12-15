@@ -106,6 +106,7 @@ class Game {
   async updateGameState(status: "inProgress" | "gameStarted" = "inProgress") {
     const sockets = await this.io!.in(this.roomId).fetchSockets();
     let prevPlayerData = { userId: 0, action: "" };
+    const currentPlayerId = this.playerTurn?.playerInfo.userId;
 
     if (status === "inProgress") prevPlayerData = this.getPreviousPlayer();
 
@@ -117,14 +118,14 @@ class Game {
         if (this.winner || this.draw.isDraw) {
           return {
             ...player,
-            cards: player.cards, // Show the opponents' cards when it's time
+            cards: [...player.cards], // Show the opponents' cards when it's time
           };
         }
 
         if (player.playerInfo.userId === socket.userId) {
           return {
             ...player,
-            cards: player.cards, // Keep the user's cards visible
+            cards: [...player.cards], // Keep the user's cards visible
           };
         }
 
@@ -135,6 +136,12 @@ class Game {
       });
 
       updatedGameState.players = updatedPlayers;
+
+      if (currentPlayerId !== socket.userId) {
+        const playerTurnClone = { ...updatedGameState.playerTurn };
+        playerTurnClone.cards = ["", ""];
+        updatedGameState.playerTurn = playerTurnClone;
+      }
 
       if (status === "inProgress") {
         this.io!.to(socket.id).emit("updateGame", {
