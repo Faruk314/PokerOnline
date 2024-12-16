@@ -29,6 +29,7 @@ interface IActionAnimation {
 interface IGame {
   roomId: string;
   totalPot: number;
+  tablePositions: IPlayersMap;
   minRaiseAmount: number;
   playerTurn: IPlayer;
   deck: string[];
@@ -98,7 +99,16 @@ type TGameEndReason =
   | "opponentLeft"
   | "insufficientFunds"
   | "opponentInsufficientFunds";
+
 type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
+
+interface ITablePositionsMap {
+  [key: number]: string;
+}
+
+interface IPlayersMap {
+  [key: number]: ITablePositionsMap;
+}
 
 export type {
   UserData,

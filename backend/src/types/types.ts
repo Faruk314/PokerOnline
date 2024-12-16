@@ -8,6 +8,13 @@ declare global {
   }
 }
 
+declare module "socket.io" {
+  interface Socket {
+    userId?: number;
+    userName?: string;
+  }
+}
+
 interface VerifiedToken {
   userId: number;
   userName: string;
@@ -27,6 +34,7 @@ interface IDraw {
 interface IGame {
   io: Server | null;
   roomId: string;
+  tablePositions: IPlayersMap;
   minRaiseAmount: number;
   totalPot: number;
   playerTurn: IPlayer | null;
@@ -90,11 +98,12 @@ interface GetKickersArgs {
   handName: string;
 }
 
-declare module "socket.io" {
-  interface Socket {
-    userId?: number;
-    userName?: string;
-  }
+interface ITablePositionsMap {
+  [key: number]: string;
+}
+
+interface IPlayersMap {
+  [key: number]: ITablePositionsMap;
 }
 
 type GetUserCallback = (userInfo: UserData | null) => void;
@@ -117,4 +126,6 @@ export type {
   RanksMap,
   GetKickersArgs,
   IDraw,
+  ITablePositionsMap,
+  IPlayersMap,
 };

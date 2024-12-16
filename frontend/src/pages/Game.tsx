@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { getGameState } from "../store/slices/game";
 import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
-import { IPlayer } from "../types/types";
 import { SocketContext } from "../context/SocketContext";
 import { pokerCards } from "../utils/cards";
 import classNames from "classnames";
@@ -16,16 +15,6 @@ import Player from "../components/Player";
 import { AnimationContext } from "../context/AnimationContext";
 
 const Game = () => {
-  const positions = [
-    "bottomCenter",
-    "bottomLeft",
-    "left",
-    "topLeft",
-    "topCenter",
-    "topRight",
-    "right",
-    "bottomRight",
-  ];
   const { socket } = useContext(SocketContext);
   const [openMenu, setOpenMenu] = useState(false);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
@@ -35,7 +24,7 @@ const Game = () => {
   const { tablePotRef, animateFlop } = useContext(AnimationContext);
 
   useEffect(() => {
-    dispatch(getGameState(id));
+    dispatch(getGameState(id!));
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -46,30 +35,26 @@ const Game = () => {
     });
   }, [id, socket]);
 
-  const determineTablePositions = () => {
-    if (!gameState) return;
+  const getTablePositions = () => {
+    const tablePositions = gameState?.tablePositions;
 
-    const loggedUserInfoIndex = gameState.players.findIndex(
-      (player) => player.playerInfo.userId === loggedUserInfo?.userId
-    );
+    console.log(gameState, "game state");
 
-    const players = gameState.players;
+    if (!tablePositions) return null;
 
-    const user = players[loggedUserInfoIndex];
+    if (!loggedUserInfo?.userId) return null;
 
-    const tablePositions: IPlayer[] = [];
+    const userTablePositions = tablePositions[loggedUserInfo?.userId];
 
-    tablePositions.push(user);
+    return Object.entries(userTablePositions).map(([key, value]) => {
+      const playerData = gameState?.players.find(
+        (p) => p.playerInfo.userId === parseInt(key)
+      );
 
-    for (let i = loggedUserInfoIndex + 1; i < players.length; i++) {
-      tablePositions.push(players[i]);
-    }
+      if (typeof value !== "string" || !playerData) return null;
 
-    for (let i = 0; i < loggedUserInfoIndex; i++) {
-      tablePositions.push(players[i]);
-    }
-
-    return tablePositions;
+      return <Player key={key} player={playerData} position={value} />;
+    });
   };
 
   const findCard = (c: string, index: number) => {
@@ -114,15 +99,7 @@ const Game = () => {
       </div>
 
       <div className="relative">
-        {determineTablePositions()?.map((player, index) => {
-          return (
-            <Player
-              key={player.playerInfo.userId}
-              player={player}
-              position={positions[index]}
-            />
-          );
-        })}
+        {getTablePositions()}
 
         <div className="relative flex items-center justify-center h-[33rem] rounded-full w-[60rem] styled-border">
           <img src={table} className="absolute w-full h-full rounded-full" />

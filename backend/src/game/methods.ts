@@ -1,4 +1,4 @@
-import { IGame, RoomData, IPlayer } from "../types/types";
+import { IGame, RoomData, IPlayer, IPlayersMap } from "../types/types";
 import { client } from "../index";
 import { Game } from "./classes";
 import { Server } from "socket.io";
@@ -50,6 +50,7 @@ const initializeGame = async (roomId: string) => {
   room.gameState = {
     io: null,
     roomId,
+    tablePositions: {},
     minRaiseAmount: 0,
     totalPot: 0,
     playerTurn: null,
@@ -105,6 +106,8 @@ const initializeGame = async (roomId: string) => {
 
       room.gameState?.players.push(player);
     });
+
+    room.gameState.tablePositions = determineTablePositions(room.gameState);
 
     const randomNumber = Math.floor(
       Math.random() * room.gameState?.players.length
@@ -215,6 +218,43 @@ const deleteGameState = async (roomId: string) => {
   } catch (error) {
     return { status: "error", message: "Failed to delete room from Redis" };
   }
+};
+
+const determineTablePositions = (gameState: IGame) => {
+  let playersMap: IPlayersMap = {};
+
+  const positions = [
+    "bottomCenter",
+    "bottomLeft",
+    "left",
+    "topLeft",
+    "topCenter",
+    "topRight",
+    "right",
+    "bottomRight",
+  ];
+
+  const totalPlayers = gameState.players.length;
+
+  for (let i = 0; i < totalPlayers; i++) {
+    const currentIterationId = gameState.players[i].playerInfo.userId;
+
+    if (!playersMap[currentIterationId]) {
+      playersMap[currentIterationId] = {};
+    }
+
+    for (let j = 0; j < totalPlayers; j++) {
+      const otherPlayerId = gameState.players[j].playerInfo.userId;
+
+      const relativeIndex = (j - i + totalPlayers) % totalPlayers;
+
+      playersMap[currentIterationId][otherPlayerId] = positions[relativeIndex];
+    }
+  }
+
+  console.log("table pos", playersMap);
+
+  return playersMap;
 };
 
 export {
