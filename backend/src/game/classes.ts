@@ -8,6 +8,7 @@ import {
   RanksMap,
   IDraw,
   ITime,
+  IPlayersMap,
 } from "../types/types";
 import { deleteGameState, generateDeck, saveGameState } from "./methods";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
@@ -31,6 +32,7 @@ class Game {
   io: Server | null;
   roomId: string;
   totalPot: number;
+  tablePositions: IPlayersMap = {};
   minRaiseAmount: number;
   playerTurn: Player | null;
   deck: string[];
@@ -49,6 +51,7 @@ class Game {
     io,
     roomId,
     totalPot,
+    tablePositions,
     minRaiseAmount,
     playerTurn,
     players,
@@ -62,6 +65,7 @@ class Game {
   }: IGame) {
     this.io = io;
     this.roomId = roomId;
+    this.tablePositions = tablePositions;
     this.totalPot = totalPot;
     this.minRaiseAmount = minRaiseAmount;
     this.players = players.map((player) => new Player(player));
@@ -101,6 +105,16 @@ class Game {
     if (previousPlayer.isFold) action = "fold";
 
     return { userId: previousPlayer.playerInfo.userId, action };
+  }
+
+  updateTablePositions(playerId: number) {
+    delete this.tablePositions[playerId];
+
+    Object.entries(this.tablePositions).forEach(([_, positionsMap]) => {
+      if (positionsMap[playerId]) {
+        delete positionsMap[playerId];
+      }
+    });
   }
 
   async updateGameState(status: "inProgress" | "gameStarted" = "inProgress") {
@@ -182,6 +196,8 @@ class Game {
     this.players = this.players.filter(
       (player) => player.playerInfo.userId !== playerId
     );
+
+    this.updateTablePositions(playerId);
 
     this.io?.to(this.roomId).emit("playerLeft", { playerId, userName });
 
@@ -975,9 +991,10 @@ class Game {
             reason: "insufficientFunds",
           });
         }
-
         // Remove player from the array
         this.players.splice(i, 1);
+
+        this.updateTablePositions(player.playerInfo.userId);
         continue;
       }
 
