@@ -13,14 +13,22 @@ const Buttons = () => {
   const { handleFold, handleCheck, handleCall } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
+  const playerTurn = gameState?.playerTurn;
 
   if (gameState?.winner || gameState?.draw.isDraw) return null;
 
-  const playerTurn = gameState?.playerTurn;
-  const callAmount = gameState!.lastBet - playerTurn!.playerPot;
+  if (!playerTurn?.coins || !gameState?.minRaiseAmount) return null;
+
+  let callAmount = gameState!.lastBet - playerTurn!.playerPot;
+
+  if (callAmount && callAmount > playerTurn?.coins) {
+    callAmount = playerTurn?.coins;
+  }
 
   const canCheck = callAmount <= 0;
   const allIn = gameState?.players.some((player) => player.coins === 0);
+
+  const canRaise = playerTurn?.coins >= gameState?.minRaiseAmount && !allIn;
 
   return (
     <>
@@ -61,7 +69,7 @@ const Buttons = () => {
         </button>
       )}
 
-      {!allIn && (
+      {canRaise && (
         <button
           onClick={() => {
             playAudio(clickSound);

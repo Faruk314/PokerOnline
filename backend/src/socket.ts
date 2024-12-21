@@ -197,9 +197,13 @@ export default function setupSocket(httpServer: http.Server) {
         if (playerTurn.playerInfo.userId !== socket.userId)
           return console.log("Current player is not on a move");
 
-        if (amount < game.minRaiseAmount || amount > game.playerTurn?.coins!) {
+        if (amount < game.minRaiseAmount || amount > game.playerTurn?.coins!)
           return console.log("Invalid raise amount!");
-        }
+
+        const allIn = game.players.some((p) => p.coins === 0);
+
+        if (allIn)
+          return console.log("Could not raise. Previous player went all in");
 
         await playerTimerQueue
           .getInstance()
