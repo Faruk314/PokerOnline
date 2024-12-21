@@ -77,6 +77,7 @@ interface IPlayer {
   cards: string[];
   playerRaise: IRaise;
   playerPot: number;
+  isAllIn: boolean;
   isFold: boolean;
   isCall: boolean;
   isCheck: boolean;
@@ -106,6 +107,15 @@ interface IPlayersMap {
   [key: number]: ITablePositionsMap;
 }
 
+interface IUpdateGameState {
+  prevPlayerId: number;
+  action: PlayerAction;
+}
+
+type PlayerAction = "fold" | "check" | "raise" | "call" | "all in" | "";
+
+type GameStatus = "inProgress" | "gameStarted" | "gameEnd";
+
 type GetUserCallback = (userInfo: UserData | null) => void;
 
 type CardsMap = { [key: string]: number };
@@ -128,4 +138,7 @@ export type {
   IDraw,
   ITablePositionsMap,
   IPlayersMap,
+  IUpdateGameState,
+  GameStatus,
+  PlayerAction,
 };

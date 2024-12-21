@@ -9,6 +9,9 @@ import {
   IDraw,
   ITime,
   IPlayersMap,
+  GameStatus,
+  IUpdateGameState,
+  PlayerAction,
 } from "../types/types";
 import { deleteGameState, generateDeck, saveGameState } from "./methods";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
@@ -83,30 +86,6 @@ class Game {
     this.draw = draw;
   }
 
-  getPreviousPlayer() {
-    const currentPlayerId = this.playerTurn?.playerInfo.userId;
-    const playerTurnIndex = this.players.findIndex(
-      (player) => player.playerInfo.userId === currentPlayerId
-    );
-
-    const previousPlayerIndex =
-      (playerTurnIndex - 1 + this.players.length) % this.players.length;
-
-    const previousPlayer = this.players[previousPlayerIndex];
-
-    let action = "";
-
-    if (previousPlayer.isCall) action = "call";
-
-    if (previousPlayer.playerRaise.isRaise) action = "raise";
-
-    if (previousPlayer.isCheck) action = "check";
-
-    if (previousPlayer.isFold) action = "fold";
-
-    return { userId: previousPlayer.playerInfo.userId, action };
-  }
-
   updateTablePositions(playerId: number) {
     delete this.tablePositions[playerId];
 
@@ -117,12 +96,12 @@ class Game {
     });
   }
 
-  async updateGameState(status: "inProgress" | "gameStarted" = "inProgress") {
+  async updateGameState(
+    data: IUpdateGameState | null,
+    status: GameStatus = "inProgress"
+  ) {
     const sockets = await this.io!.in(this.roomId).fetchSockets();
-    let prevPlayerData = { userId: 0, action: "" };
     const currentPlayerId = this.playerTurn?.playerInfo.userId;
-
-    if (status === "inProgress") prevPlayerData = this.getPreviousPlayer();
 
     sockets.forEach((socket: any) => {
       const updatedGameState = { ...this } as any;
@@ -157,14 +136,23 @@ class Game {
         updatedGameState.playerTurn = playerTurnClone;
       }
 
-      if (status === "inProgress") {
+      if (status === "gameEnd") {
+        this.io?.to(socket.id).emit("updateGame", {
+          gameState: updatedGameState,
+          roomId: this.roomId,
+        });
+      }
+
+      if (status === "inProgress" && data) {
         this.io!.to(socket.id).emit("updateGame", {
           gameState: updatedGameState,
           roomId: this.roomId,
-          action: prevPlayerData.action,
-          playerId: prevPlayerData.userId,
+          action: data.action,
+          playerId: data.prevPlayerId,
         });
-      } else {
+      }
+
+      if (status === "gameStarted") {
         this.io!.to(socket.id).emit("gameStarted", {
           gameState: updatedGameState,
           roomId: this.roomId,
@@ -206,7 +194,7 @@ class Game {
       return;
     }
 
-    this.switchTurns();
+    await this.switchTurns();
 
     this.isRoundOver();
   }
@@ -221,7 +209,6 @@ class Game {
     if (playersNotFold.length === 1) {
       this.winner = { userId: playersNotFold[0].playerInfo.userId };
       this.handlePayout();
-      this.updateGameState();
       await resetGameQueue.getInstance().addTimer(this.roomId);
       return;
     }
@@ -231,42 +218,43 @@ class Game {
     const lastMove = this.movesCount >= playersNotFold.length;
 
     if (!lastMove) {
-      return this.switchTurns();
+      await this.switchTurns();
+      return;
     }
 
     if (lastMove && allIn && this.currentRound === "preFlop") {
-      this.resetRound();
       this.startFlop();
       this.startTurn();
       this.startRiver();
-      return this.startShowdown();
+      this.startShowdown();
+      return;
     }
 
     if (lastMove && allIn && this.currentRound === "flop") {
-      this.resetRound();
       this.startTurn();
       this.startRiver();
-      return this.startShowdown();
+      this.startShowdown();
+      return;
     }
 
     if (lastMove && allIn && this.currentRound === "turn") {
-      this.resetRound();
       this.startRiver();
-      return this.startShowdown();
+      this.startShowdown();
+      return;
     }
 
     if (lastMove) {
       this.resetRound();
 
-      if (this.currentRound !== "river") this.switchTurns();
+      if (this.currentRound === "river") this.startShowdown();
 
-      if (this.currentRound === "preFlop") return this.startFlop();
+      if (this.currentRound === "turn") this.startRiver();
 
-      if (this.currentRound === "flop") return this.startTurn();
+      if (this.currentRound === "flop") this.startTurn();
 
-      if (this.currentRound === "turn") return this.startRiver();
+      if (this.currentRound === "preFlop") this.startFlop();
 
-      if (this.currentRound === "river") return this.startShowdown();
+      if (this.currentRound !== "showdown") await this.switchTurns();
     }
   }
 
@@ -276,8 +264,10 @@ class Game {
     this.players.forEach((player) => {
       player.playerPot = 0;
       player.isCall = false;
+      player.isCheck = false;
       player.playerRaise.isRaise = false;
       player.playerRaise.amount = 0;
+      player.isAllIn = false;
     });
 
     this.lastBet = 0;
@@ -358,7 +348,7 @@ class Game {
     }
 
     const start = Date.now();
-    const turnDuration = 30000;
+    const turnDuration = 30000000;
 
     this.playerTurn.time = {
       startTime: new Date(start),
@@ -372,8 +362,6 @@ class Game {
         this.playerTurn.playerInfo.userId,
         this.playerTurn.time.endTime
       );
-
-    await this.updateGameState();
   }
 
   getCommunityCardsCombinations(arr: string[], length: number): string[][] {
@@ -535,7 +523,6 @@ class Game {
         hand: handOrder[0],
       };
       this.handlePayout();
-      this.updateGameState();
       await resetGameQueue.getInstance().addTimer(this.roomId);
       return;
     }
@@ -576,7 +563,6 @@ class Game {
     if (this.winner || this.draw.isDraw) {
       await resetGameQueue.getInstance().addTimer(this.roomId);
       this.handlePayout();
-      this.updateGameState();
     }
   }
 
@@ -1006,6 +992,7 @@ class Game {
       );
       const secondCard = this.deck.splice(secondRandomCardIndex, 1);
 
+      player.isAllIn = false;
       player.playerPot = 0;
       player.isCall = false;
       player.isFold = false;
@@ -1072,8 +1059,6 @@ class Game {
         this.playerTurn.playerInfo.userId,
         this.playerTurn.time.endTime
       );
-
-    await this.updateGameState();
   }
 }
 
@@ -1084,14 +1069,15 @@ class Player {
   isSmallBind: boolean;
   isBigBind: boolean;
   cards: string[] = [];
+  isAllIn: boolean = false;
   isFold: boolean = false;
   isCall: boolean = false;
   isCheck: boolean = false;
-  playerPot = 0;
   playerRaise: IRaise = {
     isRaise: false,
     amount: 0,
   };
+  playerPot = 0;
   hand: Hand | null = null;
   time: ITime | null = null;
 
@@ -1102,6 +1088,7 @@ class Player {
     isSmallBind,
     isBigBind,
     playerPot,
+    isAllIn,
     playerRaise,
     isFold,
     isCall,
@@ -1117,6 +1104,7 @@ class Player {
     this.isBigBind = isBigBind;
     this.playerPot = playerPot;
     this.playerRaise = playerRaise;
+    this.isAllIn = isAllIn;
     this.isFold = isFold;
     this.isCall = isCall;
     this.cards = cards;
@@ -1127,40 +1115,52 @@ class Player {
 
   fold() {
     this.isFold = true;
-    this.isCheck = false;
     this.isCall = false;
+    this.isCheck = false;
     this.playerRaise.isRaise = false;
     this.playerRaise.amount = 0;
     this.time = null;
   }
 
-  raise(amount: number) {
+  raise(amount: number): PlayerAction {
     this.playerPot += amount;
     this.coins -= amount;
+    this.isCheck = false;
+    this.isCall = false;
+    this.time = null;
     this.playerRaise = {
       isRaise: true,
       amount: amount,
     };
-    this.isCall = false;
-    this.isCheck = false;
-    this.isFold = false;
-    this.time = null;
+
+    if (this.coins === 0) {
+      this.isAllIn = true;
+      return "all in";
+    }
+
+    return "raise";
   }
 
-  call(amount: number) {
+  call(amount: number): PlayerAction {
     this.playerPot += amount;
     this.coins -= amount;
     this.isCall = true;
-    this.isFold = false;
     this.isCheck = false;
     this.playerRaise.isRaise = false;
     this.playerRaise.amount = 0;
     this.time = null;
+
+    if (this.coins === 0) {
+      this.isAllIn = true;
+
+      return "all in";
+    }
+
+    return "call";
   }
 
   check() {
     this.isCheck = true;
-    this.isFold = false;
     this.isCall = false;
     this.playerRaise.isRaise = false;
     this.playerRaise.amount = 0;

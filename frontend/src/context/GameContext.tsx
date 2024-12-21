@@ -181,6 +181,18 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ({ gameState, action, playerId }: IPlayerMoveArgs) => {
       if (!socket) return;
 
+      if (action === "raise" || action === "call") {
+        animateMoveChip(playerId, false);
+      }
+
+      if (action.length) {
+        setActionAnimation({ state: action, playerId });
+      }
+
+      setTimeout(() => {
+        setActionAnimation({ state: null, playerId: null });
+      }, 1000);
+
       if (gameState.winner || gameState.draw.isDraw) {
         return handleGameOverUpdates({ gameState });
       }
@@ -193,19 +205,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         playAudio(cardSlide);
         setAnimateFlop(true);
       }
-
-      if (action === "fold" || action === "check") {
-        setActionAnimation({ state: action, playerId });
-      }
-
-      if (action === "raise" || action === "call") {
-        setActionAnimation({ state: action, playerId });
-        animateMoveChip(playerId, false);
-      }
-
-      setTimeout(() => {
-        setActionAnimation({ state: null, playerId: null });
-      }, 1000);
 
       dispatch(setGameState(gameState));
     },

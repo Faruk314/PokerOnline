@@ -92,6 +92,7 @@ const initializeGame = async (roomId: string) => {
         isSmallBind: false,
         isBigBind: false,
         cards: [...firstCard, ...secondCard],
+        isAllIn: false,
         isFold: false,
         isCall: false,
         isCheck: false,

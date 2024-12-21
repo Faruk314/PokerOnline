@@ -22,7 +22,7 @@ interface IDraw {
 }
 
 interface IActionAnimation {
-  state: "fold" | "check" | "raise" | "call" | null;
+  state: "fold" | "check" | "raise" | "call" | "all in" | null;
   playerId: number | null;
 }
 
@@ -68,6 +68,7 @@ interface IPlayer {
   isSmallBind: boolean;
   isBigBind: boolean;
   cards: string[];
+  isAllIn: boolean;
   isFold: boolean;
   isCall: boolean;
   isCheck: boolean;

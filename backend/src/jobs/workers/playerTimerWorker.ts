@@ -21,7 +21,12 @@ const playerTimerWorker = new Worker(
 
       playerTurn.fold();
 
-      game.isRoundOver();
+      await game.isRoundOver();
+
+      await game.updateGameState({
+        prevPlayerId: playerId,
+        action: "fold",
+      });
     } catch (error) {
       console.error(
         `Error processing job for player ${playerId} in room ${roomId}:`,

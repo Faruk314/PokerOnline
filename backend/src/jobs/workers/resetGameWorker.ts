@@ -15,7 +15,9 @@ const resetGameWorker = new Worker(
       if (response.status === "success" && response.gameState) {
         const game = response.gameState;
 
-        game.resetGame();
+        await game.resetGame();
+
+        await game.updateGameState(null, "gameEnd");
       }
     } catch (error) {
       console.error(`Error resetting game in room ${roomId}:`, error);

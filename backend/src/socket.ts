@@ -116,7 +116,7 @@ export default function setupSocket(httpServer: http.Server) {
           .getInstance()
           .addTimer(roomId, playerTurnId, endDate);
 
-        game.updateGameState("gameStarted");
+        await game.updateGameState(null, "gameStarted");
       }
 
       if (response.status === "roomFull") {
@@ -144,7 +144,9 @@ export default function setupSocket(httpServer: http.Server) {
       if (playerTurnId === socket.userId)
         await playerTimerQueue.getInstance().removeTimer(roomId, socket.userId);
 
-      game.disconnect(socket.userId, socket.userName!);
+      await game.disconnect(socket.userId, socket.userName!);
+
+      await game.updateGameState(null);
     });
 
     socket.on("playerFold", async ({ roomId }: { roomId: string }) => {
@@ -169,7 +171,12 @@ export default function setupSocket(httpServer: http.Server) {
 
       playerTurn.fold();
 
-      game.isRoundOver();
+      await game.isRoundOver();
+
+      await game.updateGameState({
+        prevPlayerId: socket.userId,
+        action: "fold",
+      });
     });
 
     socket.on(
@@ -198,7 +205,7 @@ export default function setupSocket(httpServer: http.Server) {
           .getInstance()
           .removeTimer(roomId, playerTurn.playerInfo.userId);
 
-        playerTurn.raise(amount);
+        const action = playerTurn.raise(amount);
 
         game.lastBet = playerTurn.playerPot;
 
@@ -208,7 +215,12 @@ export default function setupSocket(httpServer: http.Server) {
 
         game.movesCount = 1;
 
-        game.switchTurns();
+        await game.switchTurns();
+
+        await game.updateGameState({
+          prevPlayerId: socket.userId,
+          action,
+        });
       }
     );
 
@@ -230,7 +242,11 @@ export default function setupSocket(httpServer: http.Server) {
         if (playerTurn.playerInfo.userId !== socket.userId)
           return console.log("Current player is not on a move");
 
-        const callAmount = game.lastBet - playerTurn.playerPot;
+        let callAmount = game.lastBet - playerTurn.playerPot;
+
+        if (callAmount > playerTurn.coins) {
+          callAmount = playerTurn.coins;
+        }
 
         if (amount !== callAmount) return console.log("Invalid call amount");
 
@@ -238,11 +254,16 @@ export default function setupSocket(httpServer: http.Server) {
           .getInstance()
           .removeTimer(roomId, playerTurn.playerInfo.userId);
 
-        playerTurn.call(amount);
+        const action = playerTurn.call(amount);
 
         game.totalPot += amount;
 
-        game.isRoundOver();
+        await game.isRoundOver();
+
+        await game.updateGameState({
+          prevPlayerId: socket.userId,
+          action,
+        });
       }
     );
 
@@ -274,7 +295,12 @@ export default function setupSocket(httpServer: http.Server) {
 
       playerTurn.check();
 
-      game.isRoundOver();
+      await game.isRoundOver();
+
+      await game.updateGameState({
+        prevPlayerId: socket.userId,
+        action: "check",
+      });
     });
   });
 
