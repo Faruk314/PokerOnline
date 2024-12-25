@@ -49,7 +49,7 @@ export const createCheckoutSession = asyncHandler(
         ],
         mode: "payment",
         success_url: "http://localhost:5173/payment-success",
-        cancel_url: "http://localhost:5173/payment-failed",
+        cancel_url: "http://localhost:5173/payment-canceled",
       });
 
       res.status(200).json({ url: session.url });

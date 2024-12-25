@@ -14,6 +14,8 @@ import { IGame, IGameEndData, TGameEndReason } from "./types/types";
 import GameOver from "./modals/GameOver";
 import { GameContext } from "./context/GameContext";
 import "./App.css";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 
 function App() {
   const [openEndGame, setOpenEndGame] = useState(false);
@@ -111,6 +113,8 @@ function App() {
         <Route element={<ProtectedRoutes />}>
           <Route path="/menu" element={<Menu />} />
           <Route path="/game/:id" element={<Game />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-canceled" element={<PaymentCanceled />} />
         </Route>
 
         <Route path="/" element={<Login />} />
