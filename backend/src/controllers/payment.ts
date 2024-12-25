@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import dotenv from "dotenv";
 import Stripe from "stripe";
+import query from "../db";
 dotenv.config();
 
 const STRIPE_KEY = process.env.STRIPE_KEY ? process.env.STRIPE_KEY : "";
@@ -15,19 +16,21 @@ export const createCheckoutSession = asyncHandler(
   async (req: Request, res: Response) => {
     const { packageId } = req.body;
 
-    const packages: any = {
-      1: { amount: 5000, price: 1.99 },
-      2: { amount: 10000, price: 2.5 },
-      3: { amount: 50000, price: 4.99 },
-      4: { amount: 100000, price: 9.99 },
-    };
-
     if (!packageId) {
       res.status(400);
       throw new Error("Package id missing");
     }
 
-    const selectedPackage = packages[packageId];
+    let q = "SELECT `amount`, `price` FROM coin_packages WHERE `packageId` = ?";
+
+    let data: any = await query(q, [packageId]);
+
+    if (data.length === 0) {
+      res.status(400);
+      throw new Error(`Coin package with id ${packageId} not found`);
+    }
+
+    const selectedPackage = data[0];
 
     try {
       const session = await stripe.checkout.sessions.create({
