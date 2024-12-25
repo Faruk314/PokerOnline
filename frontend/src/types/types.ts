@@ -96,6 +96,12 @@ interface IGameEndData {
   reason: TGameEndReason;
 }
 
+interface ShopPackage {
+  packageId: number;
+  amount: number;
+  price: number;
+}
+
 type TGameEndReason =
   | "opponentLeft"
   | "insufficientFunds"
@@ -125,4 +131,5 @@ export type {
   Hand,
   IGameEndData,
   TGameEndReason,
+  ShopPackage,
 };

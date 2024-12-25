@@ -5,11 +5,15 @@ import cookieParser from "cookie-parser";
 import errorHandler from "./utils/error";
 import authRoutes from "./routes/auth";
 import gameRoutes from "./routes/game";
+import paymentRoutes from "./routes/payment";
+import shopRoutes from "./routes/shop";
 import http from "http";
 import setupSocket from "./socket";
 import playerTimerWorker from "./jobs/workers/playerTimerWorker";
 import resetGameWorker from "./jobs/workers/resetGameWorker";
 import { Redis } from "ioredis";
+import bodyParser from "body-parser";
+import { handleWebHook } from "./controllers/payment";
 dotenv.config();
 
 const app = express();
@@ -40,7 +44,14 @@ export const client = new Redis({
   password: process.env.REDIS_PASS,
 });
 
+app.post(
+  "/payment/webhook",
+  bodyParser.raw({ type: "application/json" }),
+  handleWebHook
+);
+
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -50,6 +61,8 @@ app.listen(port, () => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/game", gameRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/shop", shopRoutes);
 
 app.use(errorHandler);
 

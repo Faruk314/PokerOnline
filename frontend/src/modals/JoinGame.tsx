@@ -61,7 +61,7 @@ const JoinGame = ({ setOpenModal }: Props) => {
 
                 <button
                   onClick={() => handleJoin(gameRoom.roomId)}
-                  className="button-border p-1 w-[5rem] bg-green-700 hover:bg-green-600 rounded-full"
+                  className="button-border p-1 w-[5rem] bg-green-600 hover:bg-green-500 rounded-full"
                 >
                   JOIN
                 </button>

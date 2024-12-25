@@ -106,11 +106,13 @@ function App() {
       {openEndGame && (
         <GameOver reason={reason} setOpenModal={setOpenEndGame} />
       )}
+
       <Routes>
         <Route element={<ProtectedRoutes />}>
           <Route path="/menu" element={<Menu />} />
           <Route path="/game/:id" element={<Game />} />
         </Route>
+
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

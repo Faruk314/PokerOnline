@@ -94,7 +94,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
           <div></div>
           <button
             onClick={handleConfirm}
-            className="button-border p-2 w-[10rem] bg-green-700 hover:bg-green-600 rounded-full"
+            className="button-border p-2 w-[10rem] bg-green-600 hover:bg-green-500 rounded-full"
           >
             Confirm
           </button>

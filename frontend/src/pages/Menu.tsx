@@ -9,10 +9,12 @@ import { logout, reset } from "../store/slices/auth";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
+import Shop from "../modals/Shop";
 
 const Menu = () => {
   const [openCreateGame, setOpenCreateGame] = useState(false);
   const [openJoinGame, setOpenJoinGame] = useState(false);
+  const [openShop, setOpenShop] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, isError, isSuccess } = useAppSelector(
@@ -74,7 +76,13 @@ const Menu = () => {
           Join Game
         </button>
 
-        <button className="button-border p-4 w-[15rem] bg-green-700 hover:bg-green-600 rounded-full">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenShop(true);
+          }}
+          className="button-border p-4 w-[15rem] bg-green-600 hover:bg-green-500 rounded-full"
+        >
           Shop
         </button>
 
@@ -88,6 +96,7 @@ const Menu = () => {
 
       {openCreateGame && <CreateGame setOpenModal={setOpenCreateGame} />}
       {openJoinGame && <JoinGame setOpenModal={setOpenJoinGame} />}
+      {openShop && <Shop setOpenModal={setOpenShop} />}
     </section>
   );
 };
