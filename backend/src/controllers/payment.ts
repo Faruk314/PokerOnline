@@ -15,10 +15,16 @@ const stripe = new Stripe(STRIPE_KEY);
 export const createCheckoutSession = asyncHandler(
   async (req: Request, res: Response) => {
     const { packageId } = req.body;
+    const userId = req.user?.userId;
 
     if (!packageId) {
       res.status(400);
-      throw new Error("Package id missing");
+      throw new Error("Package id missing in create checkout session");
+    }
+
+    if (!userId) {
+      res.status(400);
+      throw new Error("UserId missing in create checkout session");
     }
 
     let q = "SELECT `amount`, `price` FROM coin_packages WHERE `packageId` = ?";
@@ -50,6 +56,10 @@ export const createCheckoutSession = asyncHandler(
         mode: "payment",
         success_url: "http://localhost:5173/payment-success",
         cancel_url: "http://localhost:5173/payment-canceled",
+        metadata: {
+          userId,
+          chips: selectedPackage.amount,
+        },
       });
 
       res.status(200).json({ url: session.url });
@@ -61,26 +71,47 @@ export const createCheckoutSession = asyncHandler(
   }
 );
 
-export const handleWebHook = asyncHandler((req: Request, res: Response) => {
-  const sig = req.headers["stripe-signature"] as string;
-  const endpointSecret = STRIPE_WEBHOOK_SECRET;
+export const handleWebHook = asyncHandler(
+  async (req: Request, res: Response) => {
+    const sig = req.headers["stripe-signature"] as string;
+    const endpointSecret = STRIPE_WEBHOOK_SECRET;
 
-  let event: Stripe.Event;
+    let event: Stripe.Event;
 
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-
-    console.log("Event received:", event.type);
-
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.log("Checkout Session Completed:", session);
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    } catch (error: any) {
+      console.error("err", error);
+      res.status(400);
+      throw new Error(`Webhook Error: ${error.message}`);
     }
 
-    res.status(200).json("Webhook received");
-  } catch (error: any) {
-    console.error("err", error);
-    res.status(400);
-    throw new Error(`Webhook Error: ${error.message}`);
+    switch (event.type) {
+      case "checkout.session.completed":
+        const session = event.data.object as Stripe.Checkout.Session;
+        const userId = session.metadata?.userId;
+        const chips = session.metadata?.chips;
+
+        try {
+          const q = `
+          INSERT INTO user_chips (userId, chips)
+          VALUES (?, ?)
+          ON DUPLICATE KEY UPDATE chips = chips + VALUES(chips);
+        `;
+
+          await query(q, [userId, chips]);
+
+          res.status(200).json("Successfully updated user chips balance");
+        } catch (err) {
+          res.status(400);
+          throw new Error(
+            "There was a problem while updating user chips balance"
+          );
+        }
+
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}.`);
+    }
   }
-});
+);

@@ -14,6 +14,7 @@ import resetGameWorker from "./jobs/workers/resetGameWorker";
 import { Redis } from "ioredis";
 import bodyParser from "body-parser";
 import { handleWebHook } from "./controllers/payment";
+
 dotenv.config();
 
 const app = express();
