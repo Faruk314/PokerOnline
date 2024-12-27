@@ -9,6 +9,7 @@ interface GameState {
   isSuccess: boolean;
   isLoading: boolean;
   openRaiseBar: boolean;
+  totalChips: number;
 }
 
 const initialState: GameState = {
@@ -18,6 +19,7 @@ const initialState: GameState = {
   isSuccess: false,
   isLoading: false,
   openRaiseBar: false,
+  totalChips: 0,
 };
 
 export const fetchRooms = createAsyncThunk<
@@ -27,6 +29,22 @@ export const fetchRooms = createAsyncThunk<
 >("game/fetchRooms", async (_, thunkAPI) => {
   try {
     return await gameService.fetchRooms();
+  } catch (error: any) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
+export const fetchChips = createAsyncThunk<
+  { chips: number },
+  void,
+  { rejectValue: string }
+>("game/fetchChips", async (_, thunkAPI) => {
+  try {
+    return await gameService.fetchChips();
   } catch (error: any) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||
@@ -99,6 +117,16 @@ const gameSlice = createSlice({
           state.isSuccess = true;
           state.gameState = action.payload;
           state.isLoading = false;
+        }
+      )
+      .addCase(
+        fetchChips.fulfilled,
+        (state, action: PayloadAction<{ chips: number }>) => {
+          if (action.payload) {
+            state.totalChips = action.payload.chips;
+          } else {
+            state.totalChips = 0;
+          }
         }
       );
   },

@@ -14,9 +14,16 @@ const getGameState = async (roomId: string) => {
   return response.data;
 };
 
+const fetchChips = async () => {
+  const response = await apiClient.get(API_URL + "fetchChips");
+
+  return response.data;
+};
+
 const gameService = {
   fetchRooms,
   getGameState,
+  fetchChips,
 };
 
 export default gameService;
