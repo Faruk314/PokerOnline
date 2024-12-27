@@ -10,8 +10,6 @@ const Menu = () => {
   const { socket } = useContext(SocketContext);
   const { gameState } = useAppSelector((state) => state.game);
 
-  console.log(gameState, "gs");
-
   const handlePlayerLeave = () => {
     socket?.emit("leaveRoom", { roomId: gameState?.roomId });
     navigate("/menu");

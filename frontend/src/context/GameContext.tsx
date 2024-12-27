@@ -181,11 +181,11 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ({ gameState, action, playerId }: IPlayerMoveArgs) => {
       if (!socket) return;
 
-      if (action === "raise" || action === "call") {
+      if (action === "raise" || action === "call" || action === "all in") {
         animateMoveChip(playerId, false);
       }
 
-      if (action.length) {
+      if (action && action.length) {
         setActionAnimation({ state: action, playerId });
       }
 

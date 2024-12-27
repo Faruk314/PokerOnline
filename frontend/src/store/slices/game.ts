@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import gameService from "../services/gameServices";
-import { GameRoom, IGame } from "../../types/types";
+import { GameRoom, IGame, IGameStatus } from "../../types/types";
 
 interface GameState {
   gameRooms: GameRoom[];
@@ -10,6 +10,7 @@ interface GameState {
   isLoading: boolean;
   openRaiseBar: boolean;
   totalChips: number;
+  gameStatus: IGameStatus;
 }
 
 const initialState: GameState = {
@@ -20,6 +21,10 @@ const initialState: GameState = {
   isLoading: false,
   openRaiseBar: false,
   totalChips: 0,
+  gameStatus: {
+    isGameOver: false,
+    reason: null,
+  },
 };
 
 export const fetchRooms = createAsyncThunk<
@@ -74,8 +79,12 @@ const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
-    setGameState(state, action: PayloadAction<IGame>) {
+    setGameState(state, action: PayloadAction<IGame | null>) {
       state.gameState = action.payload;
+    },
+
+    setGameStatus(state, action: PayloadAction<IGameStatus>) {
+      state.gameStatus = action.payload;
     },
 
     setOpenRaiseBar(state, action: PayloadAction<boolean>) {
@@ -132,6 +141,7 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setGameState, setOpenRaiseBar } = gameSlice.actions;
+export const { setGameState, setOpenRaiseBar, setGameStatus } =
+  gameSlice.actions;
 
 export default gameSlice.reducer;

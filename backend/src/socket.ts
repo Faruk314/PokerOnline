@@ -61,7 +61,7 @@ export default function setupSocket(httpServer: http.Server) {
     socket.on(
       "createRoom",
       async (data: { maxPlayers: number; roomName: string }) => {
-        if (!io) return console.log("IO does not exist");
+        if (!socket.id) return console.log("socket id missing in create room");
 
         const roomId = uuidv4();
         const { maxPlayers, roomName } = data;
@@ -94,6 +94,7 @@ export default function setupSocket(httpServer: http.Server) {
 
       if (response.status === "roomJoined") {
         socket.join(roomId);
+        console.log(socket.id, "socket id", roomId, "roomId");
         io.to(socket.id).emit("roomJoined", { roomId });
       }
 

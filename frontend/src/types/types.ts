@@ -102,6 +102,11 @@ interface ShopPackage {
   price: number;
 }
 
+interface IGameStatus {
+  isGameOver: boolean;
+  reason: TGameEndReason | null;
+}
+
 type TGameEndReason =
   | "opponentLeft"
   | "insufficientFunds"
@@ -132,4 +137,5 @@ export type {
   IGameEndData,
   TGameEndReason,
   ShopPackage,
+  IGameStatus,
 };

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import Wrapper from "./Wrapper";
@@ -16,19 +16,6 @@ const CreateGame = ({ setOpenModal }: Props) => {
   const { socket } = useContext(SocketContext);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleCreateRoom = () => {
-      setOpenModal(false);
-      toast.success("Room created");
-    };
-
-    socket?.on("roomCreated", handleCreateRoom);
-
-    return () => {
-      socket?.off("roomCreated", handleCreateRoom);
-    };
-  }, [socket, setOpenModal]);
-
   const handleConfirm = () => {
     if (roomName.length === 0) {
       return toast.error("Please enter a room name");
@@ -42,6 +29,8 @@ const CreateGame = ({ setOpenModal }: Props) => {
       return console.log("Socket does not exist in create game component");
 
     socket.emit("createRoom", { maxPlayers, roomName });
+
+    setOpenModal(false);
   };
 
   const handleClick = (maxPlayers: number) => {
