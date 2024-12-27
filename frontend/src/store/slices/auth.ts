@@ -19,7 +19,7 @@ const initialState: AuthState = {
 };
 
 export const register = createAsyncThunk<
-  UserInfo,
+  AuthResponse,
   UserData,
   { rejectValue: string }
 >("auth/register", async (user: UserData, thunkAPI) => {
@@ -98,11 +98,14 @@ const authSlice = createSlice({
       .addCase(register.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(register.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.loggedUserInfo = action.payload;
-      })
+      .addCase(
+        register.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.isLoading = false;
+          state.isSuccess = true;
+          state.loggedUserInfo = action.payload.userInfo;
+        }
+      )
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
@@ -151,6 +154,7 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.loggedUserInfo = null;
         state.isLoading = false;
+        state.isSuccess = true;
       });
   },
 });
