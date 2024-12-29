@@ -35,7 +35,6 @@ const Menu = () => {
 
   const handleExit = () => {
     dispatch(logout());
-    navigate("/");
   };
 
   if (isLoading) {

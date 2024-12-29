@@ -8,6 +8,7 @@ interface AuthState {
   isSuccess: boolean;
   isLoading: boolean;
   message: string;
+  fetchingLoginState: boolean;
 }
 
 const initialState: AuthState = {
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   isSuccess: false,
   isLoading: false,
   message: "",
+  fetchingLoginState: true,
 };
 
 export const register = createAsyncThunk<
@@ -91,6 +93,7 @@ const authSlice = createSlice({
       state.isSuccess = false;
       state.isError = false;
       state.message = "";
+      state.fetchingLoginState = false;
     },
   },
   extraReducers: (builder) => {
@@ -130,17 +133,17 @@ const authSlice = createSlice({
         state.loggedUserInfo = null;
       })
       .addCase(getLoginStatus.rejected, (state) => {
-        state.isLoading = false;
+        state.fetchingLoginState = false;
         state.loggedUserInfo = null;
       })
       .addCase(getLoginStatus.pending, (state) => {
-        state.isLoading = true;
+        state.fetchingLoginState = true;
       })
       .addCase(
         getLoginStatus.fulfilled,
         (state, action: PayloadAction<AuthResponse>) => {
           state.loggedUserInfo = action.payload.userInfo;
-          state.isLoading = false;
+          state.fetchingLoginState = false;
           state.isSuccess = true;
         }
       )
