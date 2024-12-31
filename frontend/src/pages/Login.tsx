@@ -65,7 +65,7 @@ const Login = () => {
           name="email"
           value={email}
           className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Enter your email"
+          placeholder="Email"
         />
         <input
           onChange={onChange}
@@ -73,11 +73,11 @@ const Login = () => {
           value={password}
           type="password"
           className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Enter your password"
+          placeholder="Password"
         />
 
         <div className="pt-5 w-[15rem]">
-          <button className="w-full button-border text-xl font-bold text-white w-full py-3 p-2 w-full bg-green-700 hover:bg-green-600 rounded-full">
+          <button className="w-full button-border text-xl font-bold text-white w-full py-3 p-2 w-full bg-green-600 hover:bg-green-600 rounded-full">
             LOGIN
           </button>
         </div>

@@ -66,43 +66,45 @@ const Register = () => {
     <section className="flex flex-col items-center justify-center bg-gray-800 h-[100vh] w-full">
       <form
         onSubmit={onSubmit}
-        className="flex flex-col items-center space-y-4 w-[20rem] p-8 button-border font-bold text-white rounded-md"
+        className="flex flex-col items-center space-y-4 w-[20rem] md:w-[30rem] p-8 button-border font-bold text-white rounded-md"
       >
         <Logo />
-        <input
-          onChange={onChange}
-          name="userName"
-          value={userName}
-          className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Enter your username"
-        />
-        <input
-          onChange={onChange}
-          name="email"
-          value={email}
-          className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Enter your email"
-        />
-        <input
-          onChange={onChange}
-          name="password"
-          value={password}
-          type="password"
-          className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Enter your password"
-        />
+        <div className="grid md:grid-cols-2 gap-4">
+          <input
+            onChange={onChange}
+            name="userName"
+            value={userName}
+            className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
+            placeholder="Username"
+          />
+          <input
+            onChange={onChange}
+            name="email"
+            value={email}
+            className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
+            placeholder="Email"
+          />
+          <input
+            onChange={onChange}
+            name="password"
+            value={password}
+            type="password"
+            className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
+            placeholder="Password"
+          />
 
-        <input
-          onChange={onChange}
-          name="password2"
-          value={password2}
-          type="password"
-          className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
-          placeholder="Repeat your password"
-        />
+          <input
+            onChange={onChange}
+            name="password2"
+            value={password2}
+            type="password"
+            className="rounded-md px-2 py-3 text-gray-500 w-full placeholder:text-[1rem] button-border"
+            placeholder="Repeat Password"
+          />
+        </div>
 
         <div className="pt-5 w-[15rem]">
-          <button className="button-border text-xl font-bold text-white w-full py-3 p-2 w-full bg-green-700 hover:bg-green-600 rounded-full">
+          <button className="button-border text-xl font-bold text-white w-full py-3 p-2 w-full bg-green-600 hover:bg-green-600 rounded-full">
             REGISTER
           </button>
         </div>
