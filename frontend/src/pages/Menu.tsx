@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AudioContext } from "../context/AudioContext";
 import UserInfo from "../components/UserInfo";
-import { FaVolumeMute } from "react-icons/fa";
+import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import CreateGame from "../modals/CreateGame";
 import JoinGame from "../modals/JoinGame";
 import Logo from "../components/Logo";
@@ -17,6 +18,7 @@ const Menu = () => {
   const [openShop, setOpenShop] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { volumeOn, handleVolume } = useContext(AudioContext);
   const { isLoading, isError, isSuccess } = useAppSelector(
     (state) => state.auth
   );
@@ -45,11 +47,12 @@ const Menu = () => {
     <section className="bg-gray-800 flex items-center justify-center text-xl font-bold h-[100vh] w-full text-white">
       <div className="fixed flex items-start justify-between top-0 px-4 py-4 w-full">
         <UserInfo />
-        <div className="button-border flex rounded-md h-max text-xl">
-          <button className="text-white p-2">
-            <FaVolumeMute />
-          </button>
-        </div>
+        <button
+          onClick={handleVolume}
+          className="button-border flex rounded-md p-2 h-max text-xl"
+        >
+          {volumeOn ? <FaVolumeUp /> : <FaVolumeMute />}
+        </button>
       </div>
 
       <div className="flex flex-col items-center space-y-4">

@@ -1,4 +1,4 @@
-import { createContext, ReactNode } from "react";
+import { createContext, ReactNode, useState } from "react";
 import { Howl } from "howler";
 
 const initialAudioContextData: any = {};
@@ -12,7 +12,11 @@ type AudioContextProviderProps = {
 export const AudioContextProvider = ({
   children,
 }: AudioContextProviderProps) => {
+  const [volumeOn, setVolumeOn] = useState(false);
+
   const playAudio = (soundUrl: string) => {
+    if (!volumeOn) return;
+
     const sound = new Howl({
       src: [soundUrl],
     });
@@ -20,7 +24,17 @@ export const AudioContextProvider = ({
     sound.play();
   };
 
-  const contextValue = { playAudio };
+  const handleVolume = () => {
+    if (volumeOn) {
+      Howler.volume(0);
+    } else {
+      Howler.volume(1);
+    }
+
+    setVolumeOn((prev) => !prev);
+  };
+
+  const contextValue = { playAudio, handleVolume, volumeOn };
 
   return (
     <AudioContext.Provider value={contextValue}>
