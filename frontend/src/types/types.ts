@@ -13,6 +13,7 @@ interface GameRoom {
   roomId: string;
   roomName: string;
   maxPlayers: number;
+  minStake: number;
   players: [];
 }
 

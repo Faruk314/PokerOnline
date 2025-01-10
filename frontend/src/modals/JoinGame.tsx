@@ -5,6 +5,7 @@ import logo from "../assets/images/pokerlogo.png";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchRooms } from "../store/slices/game";
 import { SocketContext } from "../context/SocketContext";
+import chipSM from "../assets/images/chip.png";
 
 interface Props {
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,7 +48,14 @@ const JoinGame = ({ setOpenModal }: Props) => {
                 <img src={logo} className="w-10 h-10" />
 
                 <div className="flex flex-col items-start">
-                  <p>{gameRoom.roomName}</p>
+                  <div className="flex items-center space-x-1">
+                    <span>Room:</span>
+                    <span className="text-green-400">{gameRoom.roomName}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <span> Min stake: {gameRoom.minStake}</span>
+                    <img src={chipSM} className="h-[1rem]" />
+                  </div>
                 </div>
               </div>
 
