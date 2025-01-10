@@ -253,8 +253,6 @@ const determineTablePositions = (gameState: IGame) => {
     }
   }
 
-  console.log("table pos", playersMap);
-
   return playersMap;
 };
 

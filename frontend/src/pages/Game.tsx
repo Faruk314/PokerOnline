@@ -8,14 +8,13 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { getGameState } from "../store/slices/game";
 import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
-import { SocketContext } from "../context/SocketContext";
+
 import { pokerCards } from "../utils/cards";
 import classNames from "classnames";
 import Player from "../components/Player";
 import { AnimationContext } from "../context/AnimationContext";
 
 const Game = () => {
-  const { socket } = useContext(SocketContext);
   const [openMenu, setOpenMenu] = useState(false);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const { gameState, isLoading } = useAppSelector((state) => state.game);
@@ -27,24 +26,18 @@ const Game = () => {
     dispatch(getGameState(id!));
   }, [dispatch, id]);
 
-  useEffect(() => {
-    socket?.on("connect", () => {
-      if (id) {
-        socket?.emit("reconnectToRoom", id);
-      }
-    });
-  }, [id, socket]);
-
   const getTablePositions = () => {
-    const tablePositions = gameState?.tablePositions;
+    if (!gameState) return null;
 
-    console.log(gameState, "game state");
+    const tablePositions = gameState?.tablePositions;
 
     if (!tablePositions) return null;
 
     if (!loggedUserInfo?.userId) return null;
 
-    const userTablePositions = tablePositions[loggedUserInfo?.userId];
+    const userTablePositions = tablePositions[loggedUserInfo.userId];
+
+    if (!userTablePositions) return null;
 
     return Object.entries(userTablePositions).map(([key, value]) => {
       const playerData = gameState?.players.find(
@@ -63,12 +56,12 @@ const Game = () => {
     return (
       <div
         key={c}
-        className={classNames("w-[4rem]", {
+        className={classNames("w-[4.3rem]", {
           cardSlideOne: index === 1 && animateFlop,
           cardSlideTwo: index === 2 && animateFlop,
         })}
       >
-        <div className="h-full bg-white w-full rounded-md">
+        <div className="h-full bg-white w-full rounded-sm">
           <img src={card?.image} className="h-full rounded-md" />
         </div>
       </div>
@@ -114,7 +107,7 @@ const Game = () => {
           </div>
 
           <div className="relative flex flex-col items-center">
-            <div className="flex space-x-2 w-[22rem]">
+            <div className="flex space-x-2">
               {gameState?.communityCards.map((c, index) => {
                 return findCard(c, index);
               })}

@@ -48,8 +48,6 @@ export default function setupSocket(httpServer: http.Server) {
         userSocketId: socket.id,
       };
 
-      console.log(`${socket.userName}`, `${socket.id}`);
-
       await addUser(userInfo);
     }
 
@@ -94,7 +92,6 @@ export default function setupSocket(httpServer: http.Server) {
 
       if (response.status === "roomJoined") {
         socket.join(roomId);
-        console.log(socket.id, "socket id", roomId, "roomId");
         io.to(socket.id).emit("roomJoined", { roomId });
       }
 

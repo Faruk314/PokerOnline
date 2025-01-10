@@ -1,4 +1,4 @@
-import { Suspense, useContext, useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import Game from "./pages/Game";
 import { Routes, Route } from "react-router-dom";
 import Menu from "./pages/Menu";
@@ -7,7 +7,6 @@ import Register from "./pages/Register";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { getLoginStatus } from "./store/slices/auth";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
-import { SocketContext } from "./context/SocketContext";
 import GameOver from "./modals/GameOver";
 import "./App.css";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -17,16 +16,14 @@ import NotFound from "./pages/NotFound";
 import Loader from "./components/Loader";
 
 function App() {
-  const { socket } = useContext(SocketContext);
   const { gameStatus } = useAppSelector((state) => state.game);
-
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getLoginStatus());
   }, [dispatch]);
 
-  useSocketEvents(socket!);
+  useSocketEvents();
 
   return (
     <Suspense fallback={<Loader />}>

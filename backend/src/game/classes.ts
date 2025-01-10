@@ -176,8 +176,6 @@ class Game {
     if (!lastPlayerData) return;
 
     this.io!.to(lastPlayerData?.userSocketId).emit("gameEnd", { reason });
-
-    this.io!.in(this.roomId).socketsLeave(lastPlayerData.userSocketId);
   }
 
   async disconnect(playerId: number, userName: string) {
@@ -348,7 +346,7 @@ class Game {
     }
 
     const start = Date.now();
-    const turnDuration = 30000000;
+    const turnDuration = 10000;
 
     this.playerTurn.time = {
       startTime: new Date(start),
