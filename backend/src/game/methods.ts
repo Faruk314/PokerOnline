@@ -67,86 +67,85 @@ const initializeGame = async (roomId: string) => {
     },
   };
 
-  if (room.gameState) {
-    room.gameState.deck = generateDeck();
+  if (!room.gameState) return false;
 
-    room.players.forEach((user) => {
-      if (!room.gameState?.deck) return;
+  room.gameState.deck = generateDeck();
 
-      const firstRandomCardIndex = Math.floor(
-        Math.random() * room.gameState?.deck.length
-      );
+  room.players.forEach((user) => {
+    if (!room.gameState?.deck) return;
 
-      const firstCard = room.gameState.deck.splice(firstRandomCardIndex, 1);
-
-      const secondRandomCardIndex = Math.floor(
-        Math.random() * room.gameState?.deck.length
-      );
-
-      const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
-
-      const player: IPlayer = {
-        coins: 1000,
-        playerInfo: user,
-        isDealer: false,
-        isSmallBind: false,
-        isBigBind: false,
-        cards: [...firstCard, ...secondCard],
-        isAllIn: false,
-        isFold: false,
-        isCall: false,
-        isCheck: false,
-        playerRaise: {
-          amount: 0,
-          isRaise: false,
-        },
-        playerPot: 0,
-        hand: null,
-        time: null,
-      };
-
-      room.gameState?.players.push(player);
-    });
-
-    room.gameState.tablePositions = determineTablePositions(room.gameState);
-
-    const randomNumber = Math.floor(
-      Math.random() * room.gameState?.players.length
+    const firstRandomCardIndex = Math.floor(
+      Math.random() * room.gameState?.deck.length
     );
 
-    const bigBindAmount = 50;
+    const firstCard = room.gameState.deck.splice(firstRandomCardIndex, 1);
 
-    room.gameState.players[randomNumber].isDealer = true;
+    const secondRandomCardIndex = Math.floor(
+      Math.random() * room.gameState?.deck.length
+    );
 
-    const smallBindIndex = (randomNumber + 1) % room.gameState.players.length;
+    const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
-    room.gameState.players[smallBindIndex].isSmallBind = true;
-    room.gameState.players[smallBindIndex].playerPot = bigBindAmount / 2;
-    room.gameState.players[smallBindIndex].coins -= bigBindAmount / 2;
-
-    const bigBindIndex = (smallBindIndex + 1) % room.gameState.players.length;
-
-    room.gameState.players[bigBindIndex].isBigBind = true;
-    room.gameState.players[bigBindIndex].playerPot = bigBindAmount;
-    room.gameState.players[bigBindIndex].coins -= bigBindAmount;
-
-    const playerTurnIndex =
-      (smallBindIndex + 2) % room.gameState.players.length;
-
-    room.gameState.lastBet = bigBindAmount;
-    room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
-
-    const start = Date.now();
-    const turnDuration = 30000;
-
-    room.gameState.playerTurn.time = {
-      startTime: new Date(start),
-      endTime: new Date(start + turnDuration),
+    const player: IPlayer = {
+      coins: 1000,
+      playerInfo: user,
+      isDealer: false,
+      isSmallBind: false,
+      isBigBind: false,
+      cards: [...firstCard, ...secondCard],
+      isAllIn: false,
+      isFold: false,
+      isCall: false,
+      isCheck: false,
+      playerRaise: {
+        amount: 0,
+        isRaise: false,
+      },
+      playerPot: 0,
+      hand: null,
+      time: null,
     };
-    room.gameState.minRaiseAmount = bigBindAmount * 2;
-    room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
-    room.gameState.communityCards = [];
-  }
+
+    room.gameState?.players.push(player);
+  });
+
+  room.gameState.tablePositions = determineTablePositions(room.gameState);
+
+  const randomNumber = Math.floor(
+    Math.random() * room.gameState?.players.length
+  );
+
+  const bigBindAmount = 50;
+
+  room.gameState.players[randomNumber].isDealer = true;
+
+  const smallBindIndex = (randomNumber + 1) % room.gameState.players.length;
+
+  room.gameState.players[smallBindIndex].isSmallBind = true;
+  room.gameState.players[smallBindIndex].playerPot = bigBindAmount / 2;
+  room.gameState.players[smallBindIndex].coins -= bigBindAmount / 2;
+
+  const bigBindIndex = (smallBindIndex + 1) % room.gameState.players.length;
+
+  room.gameState.players[bigBindIndex].isBigBind = true;
+  room.gameState.players[bigBindIndex].playerPot = bigBindAmount;
+  room.gameState.players[bigBindIndex].coins -= bigBindAmount;
+
+  const playerTurnIndex = (smallBindIndex + 2) % room.gameState.players.length;
+
+  room.gameState.lastBet = bigBindAmount;
+  room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
+
+  const start = Date.now();
+  const turnDuration = 30000;
+
+  room.gameState.playerTurn.time = {
+    startTime: new Date(start),
+    endTime: new Date(start + turnDuration),
+  };
+  room.gameState.minRaiseAmount = bigBindAmount * 2;
+  room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
+  room.gameState.communityCards = [];
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));

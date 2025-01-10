@@ -89,8 +89,15 @@ interface RoomData {
   roomId: string;
   roomName: string;
   maxPlayers: number;
+  minStake: number;
   players: { userId: number; userName: string }[];
   gameState: IGame | null;
+}
+
+interface CreateRoomData {
+  maxPlayers: number;
+  roomName: string;
+  minStake: number;
 }
 
 interface GetKickersArgs {
@@ -127,6 +134,7 @@ export type {
   UserData,
   GetUserCallback,
   RoomData,
+  CreateRoomData,
   IGame,
   IPlayer,
   IRaise,

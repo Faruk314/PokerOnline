@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import http from "http";
 import jwt from "jsonwebtoken";
-import { VerifiedToken } from "./types/types";
+import { CreateRoomData, VerifiedToken } from "./types/types";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -56,29 +56,37 @@ export default function setupSocket(httpServer: http.Server) {
       socket.join(roomId);
     });
 
-    socket.on(
-      "createRoom",
-      async (data: { maxPlayers: number; roomName: string }) => {
-        if (!socket.id) return console.log("socket id missing in create room");
+    socket.on("createRoom", async (data: CreateRoomData) => {
+      const stakes = [500, 1000, 10000, 50000, 100000, 500000, 1000000];
 
-        const roomId = uuidv4();
-        const { maxPlayers, roomName } = data;
+      if (!socket.id) return console.log("socket id missing in create room");
 
-        const roomData = {
-          roomId,
-          maxPlayers,
-          roomName,
-          players: [],
-          gameState: null,
-        };
-
-        const roomCreated = await createRoom(roomData);
-
-        if (roomCreated) {
-          io.to(socket.id).emit("roomCreated");
-        }
+      if (data.maxPlayers > 6 || data.maxPlayers < 1) {
+        return console.log("Invalid maxPlayers number");
       }
-    );
+
+      const isValidStake = stakes.some((stake) => stake === data.minStake);
+
+      if (!isValidStake) return console.log("Invalid min stake amount");
+
+      const roomId = uuidv4();
+      const { maxPlayers, roomName, minStake } = data;
+
+      const roomData = {
+        roomId,
+        maxPlayers,
+        roomName,
+        minStake,
+        players: [],
+        gameState: null,
+      };
+
+      const roomCreated = await createRoom(roomData);
+
+      if (roomCreated) {
+        io.to(socket.id).emit("roomCreated");
+      }
+    });
 
     socket.on("joinRoom", async (data: { roomId: string }) => {
       const { roomId } = data;
