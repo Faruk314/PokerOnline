@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useAppSelector } from "../store/hooks";
 
@@ -39,23 +39,29 @@ export const SocketContextProvider = ({
     return null;
   };
 
-  useEffect(() => {
-    const socketRef = { current: null as Socket | null };
-
+  const socketInstance = useMemo(() => {
     if (loggedUserInfo) {
-      socketRef.current = io("http://localhost:5001", {
+      const socket = io("http://localhost:5001", {
         transports: ["websocket"],
-        auth: {
-          token: getCookie("token"),
-        },
+        auth: { token: getCookie("token") },
+        autoConnect: false,
       });
-      setSocket(socketRef.current);
+      socket.connect();
+      return socket;
     }
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
+    return null;
   }, [loggedUserInfo]);
+
+  useEffect(() => {
+    if (socketInstance) {
+      setSocket(socketInstance);
+
+      return () => {
+        socketInstance.disconnect();
+        setSocket(null);
+      };
+    }
+  }, [socketInstance]);
 
   const contextValue: SocketContextData = {
     socket,
