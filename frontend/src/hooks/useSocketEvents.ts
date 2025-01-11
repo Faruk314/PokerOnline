@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useContext } from "react";
 import { GameContext } from "../context/GameContext";
-import { IGame, IGameEndData } from "../types/types";
+import { IGame, IGameEndData, TRoomJoinDenied } from "../types/types";
 import { setGameState, setGameStatus } from "../store/slices/game";
 import { SocketContext } from "../context/SocketContext";
 
@@ -50,9 +50,17 @@ export const useSocketEvents = () => {
     navigate(`/game/${roomId}`);
   });
 
-  useSocketEvent(socket, "roomFull", () => {
-    toast.error("This room is full");
-  });
+  useSocketEvent(
+    socket,
+    "joinRoomDenied",
+    (data: { reason: TRoomJoinDenied }) => {
+      if (data.reason === "roomFull")
+        toast.error("Could not join this room. Room is full");
+
+      if (data.reason === "insufficientFunds")
+        toast.error("Could not join this room due to insufficient funds");
+    }
+  );
 
   useSocketEvent(socket, "playerLeft", ({ playerId, userName }) => {
     const user = loggedUserId === playerId ? `You` : `Player ${userName}`;

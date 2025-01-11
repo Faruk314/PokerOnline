@@ -81,17 +81,29 @@ export const getGameState = asyncHandler(
   }
 );
 
+export const getPlayerChips = async (userId: number) => {
+  const q = "SELECT `chips` FROM `user_chips` WHERE `userId` = ?";
+  const data: any = await query(q, [userId]);
+
+  if (!data || data.length === 0) {
+    throw new Error("No chips data found for the user.");
+  }
+  return data[0];
+};
+
 export const fetchChips = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.userId;
 
-  try {
-    let q = "SELECT `chips` FROM `user_chips` WHERE `userId` = ?";
-
-    let data: any = await query(q, [userId]);
-
-    res.status(200).json(data[0]);
-  } catch (error) {
+  if (!userId) {
     res.status(400);
-    throw new Error("Failed to fetch user chips");
+    throw new Error("User id does not exist in fetch chips");
+  }
+
+  try {
+    const data = await getPlayerChips(userId);
+    res.status(200).json(data);
+  } catch (error: any) {
+    res.status(400);
+    throw new Error(error.message);
   }
 });

@@ -1,3 +1,4 @@
+import { getPlayerChips } from "../controllers/game";
 import { RoomData, UserData } from "../types/types";
 import { client } from "./../index";
 
@@ -69,6 +70,14 @@ const joinRoom = async ({
   if (room.players.length >= room.maxPlayers) {
     console.log(`Room ${roomId} is full.`);
     return { status: "roomFull" }; // Room is full
+  }
+
+  const playerFunds: { chips: number } | undefined = await getPlayerChips(
+    playerId
+  );
+
+  if (playerFunds && playerFunds?.chips < room.minStake) {
+    return { status: "insufficientFunds" };
   }
 
   // Add player to room

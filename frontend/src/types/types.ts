@@ -113,6 +113,8 @@ type TGameEndReason =
   | "insufficientFunds"
   | "opponentInsufficientFunds";
 
+type TRoomJoinDenied = "insufficientFunds" | "roomFull";
+
 type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
 
 interface ITablePositionsMap {
@@ -137,6 +139,7 @@ export type {
   Hand,
   IGameEndData,
   TGameEndReason,
+  TRoomJoinDenied,
   ShopPackage,
   IGameStatus,
 };

@@ -98,9 +98,21 @@ export default function setupSocket(httpServer: http.Server) {
 
       const response = await joinRoom({ roomId, playerId: userId, userName });
 
+      if (response.status === "roomFull") {
+        return io
+          .to(socket.id)
+          .emit("joinRoomDenied", { reason: response.status });
+      }
+
+      if (response.status === "insufficientFunds") {
+        return io
+          .to(socket.id)
+          .emit("joinRoomDenied", { reason: response.status });
+      }
+
       if (response.status === "roomJoined") {
         socket.join(roomId);
-        io.to(socket.id).emit("roomJoined", { roomId });
+        return io.to(socket.id).emit("roomJoined", { roomId });
       }
 
       if (response.status === "gameStart") {
@@ -123,10 +135,6 @@ export default function setupSocket(httpServer: http.Server) {
           .addTimer(roomId, playerTurnId, endDate);
 
         await game.updateGameState(null, "gameStarted");
-      }
-
-      if (response.status === "roomFull") {
-        io.to(socket.id).emit("roomFull");
       }
     });
 
