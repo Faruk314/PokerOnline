@@ -81,14 +81,58 @@ export const getGameState = asyncHandler(
   }
 );
 
-export const getPlayerChips = async (userId: number) => {
+export const getPlayerChips = async (playerId: number) => {
   const q = "SELECT `chips` FROM `user_chips` WHERE `userId` = ?";
-  const data: any = await query(q, [userId]);
+  const data: any = await query(q, [playerId]);
 
   if (!data || data.length === 0) {
     throw new Error("No chips data found for the user.");
   }
   return data[0];
+};
+
+export const decrementPlayerChips = async (
+  playerId: number,
+  amount: number
+) => {
+  try {
+    const q =
+      "UPDATE `user_chips` SET `chips` = `chips` - ? WHERE `userId` = ?";
+
+    const response: any = await query(q, [amount, playerId]);
+
+    if (!response.affectedRows) {
+      console.log("Failed to update player chips.");
+    }
+
+    return true;
+  } catch (error) {
+    console.log("decrement player chips failed");
+
+    return false;
+  }
+};
+
+export const incrementPlayerChips = async (
+  playerId: number,
+  amount: number
+) => {
+  try {
+    const q =
+      "UPDATE `user_chips` SET `chips` = `chips` + ? WHERE `userId` = ?";
+
+    const response: any = await query(q, [amount, playerId]);
+
+    if (!response.affectedRows) {
+      console.log("Failed to update player chips.");
+    }
+
+    return true;
+  } catch (error) {
+    console.log("decrement player chips failed");
+
+    return false;
+  }
 };
 
 export const fetchChips = asyncHandler(async (req: Request, res: Response) => {

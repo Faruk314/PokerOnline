@@ -17,6 +17,7 @@ import { deleteGameState, generateDeck, saveGameState } from "./methods";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
 import { getUser } from "../socket/socketMethods";
+import { incrementPlayerChips } from "../controllers/game";
 
 const handRanks = [
   "highCard",
@@ -169,6 +170,10 @@ class Game {
   async initGameOver(reason: string) {
     const lastPlayerId = this.players[0].playerInfo.userId;
 
+    const lastPlayerCoins = this.players[0].coins;
+
+    await incrementPlayerChips(lastPlayerId, lastPlayerCoins);
+
     await deleteGameState(this.roomId);
 
     const lastPlayerData = await getUser(lastPlayerId);
@@ -179,11 +184,21 @@ class Game {
   }
 
   async disconnect(playerId: number, userName: string) {
-    this.players = this.players.filter(
-      (player) => player.playerInfo.userId !== playerId
-    );
+    let disconnectedPlayerCoins: number | null = null;
+
+    this.players = this.players.filter((player) => {
+      if (player.playerInfo.userId === playerId) {
+        disconnectedPlayerCoins = player.coins;
+        return false;
+      }
+      return true;
+    });
 
     this.updateTablePositions(playerId);
+
+    if (disconnectedPlayerCoins) {
+      await incrementPlayerChips(playerId, disconnectedPlayerCoins);
+    }
 
     this.io?.to(this.roomId).emit("playerLeft", { playerId, userName });
 

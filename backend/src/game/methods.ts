@@ -3,6 +3,7 @@ import { client } from "../index";
 import { Game } from "./classes";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
+import { decrementPlayerChips } from "../controllers/game";
 
 dotenv.config();
 
@@ -71,23 +72,32 @@ const initializeGame = async (roomId: string) => {
 
   room.gameState.deck = generateDeck();
 
-  room.players.forEach((user) => {
+  for (let i = 0; i < room.players.length; i++) {
     if (!room.gameState?.deck) return;
 
+    const user = room.players[i];
+
     const firstRandomCardIndex = Math.floor(
-      Math.random() * room.gameState?.deck.length
+      Math.random() * room.gameState.deck.length
     );
 
     const firstCard = room.gameState.deck.splice(firstRandomCardIndex, 1);
 
     const secondRandomCardIndex = Math.floor(
-      Math.random() * room.gameState?.deck.length
+      Math.random() * room.gameState.deck.length
     );
 
     const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
+    const playerBalanceUpdated = await decrementPlayerChips(
+      user.userId,
+      room.minStake
+    );
+
+    if (!playerBalanceUpdated) return false;
+
     const player: IPlayer = {
-      coins: 1000,
+      coins: room.minStake,
       playerInfo: user,
       isDealer: false,
       isSmallBind: false,
@@ -107,7 +117,7 @@ const initializeGame = async (roomId: string) => {
     };
 
     room.gameState?.players.push(player);
-  });
+  }
 
   room.gameState.tablePositions = determineTablePositions(room.gameState);
 
