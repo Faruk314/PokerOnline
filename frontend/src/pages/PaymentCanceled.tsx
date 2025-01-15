@@ -11,7 +11,7 @@ const PaymentCanceled = () => {
         <div className="flex flex-col items-center space-y-2 pb-5 max-w-[30rem]">
           <h2 className="text-2xl font-bold">Your payment was canceled</h2>
 
-          <p className="text-center">
+          <p className="text-center text-[0.9rem] md:text-[1rem]">
             If this was unintentional or you're facing issues completing your
             payment, please try again or contact our support team for
             assistance.
@@ -22,7 +22,7 @@ const PaymentCanceled = () => {
           onClick={() => {
             navigate("/menu");
           }}
-          className="button-border p-4 w-[15rem] bg-green-600 hover:bg-green-500 font-bold rounded-full"
+          className="button-border p-4 w-[10rem] md:w-[15rem] bg-green-600 hover:bg-green-500 font-bold rounded-full"
         >
           Back to menu
         </button>

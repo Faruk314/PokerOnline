@@ -9,15 +9,15 @@ const PaymentSuccess = () => {
         <Logo />
 
         <div className="flex flex-col items-center space-y-2 pb-5">
-          <h2 className="text-4xl font-bold">Payment Success</h2>
-          <p className="text-xl">Thank you for your purchase!</p>
+          <h2 className="text-3xl md:text-4xl font-bold">Payment Success</h2>
+          <p className="text-[1rem] md:text-xl">Thank you for your purchase!</p>
         </div>
 
         <button
           onClick={() => {
             navigate("/menu");
           }}
-          className="button-border p-4 w-[15rem] bg-green-600 hover:bg-green-500 font-bold rounded-full"
+          className="button-border p-4 w-[10rem] md:w-[15rem] bg-green-600 hover:bg-green-500 font-bold rounded-full"
         >
           Back to menu
         </button>
