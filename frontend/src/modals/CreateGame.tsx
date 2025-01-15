@@ -86,7 +86,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
     <Wrapper setOpenModal={setOpenModal} modalRef={modalRef}>
       <div
         ref={modalRef}
-        className="relative z-40 w-[30rem] p-6 mx-2 space-y-4 bg-gray-800 rounded-md button-border"
+        className="relative z-40 w-[21rem] md:w-[30rem] p-4 md:p-6 space-y-4 bg-gray-800 rounded-md button-border"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-2xl">Create Game</h2>
@@ -98,7 +98,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
         <div className="flex flex-col space-y-4 pt-7">
           <input
             onChange={(e) => handleChange("roomName", e.target.value)}
-            className="rounded-md px-2 py-2 text-gray-500 placeholder:text-[1rem] button-border"
+            className="rounded-md px-2 py-2 text-gray-500 placeholder:text-[0.9rem] md:placeholder:text-[1rem] button-border"
             placeholder="Room Name"
           />
         </div>
@@ -106,7 +106,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
         <div className="relative">
           <button
             onClick={handleDropdownClick}
-            className="rounded-md px-2 py-2 flex items-center justify-between w-full cursor-pointer bg-white text-gray-400 text-[1rem] button-border"
+            className="rounded-md px-2 py-2 flex items-center justify-between w-full cursor-pointer bg-white text-gray-400 text-[0.9rem] md:text-[1rem] button-border"
           >
             {roomSettings.minStake === 500 ? (
               <div className="flex space-x-1 items-center">
@@ -160,7 +160,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
                 onClick={() => handleClick("maxPlayers", item)}
                 key={item}
                 className={classNames(
-                  "bg-white text-black px-6 py-1 button-border rounded-md mr-2 mt-2",
+                  "bg-white text-black px-4 md:px-6 py-1 button-border rounded-md mr-2 mt-2",
                   {
                     "bg-red-500 text-white": roomSettings.maxPlayers === item,
                   }

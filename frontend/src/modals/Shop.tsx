@@ -40,7 +40,7 @@ const Shop = ({ setOpenModal }: Props) => {
     <Wrapper setOpenModal={setOpenModal} modalRef={modalRef}>
       <div
         ref={modalRef}
-        className="relative z-40 mx-2 overflow-y-auto space-y-4 bg-gray-800 rounded-md button-border"
+        className="relative z-40 w-max overflow-y-auto space-y-4 bg-gray-800 rounded-md button-border"
       >
         <div className="sticky w-full bg-gray-800 border-b border-black top-0 right-0 p-6 bg-gray-800 flex items-center justify-between">
           <h2 className="text-2xl">SHOP</h2>
@@ -49,14 +49,14 @@ const Shop = ({ setOpenModal }: Props) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 px-6 pt-2 pb-6">
+        <div className="grid grid-cols-2 gap-4 px-4 md:px-6 pt-2 pb-6">
           {shopLoading ? (
             <Loader />
           ) : (
             shopPackages.map((item) => (
               <div
                 key={item.packageId}
-                className="button-border flex flex-col items-center justify-between py-2 h-[16rem] w-[12rem] px-3 rounded-md"
+                className="button-border flex flex-col items-center justify-between py-2 h-[13rem] w-[9.5rem] md:h-[16rem] md:w-[12rem] px-3 rounded-md"
               >
                 <div className="flex items-center space-x-1">
                   <span>{item.amount}</span>
