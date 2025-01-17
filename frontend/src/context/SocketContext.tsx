@@ -32,6 +32,7 @@ export const SocketContextProvider = ({
       const cookie = cookies[i].trim();
       if (cookie.startsWith(name + "=")) {
         const value = cookie.substring(name.length + 1);
+
         return decodeURIComponent(value);
       }
     }
@@ -41,7 +42,7 @@ export const SocketContextProvider = ({
 
   const socketInstance = useMemo(() => {
     if (loggedUserInfo) {
-      const socket = io("http://localhost:5001", {
+      const socket = io("http://192.168.10.114:5001", {
         transports: ["websocket"],
         auth: { token: getCookie("token") },
         autoConnect: false,

@@ -18,7 +18,7 @@ import { handleWebHook } from "./controllers/payment";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 const server = http.createServer(app);
 
@@ -26,13 +26,20 @@ export const io = setupSocket(server);
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      return callback(null, true);
-    },
-    optionsSuccessStatus: 200,
+    origin: "http://192.168.10.114:5173", // Allow requests from any origin
     credentials: true,
   })
 );
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       return callback(null, true);
+//     },
+//     optionsSuccessStatus: 200,
+//     credentials: true,
+//   })
+// );
 
 export const redisPort = parseInt(
   process.env.REDIS_PORT ? process.env.REDIS_PORT : "6379"
@@ -56,7 +63,7 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
