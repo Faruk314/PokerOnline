@@ -66,14 +66,20 @@ export const AnimationContextProvider = ({
   const createChipElement = (topPos: number, leftPos: number) => {
     const chipElement = document.createElement("img");
 
+    const rootStyles = getComputedStyle(document.documentElement);
+
     chipElement.src = chip;
     chipElement.style.position = "absolute";
     chipElement.style.zIndex = "300";
-    chipElement.style.width = "1.2rem";
-    chipElement.style.height = "1.2rem";
     chipElement.style.top = `${topPos}px`;
     chipElement.style.left = `${leftPos}px`;
     chipElement.style.transition = "top 0.5s, left 0.5s";
+    chipElement.style.width = rootStyles
+      .getPropertyValue("--chip-width")
+      .trim();
+    chipElement.style.height = rootStyles
+      .getPropertyValue("--chip-height")
+      .trim();
 
     return chipElement;
   };
