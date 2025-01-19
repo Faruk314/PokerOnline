@@ -7,6 +7,7 @@ import { fetchRooms } from "../store/slices/game";
 import { SocketContext } from "../context/SocketContext";
 import chipSM from "../assets/images/chip.png";
 import { FiLogIn } from "react-icons/fi";
+import Loader from "../components/Loader";
 
 interface Props {
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,6 +18,7 @@ const JoinGame = ({ setOpenModal }: Props) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const dispatch = useAppDispatch();
   const { gameRooms } = useAppSelector((state) => state.game);
+  const roomsLoading = useAppSelector((state) => state.game.isLoading);
 
   useEffect(() => {
     dispatch(fetchRooms());
@@ -25,6 +27,14 @@ const JoinGame = ({ setOpenModal }: Props) => {
   const handleJoin = (id: string) => {
     socket?.emit("joinRoom", { roomId: id });
   };
+
+  if (roomsLoading) {
+    return (
+      <div className="fixed inset-0">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <Wrapper setOpenModal={setOpenModal} modalRef={modalRef}>
