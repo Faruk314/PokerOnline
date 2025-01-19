@@ -21,6 +21,7 @@ const RaiseBar = () => {
     if (amount === maxRaiseAmmount) return;
 
     const newAmount = amount + 25;
+
     setAmount(newAmount);
   };
 
@@ -28,6 +29,7 @@ const RaiseBar = () => {
     if (amount === minRaiseAmount) return;
 
     const newAmount = amount - 25;
+
     setAmount(newAmount);
   };
 
@@ -61,7 +63,7 @@ const RaiseBar = () => {
           type="number"
           onChange={handleInput}
           placeholder="Enter amount"
-          className="text-black w-[8rem] h-[3rem] px-2 text-[0.7rem] rounded-md outline-none"
+          className="text-black w-[6rem] xl:w-[8rem] h-[2.5rem] xl:h-[3rem] px-2 text-[0.7rem] rounded-md outline-none"
         />
       </div>
       <div className="flex items-center space-x-4">
@@ -72,14 +74,14 @@ const RaiseBar = () => {
 
         <button
           onClick={() => dispatch(setOpenRaiseBar(false))}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
+          className="button-border flex space-x-3 items-center text-[1.8rem] xl:text-xl bg-gray-900 xl:px-2 xl:py-2 hover:bg-gray-800 rounded-md"
         >
-          <IoCaretBackOutline size={30} />
+          <IoCaretBackOutline />
         </button>
 
         <button
           onClick={handleDecrement}
-          className="button-border flex space-x-3 items-center p-2 bg-red-600 text-xl hover:bg-red-500 rounded-full"
+          className="button-border flex space-x-3 items-center p-1 xl:p-2 bg-red-600 text-xl hover:bg-red-500 rounded-full"
         >
           <FaMinus />
         </button>
@@ -96,14 +98,14 @@ const RaiseBar = () => {
 
         <button
           onClick={handleIncrement}
-          className="button-border flex space-x-3 items-center p-2 bg-green-600 text-xl hover:bg-green-500 rounded-full"
+          className="button-border flex space-x-3 items-center p-1 xl:p-2 bg-green-600 text-xl hover:bg-green-500 rounded-full"
         >
           <FaPlus />
         </button>
 
         <button
           onClick={handleMove}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-2 py-2 hover:bg-gray-800 rounded-md"
+          className="button-border flex space-x-3 items-center bg-gray-900 text-[1.2rem] xl:text-xl px-1 xl:px-2 xl:py-2 hover:bg-gray-800 rounded-md"
         >
           OK
         </button>
