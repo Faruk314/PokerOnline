@@ -37,7 +37,7 @@ const TimeBar = ({ time }: Props) => {
   }, [time.startTime, time.endTime]);
 
   return (
-    <div className="h-[0.65rem] w-full bg-transparent border">
+    <div className="h-[0.5rem] xl:h-[0.65rem] w-full bg-transparent border">
       <div
         ref={timeBarRef}
         className="bg-green-600 w-full h-full transition-all duration-200"
