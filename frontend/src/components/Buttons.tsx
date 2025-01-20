@@ -9,6 +9,14 @@ import { setOpenRaiseBar } from "../store/slices/game";
 
 const Buttons = () => {
   const { gameState } = useAppSelector((state) => state.game);
+  // const gameState = {
+  //   winner: false,
+  //   playerTurn: { coins: 5000, playerPot: 50 },
+  //   minRaiseAmount: 50,
+  //   draw: { isDraw: false },
+  //   lastBet: 0,
+  //   players: [{ coins: 50 }],
+  // };
   const { playAudio } = useContext(AudioContext);
   const { handleFold, handleCheck, handleCall } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();
@@ -37,7 +45,7 @@ const Buttons = () => {
           playAudio(clickSound);
           handleFold(id);
         }}
-        className="button-border bg-gray-900 px-8 py-2 bg-red-700 hover:bg-red-600 rounded-full"
+        className="button-border bg-gray-900 px-8 xl:py-2 bg-red-700 hover:bg-red-600 rounded-full text-[0.9rem] xl:text-2xl"
       >
         FOLD
       </button>
@@ -47,7 +55,7 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCall(callAmount!, id);
           }}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
+          className="button-border flex space-x-3 items-center bg-gray-900 px-8 xl:py-2 hover:bg-gray-800 rounded-full text-[1rem] xl:text-2xl"
         >
           <span>CALL</span>
           <div className="flex items-center space-x-1">
@@ -63,7 +71,7 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCheck(id);
           }}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-8 py-2 hover:bg-gray-800 rounded-full"
+          className="button-border flex space-x-3 items-center bg-gray-900 px-8 xl:py-2 hover:bg-gray-800 rounded-full text-[1rem] xl:text-2xl"
         >
           <span>CHECK</span>
         </button>
@@ -75,7 +83,7 @@ const Buttons = () => {
             playAudio(clickSound);
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border bg-gray-900 px-8 py-2 bg-green-700 hover:bg-green-600 rounded-full"
+          className="button-border bg-gray-900 px-8 xl:py-2 bg-green-700 hover:bg-green-600 rounded-full text-[1rem] xl:text-2xl"
         >
           RAISE
         </button>
