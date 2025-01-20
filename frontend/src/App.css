@@ -1,4 +1,58 @@
-.styled-border {
+:root {
+  --table-width: 60rem;
+  --table-height: 31rem;
+  --player-image-width: 7rem;
+  --player-image-height: 7rem;
+  --player-container-width: 8rem;
+  --card-container-width: 4.5rem;
+  --card-container-height: 6rem;
+  --chip-height: 1.2rem;
+  --chip-width: 1.2rem;
+  --community-cards-width: 4.3rem;
+}
+
+.dealer-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  z-index: 20;
+  background-color: #f59e0b;
+  color: white;
+  border-radius: 9999px;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+}
+
+.game-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+}
+
+.player-container {
+  width: var(--player-container-width);
+}
+
+.player-image {
+  height: var(--player-image-height);
+  width: var(--player-image-width);
+}
+
+.community-cards {
+  width: var(--community-cards-width);
+}
+
+.table-size {
+  width: var(--table-width);
+  height: var(--table-height);
+}
+
+.table-border {
   position: relative;
   border: 2rem solid #111827;
   border-radius: 8px;
@@ -108,10 +162,10 @@
     0 0 20px rgba(255, 255, 255, 0.1);
 }
 
-.cardContainer {
+.card-container {
   position: relative;
-  width: 4.5rem;
-  height: 6rem;
+  width: var(--card-container-width);
+  height: var(--card-container-height);
 }
 
 .card {
@@ -139,4 +193,167 @@
 
 .chip {
   transition: top 1s ease, left 1s ease;
+  width: var(--chip-width);
+  height: var(--chip-height);
+}
+
+.position-left {
+  top: calc(var(--table-height) / 2 - var(--player-image-height) / 2);
+  left: calc(-1 * (var(--player-container-width) / 2));
+}
+
+.position-topCenter {
+  top: calc((var(--player-image-height) / 2 * -1));
+  right: calc(50% - var(--player-container-width) / 2);
+}
+
+.position-bottomCenter {
+  bottom: calc((var(--player-image-height) / 2 * -1));
+  right: calc(50% - var(--player-container-width) / 2);
+}
+
+.position-right {
+  top: calc(var(--table-height) / 2 - var(--player-image-height) / 2);
+  right: calc(-1 * (var(--player-container-width) / 2));
+}
+
+.position-topLeft {
+  top: calc((var(--player-image-height) / 2 * -1));
+  left: var(--card-container-width);
+}
+
+.position-topRight {
+  top: calc((var(--player-image-height) / 2 * -1));
+  right: var(--card-container-width);
+}
+
+.position-bottomLeft {
+  bottom: calc(-1 * var(--player-image-height) / 2);
+  left: var(--card-container-width);
+}
+
+.position-bottomRight {
+  bottom: calc((var(--player-image-height) / 2 * -1));
+  right: var(--card-container-width);
+}
+
+@media (max-width: 750px) and (min-width: 0px) {
+  :root {
+    --table-width: 18rem;
+    --table-height: 10rem;
+    --card-container-width: 2rem;
+    --card-container-height: 3rem;
+    --player-container-width: 3.5rem;
+    --player-image-width: 3em;
+    --player-image-height: 4rem;
+    --chip-height: 0.7rem;
+    --chip-width: 0.7rem;
+    --community-cards-width: 1.7rem;
+  }
+
+  .dealer-badge {
+    width: 1rem;
+    height: 1rem;
+    font-size: 10px;
+  }
+
+  .table-border {
+    position: relative;
+    border: 1rem solid #111827;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    overflow: hidden;
+  }
+
+  .slider {
+    width: 8rem;
+    height: 12px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    height: 2.5rem;
+  }
+
+  .slider::-moz-range-thumb {
+    height: 2.5rem;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 750px) {
+  :root {
+    --table-width: 28rem;
+    --table-height: 13rem;
+    --card-container-width: 2.7rem;
+    --card-container-height: 3rem;
+    --player-container-width: 5rem;
+    --player-image-width: 4rem;
+    --player-image-height: 4rem;
+    --chip-height: 0.8rem;
+    --chip-width: 0.8rem;
+    --community-cards-width: 2.5rem;
+  }
+
+  .dealer-badge {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .game-container {
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    padding-top: 2.5rem;
+  }
+
+  .slider {
+    width: 15rem;
+    height: 12px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    height: 2.5rem;
+  }
+
+  .slider::-moz-range-thumb {
+    height: 2.5rem;
+  }
+
+  /* .game-page {
+    transform: rotate(90deg);
+    transform-origin: center;
+    width: 100vh;
+    height: 100vw;
+    overflow: hidden;
+  } */
+
+  .table-border {
+    position: relative;
+    border: 1.2rem solid #111827;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 1700px) and (min-width: 1100px) {
+  :root {
+    --table-width: 40rem;
+    --table-height: 20rem;
+    --card-container-width: 3.3rem;
+    --card-container-height: 4rem;
+    --player-container-width: 6rem;
+    --player-image-width: 5rem;
+    --player-image-height: 5rem;
+    --chip-height: 1rem;
+    --chip-width: 1rem;
+    --community-cards-width: 3.6rem;
+  }
+
+  .table-border {
+    position: relative;
+    border: 1.5rem solid #111827;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    overflow: hidden;
+  }
 }

@@ -40,21 +40,21 @@ const Player = ({ player, position }: Props) => {
       className={classNames(
         "absolute flex z-[30] space-x-2 items-center text-white font-bold",
         {
-          "top-[10rem] left-[-5rem]": position === "left",
-          "top-[-5rem] right-[27rem]": position === "topCenter",
-          "bottom-[-3rem] right-[27rem]": position === "bottomCenter",
-          "top-[10rem] right-[-5rem]": position === "right",
-          "top-[-5rem] left-[5rem]": position === "topLeft",
-          "top-[-5rem] right-[5rem]": position === "topRight",
-          "bottom-[-3rem] left-[5rem]": position === "bottomLeft",
-          "bottom-[-3rem] right-[5rem]": position === "bottomRight",
+          "position-left": position === "left",
+          "position-topCenter": position === "topCenter",
+          "position-bottomCenter": position === "bottomCenter",
+          "position-right": position === "right",
+          "position-topLeft": position === "topLeft",
+          "position-topRight": position === "topRight",
+          "position-bottomLeft": position === "bottomLeft",
+          "position-bottomRight": position === "bottomRight",
         }
       )}
     >
-      <div className="relative h-[7rem] w-[7rem] flex flex-col items-center">
+      <div className="player-image text-[0.8rem] xl:text-[1.2rem] relative flex flex-col items-center">
         {gameState?.winner &&
           gameState?.winner.userId === player.playerInfo?.userId && (
-            <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
+            <div className="absolute flex items-center flex-col top-[-3rem] lg:top-[-4rem] text-yellow-400 text-2xl lg:text-4xl font-bold">
               <span>WINNER</span>
               <HandName hand={gameState.winner.hand} />
             </div>
@@ -65,18 +65,18 @@ const Player = ({ player, position }: Props) => {
         <img src={person} className="rounded-full" />
 
         {!isFold && (
-          <div className="absolute bottom-0 flex">
+          <div className="absolute bottom-2 xl:bottom-0 flex">
             <Card
               playerId={playerInfo.userId}
               card={cards[0]}
-              style="cardContainer rotate-[-5deg] left-3 rounded-sm"
+              style="card-container rotate-[-5deg] left-3 rounded-sm"
               cardIndex={0}
             />
 
             <Card
               playerId={playerInfo.userId}
               card={cards[1]}
-              style={"cardContainer rotate-[5deg] relative right-3"}
+              style={"card-container rotate-[5deg] relative right-3"}
               cardIndex={1}
             />
           </div>
@@ -86,7 +86,7 @@ const Player = ({ player, position }: Props) => {
           <div className="absolute z-20 top-[25%]">
             <div
               className={classNames(
-                "bg-[rgba(0,0,0,0.8)] border-2 font-bold rounded-md p-1 px-5 text-white highlight",
+                "bg-[rgba(0,0,0,0.8)] border-2 font-bold rounded-md px-4 xl:py-1 lg:px-5 text-white highlight",
                 {
                   "border-green-600": actionAnimation.state === "raise",
                   "border-red-600": actionAnimation.state === "fold",
@@ -102,35 +102,35 @@ const Player = ({ player, position }: Props) => {
 
         <div
           className={classNames(
-            "flex flex-col justify-center z-[20] w-[8rem] rounded-md relative top-[-1rem] items-center shadow-md bg-gray-900",
+            "player-container flex flex-col justify-center z-[20] rounded-md relative top-[-1rem] items-center shadow-md bg-gray-900",
             {
               highlight:
                 gameState?.playerTurn?.playerInfo.userId === playerInfo.userId,
             }
           )}
         >
-          <div className="border-b border-gray-700 py-1 w-full text-center">
+          <div className="border-b border-gray-700  2xl:py-1 w-full text-center">
             {playerInfo?.userName}
           </div>
 
-          <div className="flex items-center py-1 space-x-2">
+          <div className="flex items-center 2xl:py-1 space-x-2">
             <img
               id={playerInfo.userId.toString()}
               ref={potRef}
               src={chip}
-              className="relative chip w-[1.2rem] chip h-[1.2rem]"
+              className="relative chip"
             />
             <span>{coins}</span>
           </div>
 
-          <div className="flex items-center space-x-1">
+          {/* <div className="items-center space-x-1 hidden lg:flex">
             <span>pot: {player.playerPot}</span>
             <img
               id={playerInfo.userId.toString()}
               src={chip}
-              className="relative chip w-[0.8rem] chip h-[0.8rem]"
+              className="relative chip"
             />
-          </div>
+          </div> */}
 
           {gameState?.playerTurn.playerInfo.userId ===
             player.playerInfo.userId &&
@@ -139,15 +139,15 @@ const Player = ({ player, position }: Props) => {
             )}
 
           {isDealer && (
-            <div className="absolute top-[-0.5rem] right-[-0.5rem] z-20 bg-yellow-600 text-white rounded-full w-7 h-7 flex items-center justify-center border-2">
-              D
+            <div className="dealer-badge">
+              <span>D</span>
             </div>
           )}
         </div>
       </div>
 
       {isCurrentPlayer && (
-        <div className="fixed text-white font-bold text-2xl flex space-x-4 right-10 bottom-10">
+        <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5">
           {!openRaiseBar && <Buttons />}
 
           {openRaiseBar && <RaiseBar />}
