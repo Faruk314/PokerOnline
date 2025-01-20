@@ -17,7 +17,7 @@ const Menu = () => {
   };
 
   return (
-    <div className="absolute rounded-md border border-black w-[10rem] shadow-[0_3px_10px_rgb(0,0,0,0.2)] top-[3rem] right-0 text-xl text-white">
+    <div className="absolute rounded-md border border-black w-[6.5rem] xl:w-[10rem] shadow-[0_3px_10px_rgb(0,0,0,0.2)] top-[2.5rem] xl:top-[3rem] right-0 text-[1rem] xl:text-xl text-white">
       <button
         onClick={handleVolume}
         className="py-2 hover:bg-gray-600 flex items-center space-x-2 hover:rounded-t-md w-full flex items-center justify-center"
