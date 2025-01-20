@@ -14,12 +14,12 @@ const UserInfo = () => {
   }, [dispatch]);
 
   return (
-    <div className="h-[5rem] flex space-x-4 text-white font-bold">
+    <div className="h-[4rem] lg:h-[5rem] flex space-x-2 text-[0.9rem] lg:space-x-4 text-white font-bold">
       <img src={person} className="border-2 h-full z-[20] rounded-xl" />
 
       <div>
         <span>{loggedUserInfo?.userName}</span>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 lg:space-x-2">
           <img src={chip} className="w-4 h-4" />
           <span>{totalChips}</span>
         </div>
