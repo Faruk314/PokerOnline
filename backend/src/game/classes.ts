@@ -361,7 +361,7 @@ class Game {
     }
 
     const start = Date.now();
-    const turnDuration = 10000;
+    const turnDuration = 30 * 1000;
 
     this.playerTurn.time = {
       startTime: new Date(start),
