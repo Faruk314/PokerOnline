@@ -5,7 +5,7 @@ import { AnimationContext } from "../context/AnimationContext";
 interface Props {
   card: string;
   style: string;
-  playerId: number;
+  playerId: string;
   cardIndex: number;
 }
 

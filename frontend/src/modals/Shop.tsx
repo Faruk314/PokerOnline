@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Wrapper from "./Wrapper";
 import { IoClose } from "react-icons/io5";
-import chipMD from "../assets/images/chip_md.png.png";
-import chipSM from "../assets/images/chip.png";
 import { loadStripe } from "@stripe/stripe-js";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { createCheckoutSession } from "../store/slices/payment";
@@ -54,80 +52,6 @@ const Shop = ({ setOpenModal }: Props) => {
               key={item.packageId}
               className="button-border flex flex-col items-center justify-between py-2 h-[13rem] w-[9.5rem] md:h-[16rem] md:w-[12rem] px-3 rounded-md"
             >
-              <div className="flex items-center space-x-1">
-                <span>{item.amount}</span>
-                <img className="h-[1rem]" src={chipSM} />
-              </div>
-
-              {item.packageId === 1 && (
-                <div>
-                  <img src={chipMD} className="w-[4rem] h-[4rem]" />
-                </div>
-              )}
-
-              {item.packageId === 2 && (
-                <div className="relative">
-                  <img src={chipMD} className="w-[4rem] h-[4rem]" />
-
-                  <img
-                    src={chipMD}
-                    className="absolute top-0 right-[3rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-                </div>
-              )}
-
-              {item.packageId === 3 && (
-                <div className="relative">
-                  <img
-                    src={chipMD}
-                    className="absolute top-0 left-[3rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img src={chipMD} className="w-[4rem] h-[4rem]" />
-
-                  <img
-                    src={chipMD}
-                    className="absolute top-[-1.2rem] right-[1rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img
-                    src={chipMD}
-                    className="absolute top-0 right-[3rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-                </div>
-              )}
-
-              {item.packageId === 4 && (
-                <div className="relative">
-                  <img
-                    src={chipMD}
-                    className="absolute top-0 left-[3rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img src={chipMD} className="w-[4rem] h-[4rem]" />
-
-                  <img
-                    src={chipMD}
-                    className="absolute top-[-1.2rem] right-[1rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img
-                    src={chipMD}
-                    className="absolute bottom-[-0.9rem] right-[-1rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img
-                    src={chipMD}
-                    className="absolute bottom-[-0.9rem] left-[-1rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-
-                  <img
-                    src={chipMD}
-                    className="absolute top-0 right-[3rem] h-[2.5rem] w-[2.5rem] z-[-10]"
-                  />
-                </div>
-              )}
-
               <button
                 onClick={() => dispatch(createCheckoutSession(item.packageId))}
                 className="button-border p-1 w-full bg-green-600 hover:bg-green-500 rounded-full"

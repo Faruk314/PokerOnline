@@ -2,7 +2,7 @@ import apiClient from "../../utils/apiClient";
 
 const API_URL = "/api/payment/";
 
-const createCheckoutSession = async (packageId: number) => {
+const createCheckoutSession = async (packageId: string) => {
   const response = await apiClient.post(API_URL + "createCheckoutSession", {
     packageId,
   });
