@@ -13,20 +13,20 @@ import { GameContextProvider } from "./context/GameContext.tsx";
 import { AudioContextProvider } from "./context/AudioContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  // <React.StrictMode>
-  <BrowserRouter>
-    <Provider store={store}>
-      <SocketContextProvider>
-        <AudioContextProvider>
-          <AnimationContextProvider>
-            <GameContextProvider>
-              <App />
-            </GameContextProvider>
-          </AnimationContextProvider>
-        </AudioContextProvider>
-      </SocketContextProvider>
-      <ToastContainer />
-    </Provider>
-  </BrowserRouter>
-  // </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <Provider store={store}>
+        <SocketContextProvider>
+          <AudioContextProvider>
+            <AnimationContextProvider>
+              <GameContextProvider>
+                <App />
+              </GameContextProvider>
+            </AnimationContextProvider>
+          </AudioContextProvider>
+        </SocketContextProvider>
+        <ToastContainer />
+      </Provider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

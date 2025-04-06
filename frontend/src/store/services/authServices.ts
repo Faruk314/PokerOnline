@@ -5,7 +5,6 @@ const API_URL = "/api/auth/";
 
 const login = async (userData: UserData) => {
   const response = await apiClient.post(API_URL + "login", userData);
-
   return response.data;
 };
 

@@ -6,7 +6,7 @@ import { fetchChips } from "../store/slices/game";
 
 const UserInfo = () => {
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
-  const { totalChips } = useAppSelector((state) => state.game);
+  const { totalCoins } = useAppSelector((state) => state.game);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const UserInfo = () => {
         <span>{loggedUserInfo?.userName}</span>
         <div className="flex items-center space-x-1 lg:space-x-2">
           <img src={chip} className="w-4 h-4" />
-          <span>{totalChips}</span>
+          <span>{totalCoins}</span>
         </div>
       </div>
     </div>

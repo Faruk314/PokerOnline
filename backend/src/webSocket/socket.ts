@@ -1,42 +1,60 @@
 import { Server, Socket } from "socket.io";
 import http from "http";
-import jwt from "jsonwebtoken";
-import { CreateRoomData, VerifiedToken } from "./types/types";
+import { CreateRoomData } from "../types/types";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
-import {
-  addUser,
-  createRoom,
-  joinRoom,
-  leaveRoom,
-} from "./socket/socketMethods";
-import { initializeGame, retrieveGameState } from "./game/methods";
-import { playerTimerQueue } from "./jobs/queues/playerTimerQueue";
-import { Game } from "./game/classes";
+import { addUser } from "../redis/methods/user";
+import { createRoom, joinRoom, leaveRoom } from "../redis/methods/room";
+import { initializeGame, retrieveGameState } from "../redis/methods/game";
+import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
+import { Game } from "../game/classes";
+import { getUserSessionById } from "../redis/methods/session";
+import { getUser } from "../services/auth";
 dotenv.config();
 
 export default function setupSocket(httpServer: http.Server) {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: "http://localhost:5001",
       methods: ["GET", "POST"],
       credentials: true,
     },
   });
 
-  io.use((socket: Socket, next) => {
-    const token = socket.handshake.auth.token;
+  io.use(async (socket: Socket, next) => {
+    const cookieHeader = socket.request.headers.cookie;
+
+    if (!cookieHeader)
+      return console.error("Cookies are missing in socket io middleware");
+
+    const cookies = Object.fromEntries(
+      cookieHeader.split("; ").map((c) => c.split("="))
+    );
+
+    const sessionId = cookies.sessionId;
+
+    if (!sessionId)
+      return console.error("SessionId is missing in Socket io middleware");
+
+    const session = await getUserSessionById(sessionId);
+
+    if (!session) {
+      return console.error(
+        "Could not find user session in Socket io middleware"
+      );
+    }
 
     try {
-      const decodedToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET!
-      ) as VerifiedToken;
-      socket.userId = decodedToken.userId;
-      socket.userName = decodedToken.userName;
+      const user = await getUser(session.userId);
+
+      if (!user)
+        return console.error("Could not get user in socket io middleware");
+
+      socket.userId = user.userId;
+      socket.userName = user.userName;
       next();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   });
 

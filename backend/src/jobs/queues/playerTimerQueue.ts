@@ -20,7 +20,7 @@ export class playerTimerQueue {
     return playerTimerQueue.instance;
   }
 
-  addTimer = async (roomId: string, playerId: number, endDate: Date) => {
+  addTimer = async (roomId: string, playerId: string, endDate: Date) => {
     const now = new Date();
     const delay = endDate.getTime() - now.getTime();
 
@@ -40,7 +40,7 @@ export class playerTimerQueue {
     }
   };
 
-  removeTimer = async (roomId: string, playerId: number) => {
+  removeTimer = async (roomId: string, playerId: string) => {
     const jobId = `playerTimer-${roomId}-${playerId}`;
     const job = await this.queue.getJob(jobId);
 

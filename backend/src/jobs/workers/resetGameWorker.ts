@@ -1,5 +1,5 @@
 import { RESET_GAME_QUEUE_NAME } from "../queues/resetGameQueue";
-import { retrieveGameState, saveGameState } from "../../game/methods";
+import { retrieveGameState } from "../../redis/methods/game";
 import { io } from "../..";
 import { Worker, Job } from "bullmq";
 import connection from "../connection";

@@ -2,16 +2,13 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import errorHandler from "./utils/error";
+import errorHandler from "./handlers/error";
 import authRoutes from "./routes/auth";
 import gameRoutes from "./routes/game";
 import paymentRoutes from "./routes/payment";
 import shopRoutes from "./routes/shop";
 import http from "http";
-import setupSocket from "./socket";
-import playerTimerWorker from "./jobs/workers/playerTimerWorker";
-import resetGameWorker from "./jobs/workers/resetGameWorker";
-import { Redis } from "ioredis";
+import setupSocket from "./webSocket/socket";
 import bodyParser from "body-parser";
 import { handleWebHook } from "./controllers/payment";
 
@@ -19,38 +16,15 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
-
 const server = http.createServer(app);
-
 export const io = setupSocket(server);
 
 app.use(
   cors({
-    origin: "http://192.168.10.114:5173", // Allow requests from any origin
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
-
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       return callback(null, true);
-//     },
-//     optionsSuccessStatus: 200,
-//     credentials: true,
-//   })
-// );
-
-export const redisPort = parseInt(
-  process.env.REDIS_PORT ? process.env.REDIS_PORT : "6379"
-);
-
-export const client = new Redis({
-  host: process.env.REDIS_HOST,
-  port: redisPort,
-  username: process.env.REDIS_USER,
-  password: process.env.REDIS_PASS,
-});
 
 app.post(
   "/payment/webhook",
@@ -73,6 +47,3 @@ app.use("/api/payment", paymentRoutes);
 app.use("/api/shop", shopRoutes);
 
 app.use(errorHandler);
-
-resetGameWorker.run();
-playerTimerWorker.run();

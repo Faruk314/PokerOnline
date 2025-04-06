@@ -1,0 +1,8 @@
+{
+  "dev": {
+    "multipleStatements": true
+  },
+  "prod": {
+    "multipleStatements": true
+  }
+}

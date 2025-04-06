@@ -13,11 +13,15 @@ import {
   IUpdateGameState,
   PlayerAction,
 } from "../types/types";
-import { deleteGameState, generateDeck, saveGameState } from "./methods";
+import {
+  deleteGameState,
+  generateDeck,
+  saveGameState,
+} from "../redis/methods/game";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
-import { getUser } from "../socket/socketMethods";
-import { incrementPlayerChips } from "../controllers/game";
+import { getUser } from "../redis/methods/user";
+import { incrementPlayerCoins } from "../services/game";
 
 const handRanks = [
   "highCard",
@@ -45,7 +49,7 @@ class Game {
   lastBet: number = 0;
   movesCount: number = 0;
   currentRound = "preFlop";
-  winner: { userId: number; hand?: Hand } | null = null;
+  winner: { userId: string; hand?: Hand } | null = null;
   draw: IDraw = {
     isDraw: false,
     potSpliters: [],
@@ -87,7 +91,7 @@ class Game {
     this.draw = draw;
   }
 
-  updateTablePositions(playerId: number) {
+  updateTablePositions(playerId: string) {
     delete this.tablePositions[playerId];
 
     Object.entries(this.tablePositions).forEach(([_, positionsMap]) => {
@@ -172,7 +176,7 @@ class Game {
 
     const lastPlayerCoins = this.players[0].coins;
 
-    await incrementPlayerChips(lastPlayerId, lastPlayerCoins);
+    await incrementPlayerCoins(lastPlayerId, lastPlayerCoins);
 
     await deleteGameState(this.roomId);
 
@@ -183,7 +187,7 @@ class Game {
     this.io!.to(lastPlayerData?.userSocketId).emit("gameEnd", { reason });
   }
 
-  async disconnect(playerId: number, userName: string) {
+  async disconnect(playerId: string, userName: string) {
     let disconnectedPlayerCoins: number | null = null;
 
     this.players = this.players.filter((player) => {
@@ -197,7 +201,7 @@ class Game {
     this.updateTablePositions(playerId);
 
     if (disconnectedPlayerCoins) {
-      await incrementPlayerChips(playerId, disconnectedPlayerCoins);
+      await incrementPlayerCoins(playerId, disconnectedPlayerCoins);
     }
 
     this.io?.to(this.roomId).emit("playerLeft", { playerId, userName });
@@ -665,7 +669,6 @@ class Game {
       }
     }
 
-    //we will later return draw here
     return handOne;
   }
 
@@ -1077,7 +1080,7 @@ class Game {
 
 class Player {
   coins: number;
-  playerInfo: { userId: number; userName: string };
+  playerInfo: { userId: string; userName: string };
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;

@@ -1,33 +1,9 @@
-import { getPlayerChips } from "../controllers/game";
-import { RoomData, UserData } from "../types/types";
-import { client } from "./../index";
+import { client } from "../redis";
+import { RoomData } from "../../types/types";
+import { getPlayerCoins } from "../../services/game";
+// import { getPlayerChips } from "../../controllers/game";
 
 const ROOMS_KEY = "rooms";
-
-const addUser = async (userInfo: UserData): Promise<void> => {
-  const { userId } = userInfo;
-
-  try {
-    await client.hset("users", userId.toString(), JSON.stringify(userInfo));
-    console.log(`User ${userId} has been added/updated in Redis`);
-  } catch (err) {
-    console.error("Error adding/updating user in Redis:", err);
-  }
-};
-
-const removeUser = (userId: number) => {
-  client.hdel("users", userId.toString());
-};
-
-const getUser = async (userId: number): Promise<UserData | null> => {
-  try {
-    const userJSON = await client.hget("users", userId.toString());
-    return userJSON ? JSON.parse(userJSON) : null;
-  } catch (err) {
-    console.error("Error fetching user from Redis:", err);
-    return null;
-  }
-};
 
 const createRoom = async (roomData: RoomData) => {
   const { roomId, maxPlayers } = roomData;
@@ -40,9 +16,7 @@ const createRoom = async (roomData: RoomData) => {
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(roomData));
-    console.log(
-      `Room ${roomId} created in Redis with max ${maxPlayers} players.`
-    );
+
     return true;
   } catch (err) {
     return false;
@@ -55,7 +29,7 @@ const joinRoom = async ({
   userName,
 }: {
   roomId: string;
-  playerId: number;
+  playerId: string;
   userName: string;
 }) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
@@ -72,11 +46,9 @@ const joinRoom = async ({
     return { status: "roomFull" }; // Room is full
   }
 
-  const playerFunds: { chips: number } | undefined = await getPlayerChips(
-    playerId
-  );
+  const playerCoins = await getPlayerCoins(playerId);
 
-  if (playerFunds && playerFunds?.chips < room.minStake) {
+  if (playerCoins > 0 && playerCoins < room.minStake) {
     return { status: "insufficientFunds" };
   }
 
@@ -98,12 +70,11 @@ const leaveRoom = async ({
   userId,
 }: {
   roomId: string;
-  userId: number;
+  userId: string;
 }) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
   if (!roomJSON) {
-    console.log(`Room ${roomId} does not exist in Redis.`);
     return false; // Room doesn't exist
   }
 
@@ -111,7 +82,6 @@ const leaveRoom = async ({
 
   // Check if the player is in the room
   if (!room.players.some((player) => player.userId === userId)) {
-    console.log(`Player ${userId} is not in room ${roomId}.`);
     return false; // Player is not in the room
   }
 
@@ -120,11 +90,10 @@ const leaveRoom = async ({
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
-    console.log(`Player ${userId} left room ${roomId} in Redis.`);
 
     return true;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return false;
   }
 };
@@ -134,7 +103,6 @@ const getRooms = async (): Promise<RoomData[]> => {
   const roomDataArray: RoomData[] = [];
 
   if (roomKeys.length === 0) {
-    console.log("No rooms found in Redis.");
     return roomDataArray;
   }
 
@@ -151,12 +119,4 @@ const getRooms = async (): Promise<RoomData[]> => {
   return roomDataArray;
 };
 
-export {
-  addUser,
-  removeUser,
-  getUser,
-  createRoom,
-  joinRoom,
-  getRooms,
-  leaveRoom,
-};
+export { createRoom, joinRoom, leaveRoom, getRooms };

@@ -9,7 +9,7 @@ interface GameState {
   isSuccess: boolean;
   isLoading: boolean;
   openRaiseBar: boolean;
-  totalChips: number;
+  totalCoins: number;
   gameStatus: IGameStatus;
 }
 
@@ -20,7 +20,7 @@ const initialState: GameState = {
   isSuccess: false,
   isLoading: false,
   openRaiseBar: false,
-  totalChips: 0,
+  totalCoins: 0,
   gameStatus: {
     isGameOver: false,
     reason: null,
@@ -44,7 +44,7 @@ export const fetchRooms = createAsyncThunk<
 });
 
 export const fetchChips = createAsyncThunk<
-  { chips: number },
+  { coins: number },
   void,
   { rejectValue: string }
 >("game/fetchChips", async (_, thunkAPI) => {
@@ -130,11 +130,11 @@ const gameSlice = createSlice({
       )
       .addCase(
         fetchChips.fulfilled,
-        (state, action: PayloadAction<{ chips: number }>) => {
+        (state, action: PayloadAction<{ coins: number }>) => {
           if (action.payload) {
-            state.totalChips = action.payload.chips;
+            state.totalCoins = action.payload.coins;
           } else {
-            state.totalChips = 0;
+            state.totalCoins = 0;
           }
         }
       );

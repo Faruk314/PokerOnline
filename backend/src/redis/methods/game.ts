@@ -1,9 +1,9 @@
-import { IGame, RoomData, IPlayer, IPlayersMap } from "../types/types";
-import { client } from "../index";
-import { Game } from "./classes";
+import { IGame, RoomData, IPlayer, IPlayersMap } from "../../types/types";
+import { client } from "../redis";
+import { Game } from "../../game/classes";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
-import { decrementPlayerChips } from "../controllers/game";
+import { decrementPlayerCoins } from "../../services/game";
 
 dotenv.config();
 
@@ -89,7 +89,7 @@ const initializeGame = async (roomId: string) => {
 
     const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
-    const playerBalanceUpdated = await decrementPlayerChips(
+    const playerBalanceUpdated = await decrementPlayerCoins(
       user.userId,
       room.minStake
     );

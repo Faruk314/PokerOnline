@@ -1,9 +1,9 @@
 import express from "express";
 import { createCheckoutSession } from "../controllers/payment";
-import middleware from "../utils/middleware";
+import auth from "../middlewares/auth";
 
 const router = express.Router();
 
-router.post("/createCheckoutSession", middleware, createCheckoutSession);
+router.post("/createCheckoutSession", auth, createCheckoutSession);
 
 export default router;

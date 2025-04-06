@@ -3,32 +3,27 @@ import { Server } from "socket.io";
 declare global {
   namespace Express {
     interface Request {
-      user?: VerifiedToken;
+      user?: { userId: string };
     }
   }
 }
 
 declare module "socket.io" {
   interface Socket {
-    userId?: number;
+    userId?: string;
     userName?: string;
   }
 }
 
-interface VerifiedToken {
-  userId: number;
-  userName: string;
-}
-
 interface UserData {
-  userId: number;
+  userId: string;
   userName: string;
   userSocketId: string;
 }
 
 interface IDraw {
   isDraw: boolean;
-  potSpliters: { userId: number; hand: Hand }[];
+  potSpliters: { userId: string; hand: Hand }[];
 }
 
 interface IGame {
@@ -44,7 +39,7 @@ interface IGame {
   lastBet: number;
   movesCount: number;
   currentRound: string;
-  winner: { userId: number; hand?: Hand } | null;
+  winner: { userId: string; hand?: Hand } | null;
   draw: IDraw;
 }
 
@@ -60,7 +55,7 @@ interface Hand {
   rankTwo?: number | null;
   kicker?: number;
   kickers?: number[] | null;
-  userId?: number;
+  userId?: string;
 }
 
 interface ITime {
@@ -70,7 +65,7 @@ interface ITime {
 
 interface IPlayer {
   coins: number;
-  playerInfo: { userId: number; userName: string };
+  playerInfo: { userId: string; userName: string };
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;
@@ -90,7 +85,7 @@ interface RoomData {
   roomName: string;
   maxPlayers: number;
   minStake: number;
-  players: { userId: number; userName: string }[];
+  players: { userId: string; userName: string }[];
   gameState: IGame | null;
 }
 
@@ -107,15 +102,15 @@ interface GetKickersArgs {
 }
 
 interface ITablePositionsMap {
-  [key: number]: string;
+  [key: string]: string;
 }
 
 interface IPlayersMap {
-  [key: number]: ITablePositionsMap;
+  [key: string]: ITablePositionsMap;
 }
 
 interface IUpdateGameState {
-  prevPlayerId: number;
+  prevPlayerId: string;
   action: PlayerAction;
 }
 
@@ -130,7 +125,6 @@ type CardsMap = { [key: string]: number };
 type RanksMap = { [key: number]: number };
 
 export type {
-  VerifiedToken,
   UserData,
   GetUserCallback,
   RoomData,

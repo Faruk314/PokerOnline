@@ -19,12 +19,12 @@ interface GameRoom {
 
 interface IDraw {
   isDraw: boolean;
-  potSpliters: { userId: number; hand: Hand }[];
+  potSpliters: { userId: string; hand: Hand }[];
 }
 
 interface IActionAnimation {
   state: "fold" | "check" | "raise" | "call" | "all in" | null;
-  playerId: number | null;
+  playerId: string | null;
 }
 
 interface IGame {
@@ -38,7 +38,7 @@ interface IGame {
   players: IPlayer[];
   lastBet: number;
   currentRound: string;
-  winner: { userId: number; hand: Hand };
+  winner: { userId: string; hand: Hand };
   draw: IDraw;
 }
 
@@ -54,7 +54,7 @@ interface Hand {
   rankTwo?: number | null;
   kicker?: number;
   kickers?: number[] | null;
-  userId?: number;
+  userId?: string;
 }
 
 interface ITime {
@@ -64,7 +64,7 @@ interface ITime {
 
 interface IPlayer {
   coins: number;
-  playerInfo: { userId: number; userName: string };
+  playerInfo: { userId: string; userName: string };
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;
@@ -80,7 +80,7 @@ interface IPlayer {
 }
 
 interface UserInfo {
-  userId: number;
+  userId: string;
   userName: string;
   email: string;
   image: string;
@@ -90,7 +90,7 @@ interface IPlayerMoveArgs {
   gameState: IGame;
   roomId: string;
   action: string;
-  playerId: number;
+  playerId: string;
 }
 
 interface IGameEndData {
@@ -98,7 +98,7 @@ interface IGameEndData {
 }
 
 interface ShopPackage {
-  packageId: number;
+  packageId: string;
   amount: number;
   price: number;
 }
@@ -118,11 +118,11 @@ type TRoomJoinDenied = "insufficientFunds" | "roomFull";
 type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
 
 interface ITablePositionsMap {
-  [key: number]: string;
+  [key: string]: string;
 }
 
 interface IPlayersMap {
-  [key: number]: ITablePositionsMap;
+  [key: string]: ITablePositionsMap;
 }
 
 export type {

@@ -1,9 +1,9 @@
 import express from "express";
-import middleware from "../utils/middleware";
+import auth from "../middlewares/auth";
 import { fetchShopPackages } from "../controllers/shop";
 
 const router = express.Router();
 
-router.get("/fetchShopPackages", middleware, fetchShopPackages);
+router.get("/fetchShopPackages", auth, fetchShopPackages);
 
 export default router;

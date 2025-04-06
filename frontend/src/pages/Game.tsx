@@ -23,6 +23,8 @@ const Game = () => {
   const { tablePotRef, animateFlop } = useContext(AnimationContext);
   // const communityCards = ["H10", "H10", "H10", "H10"];
 
+  console.log(gameState, "game state");
+
   useEffect(() => {
     dispatch(getGameState(id!));
   }, [dispatch, id]);
@@ -42,10 +44,12 @@ const Game = () => {
 
     return Object.entries(userTablePositions).map(([key, value]) => {
       const playerData = gameState?.players.find(
-        (p) => p.playerInfo.userId === parseInt(key)
+        (p) => p.playerInfo.userId === key
       );
 
       if (typeof value !== "string" || !playerData) return null;
+
+      console.log("here");
 
       return <Player key={key} player={playerData} position={value} />;
     });

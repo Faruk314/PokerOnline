@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import dotenv from "dotenv";
 import Stripe from "stripe";
-import query from "../db";
+import { db } from "../drizzle/db";
+import { incrementPlayerCoins } from "../services/game";
 dotenv.config();
 
 const STRIPE_KEY = process.env.STRIPE_KEY ? process.env.STRIPE_KEY : "";
@@ -17,26 +18,23 @@ export const createCheckoutSession = asyncHandler(
     const { packageId } = req.body;
     const userId = req.user?.userId;
 
-    if (!packageId) {
+    if (!packageId || !userId) {
       res.status(400);
-      throw new Error("Package id missing in create checkout session");
+      throw new Error("Unable to create checkout session");
     }
 
-    if (!userId) {
+    const selectedPackage = await db.query.CoinPackagesTable.findFirst({
+      where: (coinPackages, { eq }) => eq(coinPackages.packageId, packageId),
+      columns: {
+        amount: true,
+        price: true,
+      },
+    });
+
+    if (!selectedPackage) {
       res.status(400);
-      throw new Error("UserId missing in create checkout session");
+      throw new Error("Unable to create checkout session");
     }
-
-    let q = "SELECT `amount`, `price` FROM coin_packages WHERE `packageId` = ?";
-
-    let data: any = await query(q, [packageId]);
-
-    if (data.length === 0) {
-      res.status(400);
-      throw new Error(`Coin package with id ${packageId} not found`);
-    }
-
-    const selectedPackage = data[0];
 
     try {
       const session = await stripe.checkout.sessions.create({
@@ -64,7 +62,6 @@ export const createCheckoutSession = asyncHandler(
 
       res.status(200).json({ url: session.url });
     } catch (error) {
-      console.error("Error creating checkout session:", error);
       res.status(500);
       throw new Error("Unable to create checkout session");
     }
@@ -90,16 +87,10 @@ export const handleWebHook = asyncHandler(
       case "checkout.session.completed":
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
-        const chips = session.metadata?.chips;
+        const amount = session.metadata?.chips;
 
         try {
-          const q = `
-          INSERT INTO user_chips (userId, chips)
-          VALUES (?, ?)
-          ON DUPLICATE KEY UPDATE chips = chips + VALUES(chips);
-        `;
-
-          await query(q, [userId, chips]);
+          // await incrementPlayerCoins(userId, Number(amount));
 
           res.status(200).json("Successfully updated user chips balance");
         } catch (err) {

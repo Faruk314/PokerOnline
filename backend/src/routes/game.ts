@@ -1,13 +1,13 @@
 import express from "express";
 import { fetchChips, fetchRooms, getGameState } from "../controllers/game";
-import middleware from "../utils/middleware";
+import auth from "../middlewares/auth";
 
 const router = express.Router();
 
-router.get("/fetchRooms", middleware, fetchRooms);
+router.get("/fetchRooms", auth, fetchRooms);
 
-router.get("/fetchChips", middleware, fetchChips);
+router.get("/fetchChips", auth, fetchChips);
 
-router.post("/getGameState", middleware, getGameState);
+router.post("/getGameState", auth, getGameState);
 
 export default router;
