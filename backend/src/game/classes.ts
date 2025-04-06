@@ -612,6 +612,8 @@ class Game {
 
       this.players[winnerId].coins += this.totalPot;
     }
+
+    this.totalPot = 0;
   }
 
   private getSuit(card: string) {
