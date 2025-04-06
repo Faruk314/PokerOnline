@@ -91,7 +91,7 @@ class Game {
     this.draw = draw;
   }
 
-  updateTablePositions(playerId: string) {
+  private updateTablePositions(playerId: string) {
     delete this.tablePositions[playerId];
 
     Object.entries(this.tablePositions).forEach(([_, positionsMap]) => {
@@ -275,7 +275,7 @@ class Game {
     }
   }
 
-  resetRound() {
+  private resetRound() {
     this.movesCount = 0;
 
     this.players.forEach((player) => {
@@ -291,7 +291,7 @@ class Game {
     this.minRaiseAmount = 50;
   }
 
-  startFlop() {
+  private startFlop() {
     this.currentRound = "flop";
 
     for (let i = 0; i < 3; i++) {
@@ -303,7 +303,7 @@ class Game {
     }
   }
 
-  startTurn() {
+  private startTurn() {
     this.currentRound = "turn";
 
     const randomCardIndex = Math.floor(Math.random() * this.deck.length);
@@ -313,7 +313,7 @@ class Game {
     this.communityCards.push(...card);
   }
 
-  startRiver() {
+  private startRiver() {
     this.currentRound = "river";
 
     const randomCardIndex = Math.floor(Math.random() * this.deck.length);
@@ -323,7 +323,7 @@ class Game {
     this.communityCards.push(...card);
   }
 
-  startShowdown() {
+  private startShowdown() {
     this.currentRound = "showdown";
 
     this.findHands();
@@ -381,7 +381,10 @@ class Game {
       );
   }
 
-  getCommunityCardsCombinations(arr: string[], length: number): string[][] {
+  private getCommunityCardsCombinations(
+    arr: string[],
+    length: number
+  ): string[][] {
     if (length === 1) return arr.map((d) => [d]);
 
     return arr.flatMap((d, i) =>
@@ -405,7 +408,7 @@ class Game {
     return map;
   }
 
-  getCardRanksMap(combination: string[]) {
+  private getCardRanksMap(combination: string[]) {
     const map: {
       [key: number]: number;
     } = {};
@@ -441,7 +444,7 @@ class Game {
     return map;
   }
 
-  handPriority(playerHand: Hand, foundHand: Hand) {
+  private handPriority(playerHand: Hand, foundHand: Hand) {
     if (!playerHand) {
       return foundHand;
     }
@@ -463,7 +466,7 @@ class Game {
     return strongerCards;
   }
 
-  findHands() {
+  private findHands() {
     const playersNotFold = this.players.filter(
       (player) => player.isFold === false
     );
@@ -510,7 +513,7 @@ class Game {
     });
   }
 
-  async findBestHand() {
+  private getHandOrder() {
     const handOrder: Hand[] = [];
 
     for (let i = 0; i < this.players.length; i++) {
@@ -534,16 +537,10 @@ class Game {
       }
     }
 
-    if (handOrder.length === 1) {
-      this.winner = {
-        userId: handOrder[0].userId!,
-        hand: handOrder[0],
-      };
-      this.handlePayout();
-      await resetGameQueue.getInstance().addTimer(this.roomId);
-      return;
-    }
+    return handOrder;
+  }
 
+  private determinePotSpliters(handOrder: Hand[]) {
     for (let i = 0; i < 1; i++) {
       const hand = handOrder[i];
       const potSpliter = { userId: hand.userId!, hand: hand };
@@ -576,6 +573,22 @@ class Game {
         }
       }
     }
+  }
+
+  async findBestHand() {
+    const handOrder = this.getHandOrder();
+
+    if (handOrder.length === 1) {
+      this.winner = {
+        userId: handOrder[0].userId!,
+        hand: handOrder[0],
+      };
+      this.handlePayout();
+      await resetGameQueue.getInstance().addTimer(this.roomId);
+      return;
+    }
+
+    this.determinePotSpliters(handOrder);
 
     if (this.winner || this.draw.isDraw) {
       await resetGameQueue.getInstance().addTimer(this.roomId);
@@ -583,7 +596,7 @@ class Game {
     }
   }
 
-  handlePayout() {
+  private handlePayout() {
     if (this.draw.isDraw) {
       const potSpliters = this.draw.potSpliters;
 
@@ -601,11 +614,11 @@ class Game {
     }
   }
 
-  getSuit(card: string) {
+  private getSuit(card: string) {
     return card[0];
   }
 
-  getRank(card: string, returnLowAce: boolean = false) {
+  private getRank(card: string, returnLowAce: boolean = false) {
     const rank = card[1];
     const rankTwo = card[2];
 
@@ -634,7 +647,7 @@ class Game {
     return parseInt(rank);
   }
 
-  getKickers(rankMap: RanksMap) {
+  private getKickers(rankMap: RanksMap) {
     let kickers = [];
 
     for (const [key, value] of Object.entries(rankMap)) {
@@ -647,7 +660,7 @@ class Game {
     return kickers.sort((a, b) => b - a);
   }
 
-  compareKickers(handOne: Hand, handTwo: Hand) {
+  private compareKickers(handOne: Hand, handTwo: Hand) {
     if (!handOne.kickers || !handTwo.kickers) return handOne;
 
     for (let i = 0; i < handOne.kickers.length; i++) {
@@ -672,7 +685,7 @@ class Game {
     return handOne;
   }
 
-  isSameSuits(combination: string[]) {
+  private isSameSuits(combination: string[]) {
     let ranks: number[] = [];
     const firstSuit = this.getSuit(combination[0]);
 
@@ -692,7 +705,7 @@ class Game {
     return ranks;
   }
 
-  isStrongerCards(handOne: Hand, handTwo: Hand) {
+  private isStrongerCards(handOne: Hand, handTwo: Hand) {
     let strongerHand: Hand | null = null;
 
     //case when we only have one rank is the case of one pair
@@ -728,7 +741,7 @@ class Game {
     //later we will handle the case where the pairs and kickers of these cards are same
   }
 
-  isConsecutive(ranks: number[]) {
+  private isConsecutive(ranks: number[]) {
     for (let i = 0; i < ranks.length - 1; i++) {
       if (ranks[i + 1] - ranks[i] !== 1) {
         return false;
@@ -737,7 +750,7 @@ class Game {
     return true;
   }
 
-  isNKind(combination: string[]) {
+  private isNKind(combination: string[]) {
     const rankMap = this.getCardRanksMap(combination);
     let fourOfAKindRank: null | number = null;
     let threeOfAKindRank: null | number = null;
@@ -778,7 +791,7 @@ class Game {
     return false;
   }
 
-  isPair(combination: string[]) {
+  private isPair(combination: string[]) {
     const rankMap = this.getCardRanksMap(combination);
     let onePair: number | null = null;
     let twoPair: number | null = null;
@@ -822,7 +835,7 @@ class Game {
     }
   }
 
-  isFlush(combination: string[]) {
+  private isFlush(combination: string[]) {
     let ranks = this.isSameSuits(combination);
 
     if (!ranks) return;
@@ -890,7 +903,7 @@ class Game {
     }
   }
 
-  isFullHouse(combination: string[]) {
+  private isFullHouse(combination: string[]) {
     const rankMap = this.getCardRanksMap(combination);
     let threeOfAKind = null;
     let pair = null;
@@ -915,7 +928,7 @@ class Game {
     }
   }
 
-  isStraight(combination: string[]) {
+  private isStraight(combination: string[]) {
     const isSameSuit = this.isSameSuits(combination);
 
     if (isSameSuit) return false;
@@ -961,7 +974,7 @@ class Game {
     return false;
   }
 
-  isHighCard(combination: string[]) {
+  private isHighCard(combination: string[]) {
     const ranks = combination.map((card) => this.getRank(card));
 
     ranks.sort((a, b) => b - a);
