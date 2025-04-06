@@ -15,7 +15,7 @@ const initialState: PaymentState = {
 
 export const createCheckoutSession = createAsyncThunk<
   { url: string },
-  number,
+  string,
   { rejectValue: string }
 >("payment/createCheckoutSession", async (packageId, thunkAPI) => {
   try {
