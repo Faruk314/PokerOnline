@@ -194,6 +194,10 @@ export default function setupSocket(httpServer: http.Server) {
 
       if (!playerTurn) return;
 
+      if (game.draw.isDraw || game.winner) {
+        return console.log("Invalid fold");
+      }
+
       if (playerTurn.playerInfo.userId !== socket.userId)
         return console.log("Current player is not on a move");
 
@@ -225,6 +229,10 @@ export default function setupSocket(httpServer: http.Server) {
         const playerTurn = game.playerTurn;
 
         if (!playerTurn) return;
+
+        if (game.draw.isDraw || game.winner) {
+          return console.log("Invalid raise");
+        }
 
         if (playerTurn.playerInfo.userId !== socket.userId)
           return console.log("Current player is not on a move");
@@ -275,6 +283,10 @@ export default function setupSocket(httpServer: http.Server) {
 
         if (!playerTurn) return;
 
+        if (game.draw.isDraw || game.winner) {
+          return console.log("Invalid call");
+        }
+
         if (playerTurn.playerInfo.userId !== socket.userId)
           return console.log("Current player is not on a move");
 
@@ -315,6 +327,10 @@ export default function setupSocket(httpServer: http.Server) {
       const playerTurn = game.playerTurn;
 
       if (!playerTurn) return;
+
+      if (game.draw.isDraw || game.winner) {
+        return console.log("Invalid check");
+      }
 
       if (playerTurn.playerInfo.userId !== socket.userId)
         return console.log("Current player is not on a move");
