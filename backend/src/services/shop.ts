@@ -2,15 +2,15 @@ import { db } from "../drizzle/db";
 import { CoinPackagesTable } from "../drizzle/schema";
 
 const getShopPackages = async () => {
-  const packages = await db.query.CoinPackagesTable.findMany({
-    columns: {
-      packageId: true,
-      amount: true,
-      price: true,
-    },
-  });
+  const packages = await db
+    .select({
+      packageId: CoinPackagesTable.packageId,
+      amount: CoinPackagesTable.amount,
+      price: CoinPackagesTable.price,
+    })
+    .from(CoinPackagesTable);
 
-  if (packages.length === 0) throw new Error("Could not get shop packages");
+  if (packages == null) throw new Error("Could not get shop packages");
 
   return packages;
 };

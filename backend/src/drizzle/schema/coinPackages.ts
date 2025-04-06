@@ -1,4 +1,4 @@
-import { pgTable, integer, numeric } from "drizzle-orm/pg-core";
+import { pgTable, integer } from "drizzle-orm/pg-core";
 import { id } from "../schemaHelpers";
 
 export const CoinPackagesTable = pgTable("coinPackages", {
