@@ -67,7 +67,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     return rank.toString();
   };
 
-  const findPotSpliter = (playerId: number) => {
+  const findPotSpliter = (playerId: string) => {
     const potSpliter = gameState?.draw.potSpliters.find(
       (p) => p.userId === playerId
     );

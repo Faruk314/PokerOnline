@@ -36,10 +36,10 @@ export const AnimationContextProvider = ({
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
   >([]);
-  const cardRefsMap: TCardRefsMap = useRef(new Map<number, HTMLElement[]>());
+  const cardRefsMap: TCardRefsMap = useRef(new Map<string, HTMLElement[]>());
 
   const assignCardRef =
-    (playerId: number, index: number) => (el: HTMLElement | null) => {
+    (playerId: string, index: number) => (el: HTMLElement | null) => {
       if (el) {
         const refs = cardRefsMap.current.get(playerId) || [];
         refs[index] = el;
@@ -163,7 +163,7 @@ export const AnimationContextProvider = ({
     });
   };
 
-  const animateCard = (playerId: number) => {
+  const animateCard = (playerId: string) => {
     const cardRefs = cardRefsMap.current.get(playerId);
     if (cardRefs) {
       cardRefs.forEach((cardRef, cardIndex) => {

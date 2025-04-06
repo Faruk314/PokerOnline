@@ -115,7 +115,7 @@ type TGameEndReason =
 
 type TRoomJoinDenied = "insufficientFunds" | "roomFull";
 
-type TCardRefsMap = React.MutableRefObject<Map<number, HTMLElement[]>>;
+type TCardRefsMap = React.MutableRefObject<Map<string, HTMLElement[]>>;
 
 interface ITablePositionsMap {
   [key: string]: string;
