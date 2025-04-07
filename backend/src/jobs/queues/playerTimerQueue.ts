@@ -46,9 +46,6 @@ export class playerTimerQueue {
 
     if (job) {
       job.remove();
-      console.log(
-        `Player timer for player ${playerId} in room ${roomId} has been canceled.`
-      );
     } else {
       console.log(
         `No active timer found for player ${playerId} in room ${roomId}.`
