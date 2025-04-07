@@ -479,32 +479,54 @@ class Game {
       );
 
       playerCardCombinations.forEach((c) => {
-        const nKind = this.isNKind(c);
-        const pair = this.isPair(c);
-        const flush = this.isFlush(c);
-        const fullHouse = this.isFullHouse(c);
-        const straight = this.isStraight(c);
-        const highCard = this.isHighCard(c);
+        const suits = this.isSameSuits(c);
+        const flush = this.isFlush(c, suits);
 
         if (flush) {
           player.hand = this.handPriority(player.hand!, flush);
+
+          const handName = player.hand.name;
+
+          if (handName === "royalFlush" || handName === "straightFlush") return;
         }
+
+        const rankMap = this.getCardRanksMap(c);
+
+        const nKind = this.isNKind(c, rankMap);
+
+        if (nKind) {
+          player.hand = this.handPriority(player.hand!, nKind);
+
+          const handName = player.hand.name;
+
+          if (handName === "4Kind") return;
+        }
+
+        const fullHouse = this.isFullHouse(c, rankMap);
 
         if (fullHouse) {
           player.hand = this.handPriority(player.hand!, fullHouse);
         }
 
+        if (flush && flush.name === "flush") return;
+
+        const ranks = c.map((card) => this.getRank(card));
+
+        const straight = this.isStraight(c, ranks);
+
         if (straight) {
           player.hand = this.handPriority(player.hand!, straight);
         }
 
-        if (nKind) {
-          player.hand = this.handPriority(player.hand!, nKind);
-        }
+        if (nKind && nKind.name === "3Kind") return;
+
+        const pair = this.isPair(c, rankMap);
 
         if (pair) {
-          player.hand = this.handPriority(player.hand!, pair);
+          return (player.hand = this.handPriority(player.hand!, pair));
         }
+
+        const highCard = this.isHighCard(c, ranks);
 
         if (highCard) {
           player.hand = this.handPriority(player.hand!, highCard);
@@ -702,7 +724,7 @@ class Game {
       ranks.push(rank);
     });
 
-    if (ranks.length !== 5) return false;
+    if (ranks.length !== 5) return [];
 
     return ranks;
   }
@@ -739,8 +761,6 @@ class Game {
     strongerHand = this.compareKickers(handOne, handTwo);
 
     return strongerHand;
-
-    //later we will handle the case where the pairs and kickers of these cards are same
   }
 
   private isConsecutive(ranks: number[]) {
@@ -752,8 +772,7 @@ class Game {
     return true;
   }
 
-  private isNKind(combination: string[]) {
-    const rankMap = this.getCardRanksMap(combination);
+  private isNKind(combination: string[], rankMap: RanksMap) {
     let fourOfAKindRank: null | number = null;
     let threeOfAKindRank: null | number = null;
 
@@ -793,8 +812,7 @@ class Game {
     return false;
   }
 
-  private isPair(combination: string[]) {
-    const rankMap = this.getCardRanksMap(combination);
+  private isPair(combination: string[], rankMap: RanksMap) {
     let onePair: number | null = null;
     let twoPair: number | null = null;
 
@@ -837,10 +855,8 @@ class Game {
     }
   }
 
-  private isFlush(combination: string[]) {
-    let ranks = this.isSameSuits(combination);
-
-    if (!ranks) return;
+  private isFlush(combination: string[], ranks: number[]) {
+    if (ranks.length === 0) return;
 
     const sorted = ranks.sort((a, b) => a - b);
 
@@ -905,8 +921,7 @@ class Game {
     }
   }
 
-  private isFullHouse(combination: string[]) {
-    const rankMap = this.getCardRanksMap(combination);
+  private isFullHouse(combination: string[], rankMap: RanksMap) {
     let threeOfAKind = null;
     let pair = null;
 
@@ -930,13 +945,7 @@ class Game {
     }
   }
 
-  private isStraight(combination: string[]) {
-    const isSameSuit = this.isSameSuits(combination);
-
-    if (isSameSuit) return false;
-
-    const ranks = combination.map((c) => this.getRank(c));
-
+  private isStraight(combination: string[], ranks: number[]) {
     const sorted = ranks.sort((a, b) => a - b);
 
     const isConsecutive = this.isConsecutive(sorted);
@@ -976,9 +985,7 @@ class Game {
     return false;
   }
 
-  private isHighCard(combination: string[]) {
-    const ranks = combination.map((card) => this.getRank(card));
-
+  private isHighCard(combination: string[], ranks: number[]) {
     ranks.sort((a, b) => b - a);
 
     const highestCard = ranks[0];
