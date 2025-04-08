@@ -3,9 +3,9 @@ import Wrapper from "./Wrapper";
 import { IoClose } from "react-icons/io5";
 import { loadStripe } from "@stripe/stripe-js";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { createCheckoutSession } from "../store/slices/payment";
 import Loader from "../components/Loader";
 import { fetchShopPackages } from "../store/slices/shop";
+import ShopCard from "../components/ShopCard";
 
 loadStripe(
   "pk_test_51QYn1lL53CQXsO0aEFJ2b5A5Cb9gGloQmnap4dqLn2VUIm2UQ0J1SyD8hi8wp1c6sPDLb3VpCcnZvFRG5C07VtF400QQTRjCr3"
@@ -37,7 +37,7 @@ const Shop = ({ setOpenModal }: Props) => {
     <Wrapper setOpenModal={setOpenModal} modalRef={modalRef}>
       <div
         ref={modalRef}
-        className="relative z-40 w-max overflow-y-auto space-y-4 bg-gray-800 rounded-md button-border"
+        className="relative z-40 w-[21rem] md:w-[30rem] mx-2 space-y-4 bg-gray-800 rounded-md button-border"
       >
         <div className="sticky w-full bg-gray-800 border-b border-black top-0 right-0 p-6 bg-gray-800 flex items-center justify-between">
           <h2 className="text-2xl">SHOP</h2>
@@ -46,20 +46,12 @@ const Shop = ({ setOpenModal }: Props) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 px-4 md:px-6 pt-2 pb-6">
-          {shopPackages.map((item) => (
-            <div
-              key={item.packageId}
-              className="button-border flex flex-col items-center justify-between py-2 h-[13rem] w-[9.5rem] md:h-[16rem] md:w-[12rem] px-3 rounded-md"
-            >
-              <button
-                onClick={() => dispatch(createCheckoutSession(item.packageId))}
-                className="button-border p-1 w-full bg-green-600 hover:bg-green-500 rounded-full"
-              >
-                ${item.price}
-              </button>
-            </div>
-          ))}
+        <div className="overflow-y-auto max-h-[25rem]">
+          <div className="flex flex-col space-y-2 text-[0.9rem] px-4 md:px-6 pt-2 pb-6">
+            {shopPackages.map((shopPackage) => (
+              <ShopCard key={shopPackage.packageId} shopPackage={shopPackage} />
+            ))}
+          </div>
         </div>
       </div>
     </Wrapper>
