@@ -30,7 +30,7 @@ const ShopCard = ({ shopPackage }: Props) => {
       <div className="flex items-center space-x-2 md:space-x-4 text-[1rem] md:text-[1.1rem]">
         <button
           onClick={handleClick}
-          className="button-border font-bold p-1 w-full md:w-[5rem] bg-green-600 hover:bg-green-500 rounded-full"
+          className="button-border font-bold p-1 w-[5rem] bg-green-600 hover:bg-green-500 rounded-full"
         >
           <span>Buy</span>
         </button>
