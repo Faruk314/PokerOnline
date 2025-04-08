@@ -8,6 +8,13 @@
       "when": 1743950666670,
       "tag": "0000_lively_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744125899170,
+      "tag": "0001_seed-specific-coin-packages",
+      "breakpoints": true
     }
   ]
 }
