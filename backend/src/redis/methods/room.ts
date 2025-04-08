@@ -6,11 +6,11 @@ import { getPlayerCoins } from "../../services/game";
 const ROOMS_KEY = "rooms";
 
 const createRoom = async (roomData: RoomData) => {
-  const { roomId, maxPlayers } = roomData;
+  const { roomId } = roomData;
+
   const roomExists = await client.exists(`${ROOMS_KEY}:${roomId}`);
 
   if (roomExists) {
-    console.log(`Room ${roomId} already exists in Redis.`);
     return false;
   }
 
@@ -36,19 +36,19 @@ const joinRoom = async ({
 
   if (!roomJSON) {
     console.log(`Room ${roomId} does not exist in Redis.`);
-    return { status: "error" }; // Room doesn't exist
+    return { status: "error" };
   }
 
   const room: RoomData = JSON.parse(roomJSON);
 
   if (room.players.length >= room.maxPlayers) {
     console.log(`Room ${roomId} is full.`);
-    return { status: "roomFull" }; // Room is full
+    return { status: "roomFull" };
   }
 
   const playerCoins = await getPlayerCoins(playerId);
 
-  if (playerCoins > 0 && playerCoins < room.minStake) {
+  if (playerCoins < room.minStake) {
     return { status: "insufficientFunds" };
   }
 
@@ -56,7 +56,6 @@ const joinRoom = async ({
   room.players.push({ userId: playerId, userName });
 
   await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
-  console.log(`Player ${playerId} joined room ${roomId} in Redis.`);
 
   if (room.players.length === room.maxPlayers) {
     return { status: "gameStart" };
