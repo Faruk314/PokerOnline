@@ -109,7 +109,7 @@ const getRooms = async (): Promise<RoomData[]> => {
     const roomJSON = await client.get(roomKey);
     if (roomJSON) {
       const roomData: RoomData = JSON.parse(roomJSON);
-      roomDataArray.push(roomData);
+      roomDataArray.push({ ...roomData, gameState: null });
     }
   });
 
