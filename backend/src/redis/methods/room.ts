@@ -46,6 +46,10 @@ const joinRoom = async ({
     return { status: "roomJoined" };
   }
 
+  if (room.gameState !== null) {
+    return { status: "gameInProgress" };
+  }
+
   if (room.players.length >= room.maxPlayers) {
     return { status: "roomFull" };
   }

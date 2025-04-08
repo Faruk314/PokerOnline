@@ -113,7 +113,7 @@ type TGameEndReason =
   | "insufficientFunds"
   | "opponentInsufficientFunds";
 
-type TRoomJoinDenied = "insufficientFunds" | "roomFull";
+type TRoomJoinDenied = "insufficientFunds" | "roomFull" | "gameInProgress";
 
 type TCardRefsMap = React.MutableRefObject<Map<string, HTMLElement[]>>;
 

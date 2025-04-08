@@ -68,6 +68,12 @@ class RoomListeners {
 
     const response = await joinRoom({ roomId, playerId: userId, userName });
 
+    if (response.status === "gameInProgress") {
+      return this.io
+        .to(this.socket.id)
+        .emit("joinRoomDenied", { reason: response.status });
+    }
+
     if (response.status === "roomFull") {
       return this.io
         .to(this.socket.id)

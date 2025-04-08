@@ -59,6 +59,10 @@ export const useSocketEvents = () => {
 
       if (data.reason === "insufficientFunds")
         toast.error("Could not join this room due to insufficient funds");
+
+      if (data.reason === "gameInProgress") {
+        toast.error("Could not join this room. Game is already in progress");
+      }
     }
   );
 
