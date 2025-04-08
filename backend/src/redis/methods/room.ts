@@ -35,14 +35,18 @@ const joinRoom = async ({
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
   if (!roomJSON) {
-    console.log(`Room ${roomId} does not exist in Redis.`);
     return { status: "error" };
   }
 
   const room: RoomData = JSON.parse(roomJSON);
 
+  const inRoom = room.players.some((p) => p.userId === playerId);
+
+  if (inRoom) {
+    return { status: "roomJoined" };
+  }
+
   if (room.players.length >= room.maxPlayers) {
-    console.log(`Room ${roomId} is full.`);
     return { status: "roomFull" };
   }
 
@@ -54,7 +58,6 @@ const joinRoom = async ({
 
   // Add player to room
   room.players.push({ userId: playerId, userName });
-
   await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
 
   if (room.players.length === room.maxPlayers) {
