@@ -52,8 +52,8 @@ export const createCheckoutSession = asyncHandler(
           },
         ],
         mode: "payment",
-        success_url: "http://localhost:5173/payment-success",
-        cancel_url: "http://localhost:5173/payment-canceled",
+        success_url: "http://localhost:3000/payment-success",
+        cancel_url: "http://localhost:3000/payment-canceled",
         metadata: {
           userId,
           chips: selectedPackage.amount,
@@ -78,7 +78,6 @@ export const handleWebHook = asyncHandler(
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (error: any) {
-      console.error("err", error);
       res.status(400);
       throw new Error(`Webhook Error: ${error.message}`);
     }
@@ -88,19 +87,29 @@ export const handleWebHook = asyncHandler(
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
         const amount = session.metadata?.chips;
+        const chargeId = session.payment_intent as string | undefined;
 
         try {
-          // await incrementPlayerCoins(userId, Number(amount));
+          if (!userId || !chargeId || !amount) {
+            res.status(400);
+            throw new Error("Missing required metadata");
+          }
 
-          res.status(200).json("Successfully updated user chips balance");
+          await incrementPlayerCoins(userId, Number(amount));
+
+          res.status(200).json({
+            error: false,
+            message: "Successfully updated user chips balance",
+          });
+
+          return;
         } catch (err) {
           res.status(400);
-          throw new Error(
-            "There was a problem while updating user chips balance"
-          );
+          throw new Error("Could not update user chips balance");
         }
 
         break;
+
       default:
         console.log(`Unhandled event type ${event.type}.`);
     }
