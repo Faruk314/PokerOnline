@@ -76,7 +76,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     if (!potSpliter) return null;
 
     return (
-      <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold">
+      <div className="absolute flex items-center flex-col top-[-4rem] text-yellow-400 text-4xl font-bold z-40">
         <span>DRAW</span>
         <HandName hand={potSpliter.hand} />
       </div>
