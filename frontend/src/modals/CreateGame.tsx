@@ -160,9 +160,9 @@ const CreateGame = ({ setOpenModal }: Props) => {
                 onClick={() => handleClick("maxPlayers", item)}
                 key={item}
                 className={classNames(
-                  "bg-white text-black px-4 md:px-6 py-1 button-border rounded-md mr-2 mt-2",
+                  "bg-white text-black px-4 md:px-6 py-1 rounded-md mr-2 mt-2",
                   {
-                    "bg-red-500 text-white": roomSettings.maxPlayers === item,
+                    "bg-green-500 text-white": roomSettings.maxPlayers === item,
                   }
                 )}
               >
