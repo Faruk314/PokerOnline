@@ -42,9 +42,13 @@ const JoinGame = ({ setOpenModal }: Props) => {
         </div>
 
         <div className="flex flex-col space-y-2 text-[0.9rem] px-4 md:px-6 pt-2 pb-6">
-          {gameRooms.map((gameRoom) => (
-            <RoomCard key={gameRoom.roomId} gameRoom={gameRoom} />
-          ))}
+          {gameRooms.length > 0 ? (
+            gameRooms.map((gameRoom) => (
+              <RoomCard key={gameRoom.roomId} gameRoom={gameRoom} />
+            ))
+          ) : (
+            <p className="text-left">No game rooms available</p>
+          )}
         </div>
       </div>
     </Wrapper>
