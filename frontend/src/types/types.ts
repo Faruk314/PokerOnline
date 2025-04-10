@@ -23,9 +23,10 @@ interface IDraw {
 }
 
 interface IActionAnimation {
-  state: "fold" | "check" | "raise" | "call" | "all in" | null;
-  playerId: string | null;
+  state: ActionState;
 }
+
+type ActionState = "fold" | "check" | "raise" | "call" | "all in" | null;
 
 interface IGame {
   roomId: string;
@@ -89,7 +90,7 @@ interface UserInfo {
 interface IPlayerMoveArgs {
   gameState: IGame;
   roomId: string;
-  action: string;
+  action: ActionState;
   playerId: string;
 }
 

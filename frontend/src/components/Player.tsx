@@ -22,12 +22,13 @@ const Player = ({ player, position }: Props) => {
   const { gameState, openRaiseBar } = useAppSelector((state) => state.game);
   const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const { playerInfo, coins, isFold, isDealer, cards } = player;
-  const { createPlayerPotRef, actionAnimation } = useContext(AnimationContext);
+  const { createPlayerPotRef, animationMap } = useContext(AnimationContext);
   const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
   const isCurrentPlayer =
     loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
     loggedUserInfo?.userId === player.playerInfo.userId;
+  const actionAnimationState = animationMap.get(playerInfo.userId)?.state;
 
   useEffect(() => {
     createPlayerPotRef(potRef);
@@ -82,20 +83,20 @@ const Player = ({ player, position }: Props) => {
           </div>
         )}
 
-        {actionAnimation.playerId === playerInfo.userId && (
+        {actionAnimationState && (
           <div className="absolute z-20 top-[25%]">
             <div
               className={classNames(
                 "bg-[rgba(0,0,0,0.8)] border-2 font-bold rounded-md px-4 xl:py-1 lg:px-5 text-white highlight",
                 {
-                  "border-green-600": actionAnimation.state === "raise",
-                  "border-red-600": actionAnimation.state === "fold",
-                  "border-blue-400": actionAnimation.state === "call",
-                  "border-yellow-400": actionAnimation.state === "check",
+                  "border-green-600": actionAnimationState === "raise",
+                  "border-red-600": actionAnimationState === "fold",
+                  "border-blue-400": actionAnimationState === "call",
+                  "border-yellow-400": actionAnimationState === "check",
                 }
               )}
             >
-              <span>{actionAnimation.state}</span>
+              <span>{actionAnimationState}</span>
             </div>
           </div>
         )}

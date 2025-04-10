@@ -28,10 +28,11 @@ export const AnimationContextProvider = ({
 }: AnimationContextProviderProps) => {
   const { playAudio } = useContext(AudioContext);
   const tablePotRef = useRef<HTMLImageElement>(null);
-  const [actionAnimation, setActionAnimation] = useState<IActionAnimation>({
-    state: null,
-    playerId: null,
-  });
+
+  const [animationMap, setAnimationMap] = useState(
+    new Map<string, IActionAnimation>()
+  );
+
   const [animateFlop, setAnimateFlop] = useState(false);
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
@@ -209,13 +210,13 @@ export const AnimationContextProvider = ({
     tablePotRef,
     playerPotRefs,
     animateFlop,
-    actionAnimation,
+    animationMap,
+    setAnimationMap,
     createPlayerPotRef,
     animateMoveChip,
     animateCard,
     animateCardFlip,
     setAnimateFlop,
-    setActionAnimation,
     assignCardRef,
   };
 

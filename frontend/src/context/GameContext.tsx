@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useCallback, useContext } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { IGame, IPlayerMoveArgs } from "../types/types";
+import { IActionAnimation, IGame, IPlayerMoveArgs } from "../types/types";
 import { SocketContext } from "./SocketContext";
 import { AnimationContext } from "./AnimationContext";
 import { setGameState } from "../store/slices/game";
@@ -25,10 +25,11 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
   const {
     animateMoveChip,
     animateCardFlip,
-    setActionAnimation,
     setAnimateFlop,
     animateCard,
     animateFlop,
+
+    setAnimationMap,
   } = useContext(AnimationContext);
 
   const handleRaise = (amount: number, roomId: string) => {
@@ -186,12 +187,20 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       }
 
       if (action && action.length) {
-        setActionAnimation({ state: action, playerId });
+        setAnimationMap((prevState: Map<string, IActionAnimation>) => {
+          const newMap = new Map(prevState);
+          newMap.set(playerId, { state: action });
+          return newMap;
+        });
       }
 
       setTimeout(() => {
-        setActionAnimation({ state: null, playerId: null });
-      }, 1000);
+        setAnimationMap((prevState: Map<string, IActionAnimation>) => {
+          const newMap = new Map(prevState);
+          newMap.delete(playerId);
+          return newMap;
+        });
+      }, 2000);
 
       if (gameState.winner || gameState.draw.isDraw) {
         return handleGameOverUpdates({ gameState });
@@ -212,7 +221,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       dispatch,
       animateMoveChip,
       handlePreFlopUpdates,
-      setActionAnimation,
+      setAnimationMap,
       socket,
       setAnimateFlop,
       playAudio,
