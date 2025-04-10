@@ -9,14 +9,7 @@ import { setOpenRaiseBar } from "../store/slices/game";
 
 const Buttons = () => {
   const { gameState } = useAppSelector((state) => state.game);
-  // const gameState = {
-  //   winner: false,
-  //   playerTurn: { coins: 5000, playerPot: 50 },
-  //   minRaiseAmount: 50,
-  //   draw: { isDraw: false },
-  //   lastBet: 0,
-  //   players: [{ coins: 50 }],
-  // };
+
   const { playAudio } = useContext(AudioContext);
   const { handleFold, handleCheck, handleCall } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();

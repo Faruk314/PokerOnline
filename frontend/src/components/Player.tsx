@@ -123,15 +123,6 @@ const Player = ({ player, position }: Props) => {
             <span>{coins}</span>
           </div>
 
-          {/* <div className="items-center space-x-1 hidden lg:flex">
-            <span>pot: {player.playerPot}</span>
-            <img
-              id={playerInfo.userId.toString()}
-              src={chip}
-              className="relative chip"
-            />
-          </div> */}
-
           {gameState?.playerTurn.playerInfo.userId ===
             player.playerInfo.userId &&
             gameState.playerTurn.time && (

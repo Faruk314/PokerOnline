@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { getGameState } from "../store/slices/game";
 import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
-
 import { pokerCards } from "../utils/cards";
 import classNames from "classnames";
 import Player from "../components/Player";
@@ -21,9 +20,6 @@ const Game = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const { tablePotRef, animateFlop } = useContext(AnimationContext);
-  // const communityCards = ["H10", "H10", "H10", "H10"];
-
-  console.log(gameState, "game state");
 
   useEffect(() => {
     dispatch(getGameState(id!));
@@ -49,143 +45,9 @@ const Game = () => {
 
       if (typeof value !== "string" || !playerData) return null;
 
-      console.log("here");
-
       return <Player key={key} player={playerData} position={value} />;
     });
   };
-
-  // const players = [
-  //   {
-  //     coins: 5000,
-  //     playerInfo: { userId: 1, userName: "Player1", position: "bottomCenter" },
-  //     isDealer: true,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["AS", "KH"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 4500,
-  //     playerInfo: { userId: 2, userName: "Player2", position: "bottomLeft" },
-  //     isDealer: false,
-  //     isSmallBind: true,
-  //     isBigBind: false,
-  //     cards: ["2C", "3D"],
-  //     isAllIn: false,
-  //     isFold: true,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 50,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 4000,
-  //     playerInfo: { userId: 3, userName: "Player3", position: "left" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: true,
-  //     cards: ["5H", "7S"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 100,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 6000,
-  //     playerInfo: { userId: 4, userName: "Player4", position: "topLeft" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["QC", "JD"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 3000,
-  //     playerInfo: { userId: 5, userName: "Player5", position: "topCenter" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["9S", "10H"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 3500,
-  //     playerInfo: { userId: 6, userName: "Player6", position: "topRight" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["8D", "6C"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-
-  //   {
-  //     coins: 3500,
-  //     playerInfo: { userId: 7, userName: "Player7", position: "right" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["8D", "6C"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  //   {
-  //     coins: 3500,
-  //     playerInfo: { userId: 8, userName: "Player8", position: "bottomRight" },
-  //     isDealer: false,
-  //     isSmallBind: false,
-  //     isBigBind: false,
-  //     cards: ["8D", "6C"],
-  //     isAllIn: false,
-  //     isFold: false,
-  //     isCall: false,
-  //     isCheck: false,
-  //     playerPot: 0,
-  //     playerRaise: { amount: 0, isRaise: false },
-  //     hand: null,
-  //     time: null,
-  //   },
-  // ];
 
   const findCard = (c: string, index: number) => {
     const card = pokerCards.find((card) => card.card === c);
