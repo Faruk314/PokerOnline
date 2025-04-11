@@ -148,12 +148,12 @@ class Game {
         });
       }
 
-      if (status === "inProgress" && data) {
+      if (status === "inProgress") {
         this.io!.to(socket.id).emit("updateGame", {
           gameState: updatedGameState,
           roomId: this.roomId,
-          action: data.action,
-          playerId: data.prevPlayerId,
+          action: data?.action,
+          playerId: data?.prevPlayerId,
         });
       }
 
@@ -624,7 +624,7 @@ class Game {
 
       this.players.forEach((player, index) => {
         if (player.playerInfo.userId === potSpliters[index].userId) {
-          player.coins += this.totalPot / potSpliters.length;
+          return (player.coins += this.totalPot / potSpliters.length);
         }
       });
     } else {
