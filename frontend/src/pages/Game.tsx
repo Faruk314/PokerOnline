@@ -8,64 +8,20 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { getGameState } from "../store/slices/game";
 import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
-import { pokerCards } from "../utils/cards";
-import classNames from "classnames";
-import Player from "../components/Player";
 import { AnimationContext } from "../context/AnimationContext";
+import { GameContext } from "../context/GameContext";
 
 const Game = () => {
   const [openMenu, setOpenMenu] = useState(false);
-  const { loggedUserInfo } = useAppSelector((state) => state.auth);
   const { gameState, isLoading } = useAppSelector((state) => state.game);
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
-  const { tablePotRef, animateFlop } = useContext(AnimationContext);
+  const { tablePotRef } = useContext(AnimationContext);
+  const { getTablePositions, findCard } = useContext(GameContext);
 
   useEffect(() => {
     dispatch(getGameState(id!));
   }, [dispatch, id]);
-
-  const getTablePositions = () => {
-    if (!gameState) return null;
-
-    const tablePositions = gameState?.tablePositions;
-
-    if (!tablePositions) return null;
-
-    if (!loggedUserInfo?.userId) return null;
-
-    const userTablePositions = tablePositions[loggedUserInfo.userId];
-
-    if (!userTablePositions) return null;
-
-    return Object.entries(userTablePositions).map(([key, value]) => {
-      const playerData = gameState?.players.find(
-        (p) => p.playerInfo.userId === key
-      );
-
-      if (typeof value !== "string" || !playerData) return null;
-
-      return <Player key={key} player={playerData} position={value} />;
-    });
-  };
-
-  const findCard = (c: string, index: number) => {
-    const card = pokerCards.find((card) => card.card === c);
-
-    return (
-      <div
-        key={c}
-        className={classNames("community-cards", {
-          cardSlideOne: index === 1 && animateFlop,
-          cardSlideTwo: index === 2 && animateFlop,
-        })}
-      >
-        <div className="h-full bg-white w-full rounded-sm">
-          <img src={card?.image} className="h-full rounded-md" />
-        </div>
-      </div>
-    );
-  };
 
   if (isLoading) {
     return <Loader />;
@@ -93,14 +49,6 @@ const Game = () => {
       <div className="relative">
         {getTablePositions()}
 
-        {/* {players.map((player) => (
-          <Player
-            key={player.playerInfo.userId}
-            player={player}
-            position={player.playerInfo.position}
-          />
-        ))} */}
-
         <div className="table-size relative flex items-center justify-center rounded-full table-border">
           <img src={table} className="absolute w-full h-full rounded-full" />
 
@@ -116,10 +64,6 @@ const Game = () => {
               {gameState?.communityCards.map((c, index) => {
                 return findCard(c, index);
               })}
-
-              {/* {communityCards.map((c, index) => {
-                return findCard(c, index);
-              })} */}
             </div>
           </div>
         </div>

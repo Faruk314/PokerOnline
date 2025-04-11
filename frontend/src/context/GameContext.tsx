@@ -7,6 +7,9 @@ import { setGameState } from "../store/slices/game";
 import cardSlide from "../assets/audio/cardSlide.wav";
 import { AudioContext } from "./AudioContext";
 import HandName from "../components/HandName";
+import Player from "../components/Player";
+import pokerCards from "../utils/cards";
+import classNames from "classnames";
 
 const initialGameContextData: any = {};
 
@@ -230,9 +233,53 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ]
   );
 
+  const getTablePositions = () => {
+    if (!gameState) return null;
+
+    const tablePositions = gameState?.tablePositions;
+
+    if (!tablePositions) return null;
+
+    if (!loggedUserInfo?.userId) return null;
+
+    const userTablePositions = tablePositions[loggedUserInfo.userId];
+
+    if (!userTablePositions) return null;
+
+    return Object.entries(userTablePositions).map(([key, value]) => {
+      const playerData = gameState?.players.find(
+        (p) => p.playerInfo.userId === key
+      );
+
+      if (typeof value !== "string" || !playerData) return null;
+
+      return <Player key={key} player={playerData} position={value} />;
+    });
+  };
+
+  const findCard = (c: string, index: number) => {
+    const card = pokerCards.find((card) => card.card === c);
+
+    return (
+      <div
+        key={c}
+        className={classNames("community-cards", {
+          cardSlideOne: index === 1 && animateFlop,
+          cardSlideTwo: index === 2 && animateFlop,
+        })}
+      >
+        <div className="h-full bg-white w-full rounded-sm">
+          <img src={card?.image} className="h-full rounded-md" />
+        </div>
+      </div>
+    );
+  };
+
   const contextValue: any = {
     handleUpdateGame,
     handlePreFlopUpdates,
+    getTablePositions,
+    findCard,
     handleRaise,
     handleFold,
     handleCheck,

@@ -134,6 +134,7 @@ export type {
   IGame,
   IPlayer,
   ITime,
+  IPlayersMap,
   IActionAnimation,
   IPlayerMoveArgs,
   TCardRefsMap,
@@ -143,4 +144,5 @@ export type {
   TRoomJoinDenied,
   ShopPackage,
   IGameStatus,
+  ITablePositionsMap,
 };
