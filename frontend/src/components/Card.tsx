@@ -15,8 +15,8 @@ const Card = ({ style, playerId, cardIndex }: Props) => {
   return (
     <div className={style}>
       <div ref={assignCardRef(playerId, cardIndex)} className="card">
-        <img src={cardBack} className="card-back" />
-        <img className="card-front bg-white" />
+        <img src={cardBack} className="card-back bg-white" />
+        <img className="card-front bg-white border border-black" />
       </div>
     </div>
   );
