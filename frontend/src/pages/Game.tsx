@@ -29,6 +29,11 @@ const Game = () => {
 
   return (
     <section className="game-page game-container bg-gray-800 h-[100vh] w-full">
+      {!gameState && (
+        <p className="fixed top-4 text-white font-black text-2xl">
+          Waiting for other players...
+        </p>
+      )}
       <div className="fixed top-4 px-4 flex w-full justify-between items-start">
         <UserInfo />
 
