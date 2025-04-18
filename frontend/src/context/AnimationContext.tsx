@@ -28,11 +28,9 @@ export const AnimationContextProvider = ({
 }: AnimationContextProviderProps) => {
   const { playAudio } = useContext(AudioContext);
   const tablePotRef = useRef<HTMLImageElement>(null);
-
   const [animationMap, setAnimationMap] = useState(
     new Map<string, IActionAnimation>()
   );
-
   const [animateFlop, setAnimateFlop] = useState(false);
   const [playerPotRefs, setPlayerPotRefs] = useState<
     RefObject<HTMLImageElement>[]
@@ -166,44 +164,43 @@ export const AnimationContextProvider = ({
 
   const animateCard = (playerId: string) => {
     const cardRefs = cardRefsMap.current.get(playerId);
-    if (cardRefs) {
-      cardRefs.forEach((cardRef, cardIndex) => {
-        if (cardRef) {
-          if (!tablePotRef.current) return;
+    if (!cardRefs) return;
 
-          cardRef.style.transition = "none";
-          cardRef.classList.remove("flip");
+    cardRefs.forEach((cardRef, cardIndex) => {
+      if (cardRef) {
+        if (!tablePotRef.current) return;
 
-          const tablePotRect = tablePotRef.current.getBoundingClientRect();
-          const cardRect = cardRef.getBoundingClientRect();
+        cardRef.style.transition = "none";
+        cardRef.classList.remove("flip");
 
-          const cardTop = tablePotRect.top - cardRect.top + cardRef.offsetTop;
-          const cardLeft =
-            tablePotRect.left - cardRect.left + cardRef.offsetLeft;
+        const tablePotRect = tablePotRef.current.getBoundingClientRect();
+        const cardRect = cardRef.getBoundingClientRect();
 
-          setTimeout(() => {
-            cardRef.style.top = `${cardTop}px`;
-            cardRef.style.left = `${cardLeft}px`;
-          }, 0);
+        const cardTop = tablePotRect.top - cardRect.top + cardRef.offsetTop;
+        const cardLeft = tablePotRect.left - cardRect.left + cardRef.offsetLeft;
 
-          let duration = 600;
+        setTimeout(() => {
+          cardRef.style.top = `${cardTop}px`;
+          cardRef.style.left = `${cardLeft}px`;
+        }, 0);
 
-          if (cardIndex === 1) duration = 500;
+        let duration = 600;
 
-          setTimeout(() => {
-            cardRef.style.top = "0px";
-            cardRef.style.transition = "top 0.6s ease, left 0.6s ease";
+        if (cardIndex === 1) duration = 500;
 
-            if (cardIndex === 1)
-              cardRef.style.transition = "top 0.5s ease, left 0.5s ease";
+        setTimeout(() => {
+          cardRef.style.top = "0px";
+          cardRef.style.transition = "top 0.6s ease, left 0.6s ease";
 
-            cardRef.style.left = "0px";
+          if (cardIndex === 1)
+            cardRef.style.transition = "top 0.5s ease, left 0.5s ease";
 
-            playAudio(cardDeal);
-          }, duration);
-        }
-      });
-    }
+          cardRef.style.left = "0px";
+
+          playAudio(cardDeal);
+        }, duration);
+      }
+    });
   };
 
   const contextValue: any = {
