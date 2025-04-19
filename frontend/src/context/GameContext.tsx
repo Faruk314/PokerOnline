@@ -203,7 +203,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           newMap.delete(playerId);
           return newMap;
         });
-      }, 2000);
+      }, 1000);
 
       if (gameState.winner || gameState.draw.isDraw) {
         return handleGameOverUpdates({ gameState });
