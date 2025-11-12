@@ -61,11 +61,8 @@ const initializeGame = async (roomId: string) => {
     lastBet: 0,
     movesCount: 0,
     currentRound: "preFlop",
-    winner: null,
-    draw: {
-      isDraw: false,
-      potSpliters: [],
-    },
+    potInfo: {},
+    isGameOver: false,
   };
 
   if (!room.gameState) return false;

@@ -21,9 +21,11 @@ interface UserData {
   userSocketId: string;
 }
 
-interface IDraw {
+interface PotState {
   isDraw: boolean;
-  potSpliters: { userId: string; hand: Hand }[];
+  potSpliters?: { userId: string; hand: Hand }[];
+  winner?: { userId: string; hand: Hand | null };
+  amount: number;
 }
 
 interface IGame {
@@ -39,8 +41,8 @@ interface IGame {
   lastBet: number;
   movesCount: number;
   currentRound: string;
-  winner: { userId: string; hand?: Hand } | null;
-  draw: IDraw;
+  potInfo: PotInfo;
+  isGameOver: boolean;
 }
 
 interface IRaise {
@@ -53,9 +55,10 @@ interface Hand {
   cards: string[];
   rank?: number | null;
   rankTwo?: number | null;
-  kicker?: number;
+  strongestKicker?: number;
   kickers?: number[] | null;
   userId?: string;
+  index?: number;
 }
 
 interface ITime {
@@ -114,6 +117,17 @@ interface IUpdateGameState {
   action: PlayerAction;
 }
 
+interface IResult {
+  isDraw: boolean;
+  potSpliters: { userId: string; hand: Hand }[];
+  winner: { userId: string; hand: Hand | null };
+}
+
+interface ISidePot {
+  amount: number;
+  players?: string[];
+}
+
 type PlayerAction = "fold" | "check" | "raise" | "call" | "all in" | "";
 
 type GameStatus = "inProgress" | "gameStarted" | "gameEnd";
@@ -123,6 +137,10 @@ type GetUserCallback = (userInfo: UserData | null) => void;
 type CardsMap = { [key: string]: number };
 
 type RanksMap = { [key: number]: number };
+
+type SidePotsMap = Record<string, ISidePot>;
+
+type PotInfo = Record<string, PotState>;
 
 export type {
   UserData,
@@ -137,10 +155,12 @@ export type {
   Hand,
   RanksMap,
   GetKickersArgs,
-  IDraw,
   ITablePositionsMap,
   IPlayersMap,
   IUpdateGameState,
+  IResult,
   GameStatus,
   PlayerAction,
+  SidePotsMap,
+  PotInfo,
 };

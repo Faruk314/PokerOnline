@@ -53,15 +53,17 @@ const Player = ({ player, position }: Props) => {
       )}
     >
       <div className="player-image text-[0.8rem] xl:text-[1.2rem] relative flex flex-col items-center">
-        {gameState?.winner &&
-          gameState?.winner.userId === player.playerInfo?.userId && (
+        {gameState?.potInfo["mainPot"]?.winner &&
+          gameState?.potInfo["mainPot"].winner.userId ===
+            player.playerInfo?.userId && (
             <div className="absolute flex items-center flex-col top-[-3rem] lg:top-[-4rem] text-yellow-400 text-2xl lg:text-4xl font-bold z-40">
               <span>WINNER</span>
-              <HandName hand={gameState.winner.hand} />
+              <HandName hand={gameState.potInfo["mainPot"].winner.hand!} />
             </div>
           )}
 
-        {gameState?.draw.isDraw && findPotSpliter(player.playerInfo.userId)}
+        {gameState?.potInfo["mainPot"]?.isDraw &&
+          findPotSpliter(player.playerInfo.userId)}
 
         <img src={person} className="rounded-full" />
 

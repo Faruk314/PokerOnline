@@ -31,7 +31,7 @@ class GameListeners {
 
     if (!playerTurn) return;
 
-    if (game.draw.isDraw || game.winner) {
+    if (game.isGameOver) {
       return console.log("Invalid fold");
     }
 
@@ -65,7 +65,7 @@ class GameListeners {
 
     if (!playerTurn) return;
 
-    if (game.draw.isDraw || game.winner) {
+    if (game.isGameOver) {
       return console.log("Invalid raise");
     }
 
@@ -115,7 +115,7 @@ class GameListeners {
 
     if (!playerTurn) return;
 
-    if (game.draw.isDraw || game.winner) {
+    if (game.isGameOver) {
       return console.log("Invalid call");
     }
 
@@ -125,6 +125,12 @@ class GameListeners {
     let callAmount = game.lastBet - playerTurn.playerPot;
 
     if (callAmount > playerTurn.coins) {
+      callAmount = playerTurn.coins;
+    }
+
+    const allIn = game.players.some((p) => p.isAllIn);
+
+    if (allIn) {
       callAmount = playerTurn.coins;
     }
 
@@ -159,7 +165,7 @@ class GameListeners {
 
     if (!playerTurn) return;
 
-    if (game.draw.isDraw || game.winner) {
+    if (game.isGameOver) {
       return console.log("Invalid check");
     }
 

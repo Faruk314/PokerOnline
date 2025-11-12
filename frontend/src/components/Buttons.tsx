@@ -16,7 +16,7 @@ const Buttons = () => {
   const dispatch = useAppDispatch();
   const playerTurn = gameState?.playerTurn;
 
-  if (gameState?.winner || gameState?.draw.isDraw) return null;
+  if (gameState?.isGameOver) return null;
 
   if (!playerTurn?.coins || !gameState?.minRaiseAmount) return null;
 
@@ -28,6 +28,10 @@ const Buttons = () => {
 
   const canCheck = callAmount <= 0;
   const allIn = gameState?.players.some((player) => player.coins === 0);
+
+  if (allIn) {
+    callAmount = playerTurn.coins;
+  }
 
   const canRaise = playerTurn?.coins >= gameState?.minRaiseAmount && !allIn;
 
@@ -50,9 +54,9 @@ const Buttons = () => {
           }}
           className="button-border flex space-x-3 items-center bg-gray-900 px-8 xl:py-2 hover:bg-gray-800 rounded-full text-[1rem] xl:text-2xl"
         >
-          <span>CALL</span>
+          <span>{allIn ? "ALL IN" : "CALL"}</span>
           <div className="flex items-center space-x-1">
-            <span>{callAmount}</span>
+            <span> {callAmount}</span>
             <img src={chip} className="w-4 h-4" />
           </div>
         </button>

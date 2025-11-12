@@ -6,12 +6,14 @@ import {
   CardsMap,
   Hand,
   RanksMap,
-  IDraw,
   ITime,
   IPlayersMap,
   GameStatus,
   IUpdateGameState,
   PlayerAction,
+  SidePotsMap,
+  IResult,
+  PotInfo,
 } from "../types/types";
 import {
   deleteGameState,
@@ -49,11 +51,8 @@ class Game {
   lastBet: number = 0;
   movesCount: number = 0;
   currentRound = "preFlop";
-  winner: { userId: string; hand?: Hand } | null = null;
-  draw: IDraw = {
-    isDraw: false,
-    potSpliters: [],
-  };
+  potInfo: PotInfo = {};
+  isGameOver = false;
 
   constructor({
     io,
@@ -68,8 +67,8 @@ class Game {
     lastBet,
     movesCount,
     currentRound,
-    winner,
-    draw,
+    potInfo,
+    isGameOver,
   }: IGame) {
     this.io = io;
     this.roomId = roomId;
@@ -87,8 +86,8 @@ class Game {
     this.lastBet = lastBet;
     this.movesCount = movesCount;
     this.currentRound = currentRound;
-    this.winner = winner;
-    this.draw = draw;
+    this.potInfo = potInfo;
+    this.isGameOver = isGameOver;
   }
 
   private updateTablePositions(playerId: string) {
@@ -99,6 +98,12 @@ class Game {
         delete positionsMap[playerId];
       }
     });
+  }
+
+  private getPlayer(playerId: string) {
+    const player = this.players.find((p) => p.playerInfo.userId === playerId);
+
+    return player;
   }
 
   async updateGameState(
@@ -113,7 +118,7 @@ class Game {
       delete updatedGameState.io;
 
       const updatedPlayers = updatedGameState.players.map((player: any) => {
-        if (this.winner || this.draw.isDraw) {
+        if (updatedGameState.isGameOver) {
           return {
             ...player,
             cards: [...player.cards], // Show the opponents' cards when it's time
@@ -184,7 +189,7 @@ class Game {
 
     if (!lastPlayerData) return;
 
-    this.io!.to(lastPlayerData?.userSocketId).emit("gameEnd", { reason });
+    this.io?.to(lastPlayerData?.userSocketId).emit("gameEnd", { reason });
   }
 
   async disconnect(playerId: string, userName: string) {
@@ -224,8 +229,20 @@ class Game {
     );
 
     if (playersNotFold.length === 1) {
-      this.winner = { userId: playersNotFold[0].playerInfo.userId };
-      this.handlePayout();
+      const winnerId = playersNotFold[0].playerInfo.userId;
+
+      const winner = this.getPlayer(winnerId);
+      winner!.coins += this.totalPot;
+
+      this.potInfo["mainPot"] = {
+        isDraw: false,
+        winner: { userId: winnerId, hand: null },
+        amount: this.totalPot,
+      };
+
+      this.totalPot = 0;
+      this.isGameOver = true;
+
       await resetGameQueue.getInstance().addTimer(this.roomId);
       return;
     }
@@ -243,27 +260,27 @@ class Game {
       this.startFlop();
       this.startTurn();
       this.startRiver();
-      this.startShowdown();
+      await this.startShowdown();
       return;
     }
 
     if (lastMove && allIn && this.currentRound === "flop") {
       this.startTurn();
       this.startRiver();
-      this.startShowdown();
+      await this.startShowdown();
       return;
     }
 
     if (lastMove && allIn && this.currentRound === "turn") {
       this.startRiver();
-      this.startShowdown();
+      await this.startShowdown();
       return;
     }
 
     if (lastMove) {
       this.resetRound();
 
-      if (this.currentRound === "river") this.startShowdown();
+      if (this.currentRound === "river") await this.startShowdown();
 
       if (this.currentRound === "turn") this.startRiver();
 
@@ -323,12 +340,27 @@ class Game {
     this.communityCards.push(...card);
   }
 
-  private startShowdown() {
+  private async startShowdown() {
     this.currentRound = "showdown";
 
     this.findHands();
 
-    this.findBestHand();
+    const isAllIn = this.players.some((player) => player.isAllIn);
+
+    this.isGameOver = true;
+
+    if (!isAllIn) {
+      const handOrder = this.getHandOrder(this.players);
+      const result = this.findBestHand(handOrder);
+
+      this.handlePayout(result, { potName: "mainPot", amount: this.totalPot });
+
+      await resetGameQueue.getInstance().addTimer(this.roomId);
+    } else {
+      this.handleSidePotPayout();
+
+      await resetGameQueue.getInstance().addTimer(this.roomId);
+    }
   }
 
   async switchTurns() {
@@ -535,104 +567,250 @@ class Game {
     });
   }
 
-  private getHandOrder() {
-    const handOrder: Hand[] = [];
+  private getHandOrder(players: Player[]) {
+    let handOrder = [];
+    const playersNotFold = players.filter((p) => !p.isFold);
 
-    for (let i = 0; i < this.players.length; i++) {
-      if (this.players[i].isFold) continue;
+    while (playersNotFold.length) {
+      let currentBestHand = playersNotFold[0].hand!;
+      currentBestHand.userId = playersNotFold[0].playerInfo.userId;
+      currentBestHand.index = 0;
 
-      const firstHand = this.players[i].hand;
-      firstHand!.userId = this.players[i].playerInfo.userId;
+      for (let j = 1; j < playersNotFold.length; j++) {
+        const nextHand = playersNotFold[j].hand!;
+        nextHand.userId = playersNotFold[j].playerInfo.userId;
+        nextHand.index = j;
 
-      for (let j = 0; j < this.players.length; j++) {
-        if (i === j || this.players[j].isFold) continue;
-
-        const nextHand = this.players[j].hand;
-
-        nextHand!.userId = this.players[j].playerInfo.userId;
-
-        const betterHand = this.handPriority(firstHand!, nextHand!);
-
-        if (!handOrder.some((hand) => hand.userId === betterHand.userId)) {
-          handOrder.push(betterHand);
-        }
+        const betterHand = this.handPriority(currentBestHand!, nextHand!);
+        currentBestHand = betterHand;
       }
+
+      handOrder.push(currentBestHand);
+      playersNotFold.splice(currentBestHand.index!, 1);
     }
 
     return handOrder;
   }
 
   private determinePotSpliters(handOrder: Hand[]) {
+    let result: IResult = {
+      isDraw: false,
+      potSpliters: [],
+      winner: { userId: "", hand: null },
+    };
+
     for (let i = 0; i < 1; i++) {
       const hand = handOrder[i];
       const potSpliter = { userId: hand.userId!, hand: hand };
-      this.draw.potSpliters = [potSpliter];
+      result.potSpliters = [potSpliter];
 
       for (let j = 1; j < handOrder.length; j++) {
         const handTwo = handOrder[j];
 
         if (hand.name !== handTwo.name) {
-          this.winner = { userId: hand.userId!, hand: hand };
+          result.winner = { userId: hand.userId!, hand: hand };
           break;
         }
 
-        if (hand.name === handTwo.name && hand.kicker && handTwo.kicker) {
-          if (hand.kicker > handTwo.kicker) {
-            this.winner = { userId: hand.userId!, hand: hand };
-            break;
-          }
+        if (hand.rank! > handTwo.rank!) {
+          result.winner = { userId: hand.userId!, hand: hand };
+          break;
+        }
 
-          if (handTwo.kicker > hand.kicker) {
-            this.winner = { userId: handTwo.userId!, hand: handTwo };
+        if (hand.rankTwo && handTwo.rankTwo) {
+          if (hand.rankTwo > handTwo.rankTwo) {
+            result.winner = { userId: hand.userId!, hand: hand };
             break;
           }
         }
 
-        if (hand.name === handTwo.name && hand.kicker === handTwo.kicker) {
+        if (
+          hand.name === handTwo.name &&
+          hand.strongestKicker &&
+          handTwo.strongestKicker
+        ) {
+          if (hand.strongestKicker > handTwo.strongestKicker) {
+            result.winner = { userId: hand.userId!, hand: hand };
+            break;
+          }
+
+          if (handTwo.strongestKicker > hand.strongestKicker) {
+            result.winner = { userId: handTwo.userId!, hand: handTwo };
+            break;
+          }
+        }
+
+        if (
+          hand.name === handTwo.name &&
+          hand.strongestKicker === handTwo.strongestKicker
+        ) {
           const potSpliterTwo = { userId: handTwo.userId!, hand: handTwo };
-          this.draw.isDraw = true;
-          this.draw.potSpliters.push(potSpliterTwo);
+          result.isDraw = true;
+          result.potSpliters.push(potSpliterTwo);
         }
       }
     }
+
+    return result;
   }
 
-  async findBestHand() {
-    const handOrder = this.getHandOrder();
+  private findBestHand(handOrder: Hand[]) {
+    const result = this.determinePotSpliters(handOrder);
 
-    if (handOrder.length === 1) {
-      this.winner = {
-        userId: handOrder[0].userId!,
-        hand: handOrder[0],
-      };
-      this.handlePayout();
-      await resetGameQueue.getInstance().addTimer(this.roomId);
-      return;
-    }
+    return result;
 
-    this.determinePotSpliters(handOrder);
+    // const handOrder = this.getHandOrder();
 
-    if (this.winner || this.draw.isDraw) {
-      await resetGameQueue.getInstance().addTimer(this.roomId);
-      this.handlePayout();
-    }
+    // if (handOrder.length === 1) {
+    //   this.winner = {
+    //     userId: handOrder[0].userId!,
+    //     hand: handOrder[0],
+    //   };
+    //   this.handlePayout();
+    //   await resetGameQueue.getInstance().addTimer(this.roomId);
+    //   return;
+    // }
+
+    // this.determinePotSpliters(handOrder);
+
+    // if (this.winner || this.draw.isDraw) {
+    //   await resetGameQueue.getInstance().addTimer(this.roomId);
+    //   this.handlePayout();
+    // }
   }
 
-  private handlePayout() {
-    if (this.draw.isDraw) {
-      const potSpliters = this.draw.potSpliters;
+  private determineSidepots() {
+    const playersNotFold = this.players
+      .filter((player) => !player.isFold)
+      .sort((a, b) => a.playerPot - b.playerPot);
 
-      this.players.forEach((player, index) => {
-        if (player.playerInfo.userId === potSpliters[index].userId) {
-          return (player.coins += this.totalPot / potSpliters.length);
+    const minAllInAmount = playersNotFold[0].playerPot;
+
+    const mainPot = minAllInAmount * playersNotFold.length;
+
+    const sidePots: SidePotsMap = {};
+
+    for (let i = 0; i < playersNotFold.length; i++) {
+      const player = playersNotFold[i];
+      const playerRemainingPot = player.playerPot - minAllInAmount;
+
+      player.playerPot = player.playerPot - minAllInAmount;
+
+      if (playerRemainingPot === 0) continue;
+
+      for (let j = 0; j < playersNotFold.length; j++) {
+        const opponent = playersNotFold[j];
+        const opponentRemainingPot = opponent.playerPot - minAllInAmount;
+
+        if (opponentRemainingPot === 0) continue;
+
+        if (player.playerInfo.userId === opponent.playerInfo.userId) continue;
+
+        if (player.playerPot === 0) continue;
+
+        if (player.playerPot <= opponent.playerPot) {
+          const sidePot = playerRemainingPot;
+
+          opponent.playerPot = opponent.playerPot - playerRemainingPot;
+
+          if (!sidePots[i]) {
+            sidePots[i] = { amount: 0, players: [] };
+          }
+
+          sidePots[i].amount += sidePot;
+          sidePots[i].players!.push(opponent.playerInfo.userId);
+
+          if (j === playersNotFold.length - 1) {
+            player.playerPot = player.playerPot - playerRemainingPot;
+            sidePots[i].amount += sidePot;
+            sidePots[i].players!.push(player.playerInfo.userId);
+          }
         }
-      });
-    } else {
-      const winnerId = this.players.findIndex(
-        (p) => p.playerInfo.userId === this.winner?.userId
+      }
+    }
+
+    return { mainPot: { amount: mainPot }, ...sidePots };
+  }
+
+  private handleSidePotPayout() {
+    const sidePots: SidePotsMap = this.determineSidepots();
+    const handOrder = this.getHandOrder(this.players);
+
+    console.log(sidePots, "sidepots");
+    console.log(handOrder, "handorder");
+
+    this.players.forEach((player, index) => {
+      const remainingCoins = player.playerPot;
+
+      const currentPlayer = this.players[index];
+
+      currentPlayer.coins += remainingCoins;
+      currentPlayer.playerPot -= remainingCoins;
+    });
+
+    for (const [potKey, pot] of Object.entries(sidePots)) {
+      let eligiblePlayers = [];
+
+      if (potKey === "mainPot") {
+        eligiblePlayers = this.players.filter((p) => !p.isFold);
+      } else {
+        eligiblePlayers = pot.players!.map((id) => this.getPlayer(id));
+      }
+
+      const eligibleHandOrder = handOrder.filter((p) =>
+        eligiblePlayers.some((ep) => p.userId === ep!.playerInfo.userId)
       );
 
-      this.players[winnerId].coins += this.totalPot;
+      const result = this.findBestHand(eligibleHandOrder);
+
+      console.log(result, "reuslt");
+
+      this.handlePayout(result, { potName: potKey, amount: pot.amount });
+
+      // if (result.isDraw) {
+      //   const share = pot.amount / result.potSpliters.length;
+      //   for (const potSplitter of result.potSpliters) {
+      //     const player = this.getPlayer(potSplitter.userId);
+      //     player!.coins += share;
+      //   }
+      // } else {
+      //   const winner = this.getPlayer(result.winner.userId);
+      //   winner!.coins += pot.amount;
+      // }
+    }
+
+    this.totalPot = 0;
+
+    console.log("players", this.players);
+  }
+
+  private handlePayout(
+    result: IResult,
+    potData: { potName: string; amount: number }
+  ) {
+    if (result.isDraw) {
+      const share = potData.amount / result.potSpliters.length;
+
+      this.potInfo[potData.potName] = {
+        isDraw: true,
+        potSpliters: result.potSpliters,
+        amount: potData.amount,
+      };
+
+      for (const potSplitter of result.potSpliters) {
+        const player = this.getPlayer(potSplitter.userId);
+        player!.coins += share;
+      }
+    } else {
+      const winner = this.getPlayer(result.winner?.userId);
+
+      this.potInfo[potData.potName] = {
+        isDraw: false,
+        winner: { userId: winner!.playerInfo.userId, hand: winner!.hand },
+        amount: potData.amount,
+      };
+
+      winner!.coins += potData.amount;
     }
 
     this.totalPot = 0;
@@ -696,12 +874,14 @@ class Game {
       const strongerKicker = Math.max(handOneKicker, handTwoKicker);
 
       if (handOneKicker === strongerKicker) {
-        handOne.kicker = handOneKicker;
+        handOne.strongestKicker = handOneKicker;
+        handTwo.strongestKicker = handTwoKicker;
         return handOne;
       }
 
       if (handTwoKicker === strongerKicker) {
-        handTwo.kicker = handTwoKicker;
+        handTwo.strongestKicker = handTwoKicker;
+        handOne.strongestKicker = handOneKicker;
         return handTwo;
       }
     }
@@ -730,37 +910,15 @@ class Game {
   }
 
   private isStrongerCards(handOne: Hand, handTwo: Hand) {
-    let strongerHand: Hand | null = null;
+    if (handOne.rank! > handTwo.rank!) return handOne;
+    if (handTwo.rank! > handOne.rank!) return handTwo;
 
-    //case when we only have one rank is the case of one pair
-    if (handOne.rank! > handTwo.rank!) {
-      return handOne;
+    if (handOne.rankTwo !== undefined && handTwo.rankTwo !== undefined) {
+      if (handOne.rankTwo! > handTwo.rankTwo!) return handOne;
+      if (handTwo.rankTwo! > handOne.rankTwo!) return handTwo;
     }
 
-    if (handTwo.rank! > handOne.rank!) {
-      return handTwo;
-    }
-
-    //this is a case when we have ex (onePair, 4Kind, 3Kind, straight, straight flush, flush) and we dont have a rankTwo
-    if (!handOne.rankTwo || !handTwo.rankTwo) {
-      strongerHand = this.compareKickers(handOne, handTwo);
-
-      //we also need to handle the draw in here
-      return strongerHand;
-    }
-
-    //this is a case when we have ex (twoPair) and we have a rankTwo
-    if (handOne.rankTwo! > handTwo.rankTwo!) {
-      return handOne;
-    }
-
-    if (handTwo.rankTwo! > handOne.rankTwo!) {
-      return handTwo;
-    }
-
-    strongerHand = this.compareKickers(handOne, handTwo);
-
-    return strongerHand;
+    return this.compareKickers(handOne, handTwo);
   }
 
   private isConsecutive(ranks: number[]) {
@@ -1052,12 +1210,9 @@ class Game {
     this.currentRound = "preFlop";
     this.totalPot = bigBindAmount + bigBindAmount / 2;
     this.communityCards = [];
-    this.winner = null;
     this.lastBet = 0;
-    this.draw = {
-      isDraw: false,
-      potSpliters: [],
-    };
+    this.potInfo = {};
+    this.isGameOver = false;
     this.movesCount = 0;
 
     const currentDealerIndex = this.players.findIndex(

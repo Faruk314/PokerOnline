@@ -43,7 +43,7 @@ const getGameState = asyncHandler(async (req: Request, res: Response) => {
       }
 
       const updatedPlayers = updatedGameState.players.map((player: any) => {
-        if (updatedGameState.winner || updatedGameState.draw!.isDraw) {
+        if (updatedGameState.isGameOver) {
           return {
             ...player,
             cards: [...player.cards],

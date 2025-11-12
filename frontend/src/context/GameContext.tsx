@@ -72,7 +72,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
   };
 
   const findPotSpliter = (playerId: string) => {
-    const potSpliter = gameState?.draw.potSpliters.find(
+    const potSpliter = gameState?.potInfo["mainPot"].potSpliters!.find(
       (p) => p.userId === playerId
     );
 
@@ -158,19 +158,21 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ({ gameState }: { gameState: IGame }) => {
       const updatedGameState = { ...gameState };
 
-      if (gameState.draw.isDraw) {
-        gameState.draw.potSpliters.forEach((player, index: number) => {
-          const duration = 500 * index;
-          setTimeout(() => {
-            animateMoveChip(player.userId, true);
-          }, duration);
-        });
+      if (gameState.potInfo["mainPot"].isDraw) {
+        gameState.potInfo["mainPot"].potSpliters!.forEach(
+          (player, index: number) => {
+            const duration = 500 * index;
+            setTimeout(() => {
+              animateMoveChip(player.userId, true);
+            }, duration);
+          }
+        );
 
         gameState.players.forEach((player) => {
           animateCardFlip(player);
         });
       } else {
-        animateMoveChip(gameState.winner.userId, true);
+        animateMoveChip(gameState.potInfo["mainPot"].winner!.userId, true);
         gameState.players.forEach((player) => {
           animateCardFlip(player);
         });
@@ -205,7 +207,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         });
       }, 1000);
 
-      if (gameState.winner || gameState.draw.isDraw) {
+      if (gameState.isGameOver) {
         return handleGameOverUpdates({ gameState });
       }
 

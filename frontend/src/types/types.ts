@@ -17,11 +17,6 @@ interface GameRoom {
   players: [];
 }
 
-interface IDraw {
-  isDraw: boolean;
-  potSpliters: { userId: string; hand: Hand }[];
-}
-
 interface IActionAnimation {
   state: ActionState;
 }
@@ -39,9 +34,18 @@ interface IGame {
   players: IPlayer[];
   lastBet: number;
   currentRound: string;
-  winner: { userId: string; hand: Hand };
-  draw: IDraw;
+  potInfo: PotInfo;
+  isGameOver: boolean;
 }
+
+interface PotState {
+  isDraw: boolean;
+  potSpliters?: { userId: string; hand: Hand }[];
+  winner?: { userId: string; hand: Hand | null };
+  amount: number;
+}
+
+type PotInfo = Record<string, PotState>;
 
 interface IRaise {
   isRaise: boolean;

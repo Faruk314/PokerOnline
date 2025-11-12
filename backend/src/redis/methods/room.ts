@@ -112,7 +112,7 @@ const getRooms = async (): Promise<RoomData[]> => {
     return roomDataArray;
   }
 
-  const roomDataPromises = roomKeys.map(async (roomKey) => {
+  const roomDataPromises = roomKeys.map(async (roomKey: string) => {
     const roomJSON = await client.get(roomKey);
     if (roomJSON) {
       const roomData: RoomData = JSON.parse(roomJSON);
