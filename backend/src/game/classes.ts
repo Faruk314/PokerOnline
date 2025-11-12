@@ -736,9 +736,6 @@ class Game {
     const sidePots: SidePotsMap = this.determineSidepots();
     const handOrder = this.getHandOrder(this.players);
 
-    console.log(sidePots, "sidepots");
-    console.log(handOrder, "handorder");
-
     this.players.forEach((player, index) => {
       const remainingCoins = player.playerPot;
 
@@ -763,25 +760,10 @@ class Game {
 
       const result = this.findBestHand(eligibleHandOrder);
 
-      console.log(result, "reuslt");
-
       this.handlePayout(result, { potName: potKey, amount: pot.amount });
-
-      // if (result.isDraw) {
-      //   const share = pot.amount / result.potSpliters.length;
-      //   for (const potSplitter of result.potSpliters) {
-      //     const player = this.getPlayer(potSplitter.userId);
-      //     player!.coins += share;
-      //   }
-      // } else {
-      //   const winner = this.getPlayer(result.winner.userId);
-      //   winner!.coins += pot.amount;
-      // }
     }
 
     this.totalPot = 0;
-
-    console.log("players", this.players);
   }
 
   private handlePayout(
