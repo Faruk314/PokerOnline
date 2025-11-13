@@ -277,6 +277,11 @@ class Game {
       return;
     }
 
+    if (lastMove && allIn && this.currentRound === "river") {
+      await this.startShowdown();
+      return;
+    }
+
     if (lastMove) {
       this.resetRound();
 
@@ -345,7 +350,7 @@ class Game {
 
     this.findHands();
 
-    const isAllIn = this.players.some((player) => player.isAllIn);
+    const isAllIn = this.players.some((player) => player.coins === 0);
 
     this.isGameOver = true;
 
@@ -353,12 +358,10 @@ class Game {
       const handOrder = this.getHandOrder(this.players);
       const result = this.findBestHand(handOrder);
 
-      this.handlePayout(result, { potName: "mainPot", amount: this.totalPot });
-
       await resetGameQueue.getInstance().addTimer(this.roomId);
+      this.handlePayout(result, { potName: "mainPot", amount: this.totalPot });
     } else {
       this.handleSidePotPayout();
-
       await resetGameQueue.getInstance().addTimer(this.roomId);
     }
   }
