@@ -7,7 +7,6 @@ import { setGameState } from "../store/slices/game";
 import cardSlide from "../assets/audio/cardSlide.wav";
 import { AudioContext } from "./AudioContext";
 import HandName from "../components/HandName";
-import Player from "../components/Player";
 import pokerCards from "../utils/cards";
 import classNames from "classnames";
 
@@ -235,30 +234,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ]
   );
 
-  const getTablePositions = () => {
-    if (!gameState) return null;
-
-    const tablePositions = gameState?.tablePositions;
-
-    if (!tablePositions) return null;
-
-    if (!loggedUserInfo?.userId) return null;
-
-    const userTablePositions = tablePositions[loggedUserInfo.userId];
-
-    if (!userTablePositions) return null;
-
-    return Object.entries(userTablePositions).map(([key, value]) => {
-      const playerData = gameState?.players.find(
-        (p) => p.playerInfo.userId === key
-      );
-
-      if (typeof value !== "string" || !playerData) return null;
-
-      return <Player key={key} player={playerData} position={value} />;
-    });
-  };
-
   const findCard = (c: string, index: number) => {
     const card = pokerCards.find((card) => card.card === c);
 
@@ -280,7 +255,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
   const contextValue: any = {
     handleUpdateGame,
     handlePreFlopUpdates,
-    getTablePositions,
     findCard,
     handleRaise,
     handleFold,

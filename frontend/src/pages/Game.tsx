@@ -10,6 +10,7 @@ import Loader from "../components/Loader";
 import { useParams } from "react-router-dom";
 import { AnimationContext } from "../context/AnimationContext";
 import { GameContext } from "../context/GameContext";
+import TablePositions from "../components/TablePositions";
 
 const Game = () => {
   const [openMenu, setOpenMenu] = useState(false);
@@ -17,7 +18,7 @@ const Game = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const { tablePotRef } = useContext(AnimationContext);
-  const { getTablePositions, findCard } = useContext(GameContext);
+  const { findCard } = useContext(GameContext);
 
   useEffect(() => {
     dispatch(getGameState(id!));
@@ -52,7 +53,7 @@ const Game = () => {
       </div>
 
       <div className="relative">
-        {getTablePositions()}
+        <TablePositions />
 
         <div className="table-size relative flex items-center justify-center rounded-full table-border">
           <img src={table} className="absolute w-full h-full rounded-full" />
