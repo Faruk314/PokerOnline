@@ -11,14 +11,21 @@ import { useParams } from "react-router-dom";
 import { AnimationContext } from "../context/AnimationContext";
 import { GameContext } from "../context/GameContext";
 import TablePositions from "../components/TablePositions";
+import Buttons from "../components/Buttons";
+import RaiseBar from "../components/RaiseBar";
 
 const Game = () => {
   const [openMenu, setOpenMenu] = useState(false);
-  const { gameState, isLoading } = useAppSelector((state) => state.game);
+  const loggedUserInfo = useAppSelector((state) => state.auth.loggedUserInfo);
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const { tablePotRef } = useContext(AnimationContext);
   const { findCard } = useContext(GameContext);
+  const { gameState, isLoading, openRaiseBar } = useAppSelector(
+    (state) => state.game
+  );
+  const isCurrentPlayer =
+    loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId;
 
   useEffect(() => {
     dispatch(getGameState(id!));
@@ -74,6 +81,14 @@ const Game = () => {
           </div>
         </div>
       </div>
+
+      {isCurrentPlayer && (
+        <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5">
+          {!openRaiseBar && <Buttons />}
+
+          {openRaiseBar && <RaiseBar />}
+        </div>
+      )}
     </section>
   );
 };

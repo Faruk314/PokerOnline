@@ -6,10 +6,8 @@ import { useAppSelector } from "../store/hooks";
 import { IPlayer } from "../types/types";
 import { useEffect } from "react";
 import Card from "./Card";
-import RaiseBar from "./RaiseBar";
 import { AnimationContext } from "../context/AnimationContext";
 import TimeBar from "./TimeBar";
-import Buttons from "./Buttons";
 import { GameContext } from "../context/GameContext";
 import HandName from "./HandName";
 
@@ -19,15 +17,12 @@ interface Props {
 }
 
 const Player = ({ player, position }: Props) => {
-  const { gameState, openRaiseBar } = useAppSelector((state) => state.game);
-  const { loggedUserInfo } = useAppSelector((state) => state.auth);
+  const { gameState } = useAppSelector((state) => state.game);
   const { playerInfo, coins, isFold, isDealer, cards } = player;
   const { createPlayerPotRef, animationMap } = useContext(AnimationContext);
   const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
-  const isCurrentPlayer =
-    loggedUserInfo?.userId === gameState?.playerTurn.playerInfo.userId &&
-    loggedUserInfo?.userId === player.playerInfo.userId;
+
   const actionAnimationState = animationMap.get(playerInfo.userId)?.state;
 
   useEffect(() => {
@@ -139,14 +134,6 @@ const Player = ({ player, position }: Props) => {
           )}
         </div>
       </div>
-
-      {isCurrentPlayer && (
-        <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5">
-          {!openRaiseBar && <Buttons />}
-
-          {openRaiseBar && <RaiseBar />}
-        </div>
-      )}
     </div>
   );
 };
