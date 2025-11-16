@@ -111,6 +111,7 @@ const initializeGame = async (roomId: string) => {
       playerPot: 0,
       hand: null,
       time: null,
+      showCards: false,
     };
 
     room.gameState?.players.push(player);

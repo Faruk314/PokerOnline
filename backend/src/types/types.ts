@@ -81,6 +81,7 @@ interface IPlayer {
   isCheck: boolean;
   hand: Hand | null;
   time: ITime | null;
+  showCards: boolean;
 }
 
 interface RoomData {

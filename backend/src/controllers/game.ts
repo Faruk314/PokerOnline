@@ -42,15 +42,19 @@ const getGameState = asyncHandler(async (req: Request, res: Response) => {
         );
       }
 
+      const isDraw = updatedGameState.potInfo?.mainPot?.isDraw;
+      const isShowdownWinner =
+        updatedGameState.potInfo?.mainPot?.winner?.hand !== null;
+
       const updatedPlayers = updatedGameState.players.map((player: any) => {
-        if (updatedGameState.isGameOver) {
+        if (updatedGameState.isGameOver && (isDraw || isShowdownWinner)) {
           return {
             ...player,
             cards: [...player.cards],
           };
         }
 
-        if (player.playerInfo.userId === userId) {
+        if (player.playerInfo.userId === userId || player.showCards) {
           return {
             ...player,
             cards: [...player.cards],

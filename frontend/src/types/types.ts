@@ -82,6 +82,7 @@ interface IPlayer {
   playerRaise: IRaise;
   hand: Hand | null;
   time: ITime | null;
+  showCards: boolean;
 }
 
 interface UserInfo {

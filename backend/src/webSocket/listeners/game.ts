@@ -16,6 +16,7 @@ class GameListeners {
     this.socket.on("playerRaise", this.onPlayerRaise.bind(this));
     this.socket.on("playerCall", this.onPlayerCall.bind(this));
     this.socket.on("playerCheck", this.onPlayerCheck.bind(this));
+    this.socket.on("playerShowCards", this.onPlayerShowCards.bind(this));
   }
 
   async onPlayerFold({ roomId }: { roomId: string }) {
@@ -190,6 +191,34 @@ class GameListeners {
       prevPlayerId: this.socket.userId,
       action: "check",
     });
+  }
+
+  async onPlayerShowCards({ roomId }: { roomId: string }) {
+    const response = await retrieveGameState(roomId, this.io);
+
+    if (response.status !== "success") return;
+
+    if (!response.gameState) return;
+
+    const game = response.gameState;
+
+    if (!game.isGameOver) {
+      return console.log("Invalid card show");
+    }
+
+    const winner = game.potInfo?.mainPot?.winner;
+
+    if (this.socket.userId !== winner?.userId) {
+      return console.log("Invalid card show");
+    }
+
+    const player = game.getPlayer(winner?.userId!);
+
+    if (!player) return console.error("player does not exist");
+
+    player.showCards = true;
+
+    await game.updateGameState(null);
   }
 }
 

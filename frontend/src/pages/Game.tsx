@@ -13,6 +13,7 @@ import { GameContext } from "../context/GameContext";
 import TablePositions from "../components/TablePositions";
 import Buttons from "../components/Buttons";
 import RaiseBar from "../components/RaiseBar";
+import ShowCardsBtn from "../components/ShowCardsBtn";
 
 const Game = () => {
   const [openMenu, setOpenMenu] = useState(false);
@@ -89,6 +90,10 @@ const Game = () => {
           {openRaiseBar && <RaiseBar />}
         </div>
       )}
+
+      <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5">
+        <ShowCardsBtn />
+      </div>
     </section>
   );
 };

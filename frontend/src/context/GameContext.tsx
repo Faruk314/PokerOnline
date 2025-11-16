@@ -252,6 +252,10 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     );
   };
 
+  const handleShowCards = (roomId: string) => {
+    socket?.emit("playerShowCards", { roomId });
+  };
+
   const contextValue: any = {
     handleUpdateGame,
     handlePreFlopUpdates,
@@ -262,6 +266,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     handleCall,
     findPotSpliter,
     getRank,
+    handleShowCards,
   };
 
   return (

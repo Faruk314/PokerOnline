@@ -100,7 +100,7 @@ class Game {
     });
   }
 
-  private getPlayer(playerId: string) {
+  getPlayer(playerId: string) {
     const player = this.players.find((p) => p.playerInfo.userId === playerId);
 
     return player;
@@ -117,15 +117,19 @@ class Game {
       const updatedGameState = { ...this } as any;
       delete updatedGameState.io;
 
+      const isDraw = updatedGameState.potInfo["mainPot"]?.isDraw;
+      const isShowdownWinner =
+        updatedGameState.potInfo["mainPot"]?.winner?.hand !== null;
+
       const updatedPlayers = updatedGameState.players.map((player: any) => {
-        if (updatedGameState.isGameOver) {
+        if (updatedGameState.isGameOver && (isDraw || isShowdownWinner)) {
           return {
             ...player,
             cards: [...player.cards], // Show the opponents' cards when it's time
           };
         }
 
-        if (player.playerInfo.userId === socket.userId) {
+        if (player.playerInfo.userId === socket.userId || player.showCards) {
           return {
             ...player,
             cards: [...player.cards], // Keep the user's cards visible
@@ -1184,6 +1188,7 @@ class Game {
         isRaise: false,
         amount: 0,
       };
+      player.showCards = false;
     }
 
     if (this.players.length === 1) {
@@ -1258,6 +1263,7 @@ class Player {
   playerPot = 0;
   hand: Hand | null = null;
   time: ITime | null = null;
+  showCards = false;
 
   constructor({
     coins,
@@ -1274,6 +1280,7 @@ class Player {
     cards,
     hand,
     time,
+    showCards,
   }: IPlayer) {
     this.coins = coins;
     this.playerInfo = playerInfo;
@@ -1289,6 +1296,7 @@ class Player {
     this.isCheck = isCheck;
     this.hand = hand;
     this.time = time;
+    this.showCards = showCards;
   }
 
   fold() {
