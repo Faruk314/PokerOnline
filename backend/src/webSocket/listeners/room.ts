@@ -54,7 +54,7 @@ class RoomListeners {
     const roomCreated = await createRoom(roomData);
 
     if (roomCreated) {
-      this.io.to(this.socket.id).emit("roomCreated");
+      this.io.to(this.socket.id).emit("roomCreated", { roomId });
     }
   }
 

@@ -73,7 +73,8 @@ export const useSocketEvents = () => {
 
   useSocketEvent(socket, "updateGame", handleUpdateGame);
 
-  useSocketEvent(socket, "roomCreated", () => {
+  useSocketEvent(socket, "roomCreated", ({ roomId }) => {
     toast.success("Room created");
+    socket?.emit("joinRoom", { roomId });
   });
 };
