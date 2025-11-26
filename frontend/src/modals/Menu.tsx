@@ -1,18 +1,17 @@
 import { useContext } from "react";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { SocketContext } from "../context/SocketContext";
-import { useAppSelector } from "../store/hooks";
 import { AudioContext } from "../context/AudioContext";
 
 const Menu = () => {
   const navigate = useNavigate();
   const { socket } = useContext(SocketContext);
+  const { id } = useParams<{ id: string }>();
   const { volumeOn, handleVolume } = useContext(AudioContext);
-  const { gameState } = useAppSelector((state) => state.game);
 
   const handlePlayerLeave = () => {
-    socket?.emit("leaveRoom", { roomId: gameState?.roomId });
+    socket?.emit("leaveRoom", { roomId: id });
     navigate("/menu");
   };
 
