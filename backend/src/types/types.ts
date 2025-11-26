@@ -32,13 +32,13 @@ interface IGame {
   io: Server | null;
   roomId: string;
   tablePositions: IPlayersMap;
-  minRaiseAmount: number;
+  minRaiseDiff: number;
   totalPot: number;
   playerTurn: IPlayer | null;
   deck: string[];
   communityCards: string[];
   players: IPlayer[];
-  lastBet: number;
+  lastMaxBet: number;
   movesCount: number;
   currentRound: string;
   potInfo: PotInfo;

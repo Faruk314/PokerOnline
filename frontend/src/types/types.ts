@@ -27,12 +27,12 @@ interface IGame {
   roomId: string;
   totalPot: number;
   tablePositions: IPlayersMap;
-  minRaiseAmount: number;
+  minRaiseDiff: number;
   playerTurn: IPlayer;
   deck: string[];
   communityCards: string[];
   players: IPlayer[];
-  lastBet: number;
+  lastMaxBet: number;
   currentRound: string;
   potInfo: PotInfo;
   isGameOver: boolean;

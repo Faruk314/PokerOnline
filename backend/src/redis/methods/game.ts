@@ -52,13 +52,13 @@ const initializeGame = async (roomId: string) => {
     io: null,
     roomId,
     tablePositions: {},
-    minRaiseAmount: 0,
+    minRaiseDiff: 0,
     totalPot: 0,
     playerTurn: null,
     communityCards: [],
     deck: [],
     players: [],
-    lastBet: 0,
+    lastMaxBet: 0,
     movesCount: 0,
     currentRound: "preFlop",
     potInfo: {},
@@ -141,7 +141,7 @@ const initializeGame = async (roomId: string) => {
 
   const playerTurnIndex = (smallBindIndex + 2) % room.gameState.players.length;
 
-  room.gameState.lastBet = bigBindAmount;
+  room.gameState.lastMaxBet = bigBindAmount;
   room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
 
   const start = Date.now();
@@ -151,7 +151,7 @@ const initializeGame = async (roomId: string) => {
     startTime: new Date(start),
     endTime: new Date(start + turnDuration),
   };
-  room.gameState.minRaiseAmount = bigBindAmount * 2;
+  room.gameState.minRaiseDiff = bigBindAmount / 2;
   room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
   room.gameState.communityCards = [];
 

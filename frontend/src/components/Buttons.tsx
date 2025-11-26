@@ -9,54 +9,64 @@ import { setOpenRaiseBar } from "../store/slices/game";
 
 const Buttons = () => {
   const { gameState } = useAppSelector((state) => state.game);
-
   const { playAudio } = useContext(AudioContext);
-  const { handleFold, handleCheck, handleCall } = useContext(GameContext);
+  const { handleFold, handleCheck, handleCall, handleRaise } =
+    useContext(GameContext);
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
+
   const playerTurn = gameState?.playerTurn;
 
-  if (gameState?.isGameOver) return null;
+  if (!gameState || gameState.isGameOver || !playerTurn?.coins) return null;
 
-  if (!playerTurn?.coins || !gameState?.minRaiseAmount) return null;
+  const playersWhoNeedToAct = gameState.players.filter(
+    (p) =>
+      !p.isFold &&
+      !p.isAllIn &&
+      p.playerInfo.userId !== playerTurn.playerInfo.userId
+  );
 
-  let callAmount = gameState!.lastBet - playerTurn!.playerPot;
+  let minRaiseAmount = gameState.lastMaxBet + gameState.minRaiseDiff;
 
-  if (callAmount && callAmount > playerTurn?.coins) {
-    callAmount = playerTurn?.coins;
+  if (minRaiseAmount > gameState?.playerTurn.coins) {
+    minRaiseAmount = gameState.playerTurn.coins;
   }
+
+  const isAllin = minRaiseAmount === gameState.playerTurn.coins;
+
+  let callAmount = gameState.lastMaxBet - playerTurn.playerPot;
+
+  const isAllInCall = playerTurn.coins <= callAmount;
+
+  if (isAllInCall) callAmount = playerTurn.coins;
 
   const canCheck = callAmount <= 0;
-  const allIn = gameState?.players.some((player) => player.coins === 0);
 
-  if (allIn) {
-    callAmount = playerTurn.coins;
-  }
-
-  const canRaise = playerTurn?.coins >= gameState?.minRaiseAmount && !allIn;
+  const showRaise = !isAllInCall && playersWhoNeedToAct.length > 0;
 
   return (
-    <>
+    <div className="flex space-x-3">
       <button
         onClick={() => {
           playAudio(clickSound);
           handleFold(id);
         }}
-        className="button-border bg-gray-900 px-8 xl:py-2 bg-red-700 hover:bg-red-600 rounded-full text-[0.9rem] xl:text-2xl"
+        className="button-border bg-red-700 hover:bg-red-600 px-8 xl:py-2 rounded-full text-[0.9rem] xl:text-2xl"
       >
         FOLD
       </button>
+
       {!canCheck && (
         <button
           onClick={() => {
             playAudio(clickSound);
-            handleCall(callAmount!, id);
+            handleCall(callAmount, id);
           }}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-8 xl:py-2 hover:bg-gray-800 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
         >
-          <span>{allIn ? "ALL IN" : "CALL"}</span>
+          <span>{isAllInCall ? "ALL IN" : "CALL"}</span>
           <div className="flex items-center space-x-1">
-            <span> {callAmount}</span>
+            <span>{callAmount}</span>
             <img src={chip} className="w-4 h-4" />
           </div>
         </button>
@@ -68,24 +78,34 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCheck(id);
           }}
-          className="button-border flex space-x-3 items-center bg-gray-900 px-8 xl:py-2 hover:bg-gray-800 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border bg-gray-800 hover:bg-gray-700 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
         >
-          <span>CHECK</span>
+          CHECK
         </button>
       )}
 
-      {canRaise && (
+      {showRaise && (
         <button
           onClick={() => {
             playAudio(clickSound);
+
+            if (isAllin) return handleRaise(playerTurn.coins, id);
+
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border bg-gray-900 px-8 xl:py-2 bg-green-700 hover:bg-green-600 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border flex items-center space-x-2 bg-green-700 hover:bg-green-600 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
         >
-          RAISE
+          <span>{isAllin ? "ALL IN" : "RAISE"}</span>
+
+          {isAllin && (
+            <div className="flex items-center space-x-1">
+              <span>{playerTurn.coins}</span>
+              <img src={chip} className="w-4 h-4" />
+            </div>
+          )}
         </button>
       )}
-    </>
+    </div>
   );
 };
 

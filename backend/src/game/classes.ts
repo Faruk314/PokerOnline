@@ -43,12 +43,12 @@ class Game {
   roomId: string;
   totalPot: number;
   tablePositions: IPlayersMap = {};
-  minRaiseAmount: number;
+  minRaiseDiff: number;
   playerTurn: Player | null;
   deck: string[];
   communityCards: string[] = [];
   players: Player[] = [];
-  lastBet: number = 0;
+  lastMaxBet: number = 0;
   movesCount: number = 0;
   currentRound = "preFlop";
   potInfo: PotInfo = {};
@@ -59,12 +59,12 @@ class Game {
     roomId,
     totalPot,
     tablePositions,
-    minRaiseAmount,
+    minRaiseDiff,
     playerTurn,
     players,
     deck,
     communityCards,
-    lastBet,
+    lastMaxBet,
     movesCount,
     currentRound,
     potInfo,
@@ -74,7 +74,7 @@ class Game {
     this.roomId = roomId;
     this.tablePositions = tablePositions;
     this.totalPot = totalPot;
-    this.minRaiseAmount = minRaiseAmount;
+    this.minRaiseDiff = minRaiseDiff;
     this.players = players.map((player) => new Player(player));
     this.playerTurn = playerTurn
       ? this.players.find(
@@ -83,7 +83,7 @@ class Game {
       : null;
     this.deck = deck;
     this.communityCards = communityCards;
-    this.lastBet = lastBet;
+    this.lastMaxBet = lastMaxBet;
     this.movesCount = movesCount;
     this.currentRound = currentRound;
     this.potInfo = potInfo;
@@ -302,6 +302,8 @@ class Game {
   }
 
   private resetRound() {
+    if (this.currentRound === "showdown") return;
+
     this.movesCount = 0;
 
     this.players.forEach((player) => {
@@ -313,8 +315,8 @@ class Game {
       player.isAllIn = false;
     });
 
-    this.lastBet = 0;
-    this.minRaiseAmount = 50;
+    this.lastMaxBet = 0;
+    this.minRaiseDiff = 50;
   }
 
   private startFlop() {
@@ -370,6 +372,45 @@ class Game {
     }
   }
 
+  private setNextActivePlayer(playerTurnIndex: number) {
+    let nextPlayerIndex = playerTurnIndex;
+
+    for (let i = 0; i < this.players.length; i++) {
+      nextPlayerIndex += 1;
+
+      if (nextPlayerIndex > this.players.length) {
+        nextPlayerIndex = 0;
+      }
+
+      const player = this.players[nextPlayerIndex];
+
+      if (player && !player.isFold && player.coins > 0) {
+        this.playerTurn = player;
+        break;
+      }
+    }
+  }
+
+  private async startTurnTimer() {
+    if (!this.playerTurn) return;
+
+    const start = Date.now();
+    const turnDuration = 100000000;
+
+    this.playerTurn.time = {
+      startTime: new Date(start),
+      endTime: new Date(start + turnDuration),
+    };
+
+    await playerTimerQueue
+      .getInstance()
+      .addTimer(
+        this.roomId,
+        this.playerTurn.playerInfo.userId,
+        this.playerTurn.time.endTime
+      );
+  }
+
   async switchTurns() {
     if (!this.playerTurn) return;
 
@@ -386,38 +427,9 @@ class Game {
       }
     }
 
-    let nextPlayerIndex = playerTurnIndex;
+    this.setNextActivePlayer(playerTurnIndex);
 
-    for (let i = 0; i < this.players.length; i++) {
-      nextPlayerIndex += 1;
-
-      if (nextPlayerIndex > this.players.length) {
-        nextPlayerIndex = 0;
-      }
-
-      const player = this.players[nextPlayerIndex];
-
-      if (player && !player.isFold) {
-        this.playerTurn = player;
-        break;
-      }
-    }
-
-    const start = Date.now();
-    const turnDuration = 30 * 1000;
-
-    this.playerTurn.time = {
-      startTime: new Date(start),
-      endTime: new Date(start + turnDuration),
-    };
-
-    await playerTimerQueue
-      .getInstance()
-      .addTimer(
-        this.roomId,
-        this.playerTurn.playerInfo.userId,
-        this.playerTurn.time.endTime
-      );
+    await this.startTurnTimer();
   }
 
   private getCommunityCardsCombinations(
@@ -665,25 +677,6 @@ class Game {
     const result = this.determinePotSpliters(handOrder);
 
     return result;
-
-    // const handOrder = this.getHandOrder();
-
-    // if (handOrder.length === 1) {
-    //   this.winner = {
-    //     userId: handOrder[0].userId!,
-    //     hand: handOrder[0],
-    //   };
-    //   this.handlePayout();
-    //   await resetGameQueue.getInstance().addTimer(this.roomId);
-    //   return;
-    // }
-
-    // this.determinePotSpliters(handOrder);
-
-    // if (this.winner || this.draw.isDraw) {
-    //   await resetGameQueue.getInstance().addTimer(this.roomId);
-    //   this.handlePayout();
-    // }
   }
 
   private determineSidepots() {
@@ -1154,22 +1147,18 @@ class Game {
       const player = this.players[i];
 
       if (player.coins === 0) {
-        // Player has no coins, remove them from the game
         const playerData = await getUser(player.playerInfo.userId);
-
         if (playerData) {
           this.io?.to(playerData.userSocketId).emit("gameEnd", {
             reason: "insufficientFunds",
           });
         }
-        // Remove player from the array
-        this.players.splice(i, 1);
 
+        this.players.splice(i, 1);
         this.updateTablePositions(player.playerInfo.userId);
         continue;
       }
 
-      // Reset player state if they have coins
       const firstRandomCardIndex = Math.floor(Math.random() * this.deck.length);
       const firstCard = this.deck.splice(firstRandomCardIndex, 1);
       const secondRandomCardIndex = Math.floor(
@@ -1184,64 +1173,67 @@ class Game {
       player.isCheck = false;
       player.hand = null;
       player.cards = [...firstCard, ...secondCard];
-      player.playerRaise = {
-        isRaise: false,
-        amount: 0,
-      };
+      player.playerRaise = { isRaise: false, amount: 0 };
       player.showCards = false;
     }
 
     if (this.players.length === 1) {
-      await this.initGameOver("opponentInsufficientFunds");
-      return;
+      return await this.initGameOver("opponentInsufficientFunds");
     }
 
-    const bigBindAmount = 50;
+    const bigBlind = 50;
+    const smallBlind = bigBlind / 2;
+
     this.currentRound = "preFlop";
-    this.totalPot = bigBindAmount + bigBindAmount / 2;
+    this.totalPot = bigBlind + smallBlind;
     this.communityCards = [];
-    this.lastBet = 0;
     this.potInfo = {};
     this.isGameOver = false;
     this.movesCount = 0;
 
-    const currentDealerIndex = this.players.findIndex(
-      (player) => player.isDealer
-    );
+    this.lastMaxBet = bigBlind;
+    this.minRaiseDiff = bigBlind;
 
-    const smallBindIndex = (currentDealerIndex + 1) % this.players.length;
+    const dealerIndex = this.players.findIndex((p) => p.isDealer);
+    const smallBlindIndex = (dealerIndex + 1) % this.players.length;
+    const bigBlindIndex = (smallBlindIndex + 1) % this.players.length;
 
-    this.players[smallBindIndex].isSmallBind = true;
-    this.players[smallBindIndex].playerPot = bigBindAmount / 2;
-    this.players[smallBindIndex].coins -= bigBindAmount / 2;
+    const smallBlindPlayer = this.players[smallBlindIndex];
+    smallBlindPlayer.isSmallBind = true;
 
-    const bigBindIndex = (smallBindIndex + 1) % this.players.length;
+    if (smallBlindPlayer.coins <= smallBlind) {
+      smallBlindPlayer.playerPot = smallBlindPlayer.coins;
+      smallBlindPlayer.coins = 0;
+      smallBlindPlayer.isAllIn = true;
+      this.movesCount += 1;
+    } else {
+      smallBlindPlayer.playerPot = smallBlind;
+      smallBlindPlayer.coins -= smallBlind;
+    }
 
-    this.players[bigBindIndex].isBigBind = true;
-    this.players[bigBindIndex].playerPot = bigBindAmount;
-    this.players[bigBindIndex].coins -= bigBindAmount;
+    const bigBlindPlayer = this.players[bigBlindIndex];
+    bigBlindPlayer.isBigBind = true;
 
-    const playerTurnIndex = (smallBindIndex + 2) % this.players.length;
+    if (bigBlindPlayer.coins <= bigBlind) {
+      bigBlindPlayer.playerPot = bigBlindPlayer.coins;
+      bigBlindPlayer.coins = 0;
+      bigBlindPlayer.isAllIn = true;
+      this.movesCount += 1;
+    } else {
+      bigBlindPlayer.playerPot = bigBlind;
+      bigBlindPlayer.coins -= bigBlind;
+    }
 
-    this.lastBet = bigBindAmount;
-    this.minRaiseAmount = bigBindAmount * 2;
-    this.playerTurn = this.players[playerTurnIndex];
+    const playerTurnIndex = (smallBlindIndex + 2) % this.players.length;
+    const currentPlayerTurn = this.players[playerTurnIndex];
 
-    const start = Date.now();
-    const turnDuration = 30000;
+    if (currentPlayerTurn.coins === 0) {
+      this.setNextActivePlayer(playerTurnIndex);
+    } else {
+      this.playerTurn = currentPlayerTurn;
+    }
 
-    this.playerTurn.time = {
-      startTime: new Date(start),
-      endTime: new Date(start + turnDuration),
-    };
-
-    await playerTimerQueue
-      .getInstance()
-      .addTimer(
-        this.roomId,
-        this.playerTurn.playerInfo.userId,
-        this.playerTurn.time.endTime
-      );
+    await this.startTurnTimer();
   }
 }
 

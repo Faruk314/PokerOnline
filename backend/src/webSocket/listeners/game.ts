@@ -55,45 +55,65 @@ class GameListeners {
 
   async onPlayerRaise({ roomId, amount }: { roomId: string; amount: number }) {
     const response = await retrieveGameState(roomId, this.io);
-
-    if (response.status !== "success") return;
-
-    if (!response.gameState) return;
+    if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
-
     const playerTurn = game.playerTurn;
-
     if (!playerTurn) return;
 
     if (game.isGameOver) {
-      return console.log("Invalid raise");
+      return console.log("Invalid raise: game is over");
     }
 
-    if (playerTurn.playerInfo.userId !== this.socket.userId)
-      return console.log("Current player is not on a move");
+    if (playerTurn.playerInfo.userId !== this.socket.userId) {
+      return console.log("Invalid raise: not your turn");
+    }
 
-    if (amount < game.minRaiseAmount || amount > game.playerTurn?.coins!)
-      return console.log("Invalid raise amount!");
+    let minRaiseAmount = game.lastMaxBet + game.minRaiseDiff;
 
-    const allIn = game.players.some((p) => p.coins === 0);
+    if (minRaiseAmount > playerTurn.coins) {
+      minRaiseAmount = playerTurn.coins;
+    }
 
-    if (allIn)
-      return console.log("Could not raise. Previous player went all in");
+    const isAllin = amount === playerTurn.coins;
+
+    if (amount < minRaiseAmount)
+      return console.log("Invalid raise: less than minimal raise amount");
+
+    if (amount > playerTurn.coins)
+      return console.log("Invalid raise: not enough chips");
+
+    const raiserId = playerTurn.playerInfo.userId;
+
+    const playersWhoNeedToAct = game.players.filter(
+      (p) => !p.isFold && !p.isAllIn && p.playerInfo.userId !== raiserId
+    );
+
+    if (playersWhoNeedToAct.length === 0) {
+      return console.log("Invalid raise: No more players left to act");
+    }
+
+    const chipsToPutIn = isAllin ? amount : amount - playerTurn.playerPot;
+
+    const raiseDiff = amount - game.lastMaxBet;
+
+    const isFullRaise = raiseDiff >= game.minRaiseDiff;
 
     await playerTimerQueue
       .getInstance()
       .removeTimer(roomId, playerTurn.playerInfo.userId);
 
-    const action = playerTurn.raise(amount);
+    if (isFullRaise) game.minRaiseDiff = raiseDiff;
 
-    game.lastBet = playerTurn.playerPot;
+    game.lastMaxBet = amount;
 
-    game.totalPot += amount;
+    if (isAllin) game.lastMaxBet = amount + playerTurn.playerPot;
 
-    game.minRaiseAmount = amount * 2;
+    const action = playerTurn.raise(chipsToPutIn);
 
-    game.movesCount = 1;
+    game.totalPot += chipsToPutIn;
+
+    game.movesCount = game.players.length - playersWhoNeedToAct.length;
 
     await game.switchTurns();
 
@@ -105,35 +125,23 @@ class GameListeners {
 
   async onPlayerCall({ roomId, amount }: { roomId: string; amount: number }) {
     const response = await retrieveGameState(roomId, this.io);
-
-    if (response.status !== "success") return;
-
-    if (!response.gameState) return;
+    if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
-
     const playerTurn = game.playerTurn;
 
     if (!playerTurn) return;
 
-    if (game.isGameOver) {
-      return console.log("Invalid call");
-    }
+    if (game.isGameOver) return console.log("Invalid call: game over");
 
     if (playerTurn.playerInfo.userId !== this.socket.userId)
-      return console.log("Current player is not on a move");
+      return console.log("Invalid call: not your turn");
 
-    let callAmount = game.lastBet - playerTurn.playerPot;
+    let callAmount = Math.max(0, game.lastMaxBet - playerTurn.playerPot);
 
-    if (callAmount > playerTurn.coins) {
-      callAmount = playerTurn.coins;
-    }
+    const isAllInCall = playerTurn.coins <= callAmount;
 
-    const allIn = game.players.some((p) => p.isAllIn);
-
-    if (allIn) {
-      callAmount = playerTurn.coins;
-    }
+    if (isAllInCall) callAmount = playerTurn.coins;
 
     if (amount !== callAmount) return console.log("Invalid call amount");
 
@@ -141,9 +149,9 @@ class GameListeners {
       .getInstance()
       .removeTimer(roomId, playerTurn.playerInfo.userId);
 
-    const action = playerTurn.call(amount);
+    const action = playerTurn.call(callAmount);
 
-    game.totalPot += amount;
+    game.totalPot += callAmount;
 
     await game.isRoundOver();
 
@@ -155,29 +163,21 @@ class GameListeners {
 
   async onPlayerCheck({ roomId }: { roomId: string }) {
     const response = await retrieveGameState(roomId, this.io);
-
-    if (response.status !== "success") return;
-
-    if (!response.gameState) return;
+    if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
-
     const playerTurn = game.playerTurn;
-
     if (!playerTurn) return;
 
-    if (game.isGameOver) {
-      return console.log("Invalid check");
-    }
+    if (game.isGameOver) return console.log("Invalid check: game over");
 
     if (playerTurn.playerInfo.userId !== this.socket.userId)
-      return console.log("Current player is not on a move");
+      return console.log("Invalid check: not your turn");
 
-    const callAmount = game.lastBet - playerTurn.playerPot;
+    const callAmount = game.lastMaxBet - playerTurn.playerPot;
 
     const canCheck = callAmount <= 0;
-
-    if (!canCheck) return console.log("Invalid check");
+    if (!canCheck) return console.log("Invalid check: must call or raise");
 
     await playerTimerQueue
       .getInstance()
