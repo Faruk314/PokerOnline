@@ -46,6 +46,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
+        domain: ".farukspahic.com",
       })
       .status(200)
       .json({
@@ -103,8 +104,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res
     .cookie(COOKIE_SESSION_KEY, sessionId, {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none",
       secure: true,
+      domain: ".farukspahic.com",
     })
     .status(200)
     .json({
@@ -126,8 +128,9 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     res
       .clearCookie(COOKIE_SESSION_KEY, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "none",
         secure: true,
+        domain: ".farukspahic.com",
       })
       .status(200)
       .json("successfully logged out");
