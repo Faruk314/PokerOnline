@@ -11,7 +11,11 @@ dotenv.config();
 export default function setupSocket(httpServer: http.Server) {
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5001",
+      origin: [
+        "http://localhost:5001",
+        "https://poker-ws.farukspahic.com",
+        "https://poker.farukspahic.com",
+      ],
       methods: ["GET", "POST"],
       credentials: true,
     },

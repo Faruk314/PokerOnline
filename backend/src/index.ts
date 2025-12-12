@@ -21,7 +21,7 @@ export const io = setupSocket(server);
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://poker.farukspahic.com"],
     credentials: true,
   })
 );
