@@ -15,6 +15,13 @@
       "when": 1744125899170,
       "tag": "0001_seed-specific-coin-packages",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765651162574,
+      "tag": "0002_colossal_darkstar",
+      "breakpoints": true
     }
   ]
 }

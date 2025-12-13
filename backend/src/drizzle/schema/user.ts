@@ -8,7 +8,7 @@ export const UserTable = pgTable("users", {
   password: text().notNull(),
   salt: text().notNull(),
   email: text().notNull().unique(),
-  coins: integer("coins").notNull().default(10_000),
+  coins: integer("coins").notNull().default(1000000000),
   createdAt,
   updatedAt,
 });
