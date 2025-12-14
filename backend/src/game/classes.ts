@@ -445,20 +445,6 @@ class Game {
     );
   }
 
-  getCardsMap(combination: string[]) {
-    let map: CardsMap = {};
-
-    combination.forEach((c) => {
-      if (map[c]) {
-        map[c] += 1;
-      } else {
-        map[c] = 1;
-      }
-    });
-
-    return map;
-  }
-
   private getCardRanksMap(combination: string[]) {
     const map: {
       [key: number]: number;
@@ -471,24 +457,6 @@ class Game {
         map[rank] += 1;
       } else {
         map[rank] = 1;
-      }
-    });
-
-    return map;
-  }
-
-  getCardSuitsMap(combination: string[]) {
-    const map: {
-      [key: string]: number;
-    } = {};
-
-    combination.forEach((c) => {
-      const suit = this.getSuit(c);
-
-      if (map[suit]) {
-        map[suit] += 1;
-      } else {
-        map[suit] = 1;
       }
     });
 
@@ -517,72 +485,92 @@ class Game {
     return strongerCards;
   }
 
+  private evaluateCombination(combination: string[]) {
+    const flush = this.isFlush(combination);
+
+    if (
+      (flush && flush.name === "royalFlush") ||
+      flush?.name === "straightFlush"
+    )
+      return flush;
+
+    const rankMap = this.getCardRanksMap(combination);
+    const groups: Record<number, number[]> = {};
+
+    for (const [rankStr, count] of Object.entries(rankMap)) {
+      const rank = Number(rankStr);
+      if (!groups[count]) groups[count] = [];
+      groups[count].push(rank);
+    }
+
+    if (groups[4]) {
+      const kickers = groups[1]?.sort((a, b) => b - a) ?? [];
+      return { name: "4Kind", rank: groups[4][0], kickers, cards: combination };
+    }
+
+    if (groups[3] && groups[2]) {
+      return {
+        name: "fullHouse",
+        rank: groups[3][0],
+        rankTwo: groups[2][0],
+        cards: combination,
+      };
+    }
+
+    if (flush && flush.name === "flush") return flush;
+
+    const straight = this.isStraight(combination);
+
+    if (straight && straight.name === "straight") return straight;
+
+    if (groups[3]) {
+      const kickers = groups[1]?.sort((a, b) => b - a) ?? [];
+      return { name: "3Kind", rank: groups[3][0], kickers, cards: combination };
+    }
+
+    if (groups[2]?.length >= 2) {
+      const pairs = groups[2].sort((a, b) => b - a);
+      const kickers = groups[1]?.sort((a, b) => b - a) ?? [];
+      return {
+        name: "twoPair",
+        rank: pairs[0],
+        rankTwo: pairs[1],
+        kickers,
+        cards: combination,
+      };
+    }
+
+    if (groups[2]) {
+      const kickers = groups[1]?.sort((a, b) => b - a) ?? [];
+      return {
+        name: "onePair",
+        rank: groups[2][0],
+        kickers,
+        cards: combination,
+      };
+    }
+
+    const kickers = groups[1]?.sort((a, b) => b - a) ?? [];
+    return { name: "highCard", rank: kickers[0], kickers, cards: combination };
+  }
+
   private findHands() {
-    const playersNotFold = this.players.filter(
-      (player) => player.isFold === false
-    );
+    const playersNotFold = this.players.filter((p) => !p.isFold);
 
     playersNotFold.forEach((player) => {
       const cards = [...this.communityCards, ...player.cards];
-      const playerCardCombinations = this.getCommunityCardsCombinations(
-        cards,
-        5
-      );
+      const combinations = this.getCommunityCardsCombinations(cards, 5);
 
-      playerCardCombinations.forEach((c) => {
-        const suits = this.isSameSuits(c);
-        const flush = this.isFlush(c, suits);
+      for (const c of combinations) {
+        const foundHand = this.evaluateCombination(c);
 
-        if (flush) {
-          player.hand = this.handPriority(player.hand!, flush);
-
-          const handName = player.hand.name;
-
-          if (handName === "royalFlush" || handName === "straightFlush") return;
+        if (foundHand && foundHand.name === "royalFlush") {
+          player.hand = foundHand;
+          break;
+        } else {
+          player.hand = this.handPriority(player.hand!, foundHand);
         }
-
-        const rankMap = this.getCardRanksMap(c);
-
-        const nKind = this.isNKind(c, rankMap);
-
-        if (nKind) {
-          player.hand = this.handPriority(player.hand!, nKind);
-
-          const handName = player.hand.name;
-
-          if (handName === "4Kind") return;
-        }
-
-        const fullHouse = this.isFullHouse(c, rankMap);
-
-        if (fullHouse) {
-          player.hand = this.handPriority(player.hand!, fullHouse);
-        }
-
-        if (flush && flush.name === "flush") return;
-
-        const ranks = c.map((card) => this.getRank(card));
-
-        const straight = this.isStraight(c, ranks);
-
-        if (straight) {
-          player.hand = this.handPriority(player.hand!, straight);
-        }
-
-        if (nKind && nKind.name === "3Kind") return;
-
-        const pair = this.isPair(c, rankMap);
-
-        if (pair) {
-          return (player.hand = this.handPriority(player.hand!, pair));
-        }
-
-        const highCard = this.isHighCard(c, ranks);
-
-        if (highCard) {
-          player.hand = this.handPriority(player.hand!, highCard);
-        }
-      });
+      }
     });
   }
 
@@ -831,19 +819,6 @@ class Game {
     return parseInt(rank);
   }
 
-  private getKickers(rankMap: RanksMap) {
-    let kickers = [];
-
-    for (const [key, value] of Object.entries(rankMap)) {
-      if (value === 1) {
-        const kicker = parseInt(key);
-        kickers.push(kicker);
-      }
-    }
-
-    return kickers.sort((a, b) => b - a);
-  }
-
   private compareKickers(handOne: Hand, handTwo: Hand) {
     if (!handOne.kickers || !handTwo.kickers) return handOne;
 
@@ -871,24 +846,11 @@ class Game {
     return handOne;
   }
 
-  private isSameSuits(combination: string[]) {
-    let ranks: number[] = [];
+  private isSameSuits(combination: string[]): boolean {
+    if (combination.length === 0) return false;
+
     const firstSuit = this.getSuit(combination[0]);
-
-    combination.forEach((c) => {
-      let suit = this.getSuit(c + 1);
-      let rank = this.getRank(c);
-
-      if (suit !== firstSuit) {
-        return false;
-      }
-
-      ranks.push(rank);
-    });
-
-    if (ranks.length !== 5) return [];
-
-    return ranks;
+    return combination.every((c) => this.getSuit(c) === firstSuit);
   }
 
   private isStrongerCards(handOne: Hand, handTwo: Hand) {
@@ -912,208 +874,22 @@ class Game {
     return true;
   }
 
-  private isNKind(combination: string[], rankMap: RanksMap) {
-    let fourOfAKindRank: null | number = null;
-    let threeOfAKindRank: null | number = null;
+  private isStraight(combination: string[]) {
+    const ranksHigh = combination
+      .map((c) => this.getRank(c))
+      .sort((a, b) => a - b);
 
-    Object.entries(rankMap).forEach(([key, value]) => {
-      const rank = parseInt(key);
+    const ranksLow = combination
+      .map((c) => this.getRank(c, true))
+      .sort((a, b) => a - b);
 
-      if (value === 4) {
-        fourOfAKindRank = rank;
-        return;
-      } else if (value === 3) {
-        threeOfAKindRank = rank;
-      }
-    });
+    const isConsecutiveHigh = this.isConsecutive(ranksHigh);
+    const isConsecutiveLow = this.isConsecutive(ranksLow);
 
-    if (fourOfAKindRank) {
-      const kickers = this.getKickers(rankMap);
-
-      return {
-        name: "4Kind",
-        cards: combination,
-        rank: fourOfAKindRank,
-        kickers,
-      };
-    }
-
-    if (threeOfAKindRank) {
-      const kickers = this.getKickers(rankMap);
-
-      return {
-        name: "3Kind",
-        cards: combination,
-        rank: threeOfAKindRank,
-        kickers,
-      };
-    }
-
-    return false;
-  }
-
-  private isPair(combination: string[], rankMap: RanksMap) {
-    let onePair: number | null = null;
-    let twoPair: number | null = null;
-
-    for (const [key, value] of Object.entries(rankMap)) {
-      if (value === 2 && !onePair) {
-        onePair = parseInt(key);
-        continue;
-      }
-
-      if (value === 2 && onePair) {
-        twoPair = parseInt(key);
-
-        break;
-      }
-    }
-
-    if (onePair && twoPair) {
-      const kickers = this.getKickers(rankMap);
-
-      if (!kickers) return;
-
-      return {
-        name: "twoPair",
-        cards: combination,
-        kickers,
-        rank: Math.max(onePair, twoPair),
-        rankTwo: Math.min(onePair, twoPair),
-      };
-    }
-
-    if (onePair) {
-      const kickers = this.getKickers(rankMap);
-
-      return {
-        name: "onePair",
-        cards: combination,
-        rank: onePair,
-        kickers,
-      };
-    }
-  }
-
-  private isFlush(combination: string[], ranks: number[]) {
-    if (ranks.length === 0) return;
-
-    const sorted = ranks.sort((a, b) => a - b);
-
-    const isRoyalFlush =
-      sorted[0] === 10 &&
-      sorted[1] === 11 &&
-      sorted[2] === 12 &&
-      sorted[3] === 13 &&
-      sorted[4] === 14;
-
-    if (isRoyalFlush) {
-      return {
-        name: "royalFlush",
-        cards: combination,
-      };
-    }
-
-    let isConsecutive = this.isConsecutive(sorted);
-
-    const lowAceIndex = sorted.findIndex((rank) => rank === 14);
-
-    const copy = [...sorted];
-
-    copy[lowAceIndex] = 1;
-
-    let resorted = copy.sort((a, b) => a - b);
-
-    let isConsecutiveLowAce = this.isConsecutive(resorted);
-
-    if (isConsecutive || isConsecutiveLowAce) {
-      let highestRank = null;
-
-      if (isConsecutive) {
-        highestRank = sorted[sorted.length - 1];
-      }
-
-      if (isConsecutiveLowAce) {
-        highestRank = resorted[resorted.length - 1];
-      }
-
-      if (isConsecutive && isConsecutiveLowAce) {
-        highestRank = sorted[sorted.length - 1];
-      }
-
-      return {
-        name: "straightFlush",
-        cards: combination,
-        rank: highestRank,
-      };
-    }
-
-    if (!isConsecutive) {
-      const highestRank = sorted[sorted.length - 1];
-      sorted.splice(sorted.length - 1, 1).sort((a, b) => b - a);
-
-      return {
-        name: "flush",
-        cards: combination,
-        rank: highestRank,
-        kickers: sorted,
-      };
-    }
-  }
-
-  private isFullHouse(combination: string[], rankMap: RanksMap) {
-    let threeOfAKind = null;
-    let pair = null;
-
-    Object.entries(rankMap).forEach(([key, value]) => {
-      if (value === 3) {
-        threeOfAKind = parseInt(key);
-      }
-
-      if (value === 2) {
-        pair = parseInt(key);
-      }
-    });
-
-    if (threeOfAKind && pair) {
-      return {
-        name: "fullHouse",
-        cards: combination,
-        rank: threeOfAKind,
-        rankTwo: pair,
-      };
-    }
-  }
-
-  private isStraight(combination: string[], ranks: number[]) {
-    const sorted = ranks.sort((a, b) => a - b);
-
-    const isConsecutive = this.isConsecutive(sorted);
-
-    const lowAceIndex = sorted.findIndex((rank) => rank === 14);
-
-    const copy = [...sorted];
-
-    copy[lowAceIndex] = 1;
-
-    let resorted = copy.sort((a, b) => a - b);
-
-    let isConsecutiveLowAce = this.isConsecutive(resorted);
-
-    if (isConsecutive || isConsecutiveLowAce) {
-      let highestRank = null;
-
-      if (isConsecutive) {
-        highestRank = sorted[sorted.length - 1];
-      }
-
-      if (isConsecutiveLowAce) {
-        highestRank = resorted[resorted.length - 1];
-      }
-
-      if (isConsecutive && isConsecutiveLowAce) {
-        highestRank = sorted[sorted.length - 1];
-      }
+    if (isConsecutiveHigh || isConsecutiveLow) {
+      const highestRank = isConsecutiveHigh
+        ? ranksHigh[ranksHigh.length - 1]
+        : ranksLow[ranksLow.length - 1];
 
       return {
         name: "straight",
@@ -1125,18 +901,28 @@ class Game {
     return false;
   }
 
-  private isHighCard(combination: string[], ranks: number[]) {
-    ranks.sort((a, b) => b - a);
+  private isFlush(combination: string[]) {
+    if (!this.isSameSuits(combination)) return;
 
-    const highestCard = ranks[0];
+    const ranksDescending = combination
+      .map((c) => this.getRank(c))
+      .sort((a, b) => b - a);
 
-    ranks.splice(0, 1);
+    const straight = this.isStraight(combination);
+
+    if (straight) {
+      if (straight.rank === 14 && straight.name === "straight") {
+        return { name: "royalFlush", cards: combination };
+      }
+
+      return { name: "straightFlush", cards: combination, rank: straight.rank };
+    }
 
     return {
-      name: "highCard",
+      name: "flush",
       cards: combination,
-      rank: highestCard,
-      kickers: ranks,
+      rank: ranksDescending[0],
+      kickers: ranksDescending.slice(1),
     };
   }
 
