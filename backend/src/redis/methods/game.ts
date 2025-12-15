@@ -1,6 +1,6 @@
 import { IGame, RoomData, IPlayer, IPlayersMap } from "../../types/types";
 import { client } from "../redis";
-import { Game } from "../../game/classes";
+import Game from "../../game/game";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { decrementPlayerCoins } from "../../services/game";

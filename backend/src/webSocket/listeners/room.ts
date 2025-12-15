@@ -3,7 +3,7 @@ import { CreateRoomData } from "../../types/types";
 import { createRoom, joinRoom, leaveRoom } from "../../redis/methods/room";
 import { v4 as uuidv4 } from "uuid";
 import { initializeGame, retrieveGameState } from "../../redis/methods/game";
-import { Game } from "../../game/classes";
+import Game from "../../game/game";
 import { playerTimerQueue } from "../../jobs/queues/playerTimerQueue";
 
 class RoomListeners {
