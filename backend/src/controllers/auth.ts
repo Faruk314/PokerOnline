@@ -12,8 +12,7 @@ import {
   removeUserFromSession,
 } from "../redis/methods/session";
 import { comparePasswords } from "../utils/auth";
-
-const COOKIE_SESSION_KEY = "sessionId";
+import { COOKIE_SESSION_KEY } from "../constants/constants";
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const unsafeData: z.infer<typeof RegisterSchema> = req.body;

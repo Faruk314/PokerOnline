@@ -1,4 +1,4 @@
-import { PLAYER_TIMER_QUEUE_NAME } from "../queues/playerTimerQueue";
+import { PLAYER_TIMER_QUEUE_NAME } from "../../constants/constants";
 import { retrieveGameState } from "../../redis/methods/game";
 import { io } from "../..";
 import { Worker, Job } from "bullmq";

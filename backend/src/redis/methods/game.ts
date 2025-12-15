@@ -4,10 +4,9 @@ import Game from "../../game/game";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { decrementPlayerCoins } from "../../services/game";
+import { ROOMS_KEY } from "../../constants/constants";
 
 dotenv.config();
-
-const ROOMS_KEY = "rooms";
 
 const generateDeck = () => {
   const suits = ["H", "D", "C", "S"];

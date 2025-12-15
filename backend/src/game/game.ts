@@ -19,19 +19,7 @@ import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
 import { getUser } from "../redis/methods/user";
 import { incrementPlayerCoins } from "../services/game";
 import Player from "./player";
-
-const handRanks = [
-  "highCard",
-  "onePair",
-  "twoPair",
-  "3Kind",
-  "straight",
-  "flush",
-  "fullHouse",
-  "4Kind",
-  "straightFlush",
-  "royalFlush",
-];
+import { handRanks } from "../constants/constants";
 
 class Game {
   io: Server | null;

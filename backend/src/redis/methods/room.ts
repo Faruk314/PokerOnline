@@ -1,9 +1,7 @@
 import { client } from "../redis";
 import { RoomData } from "../../types/types";
 import { getPlayerCoins } from "../../services/game";
-// import { getPlayerChips } from "../../controllers/game";
-
-const ROOMS_KEY = "rooms";
+import { ROOMS_KEY } from "../../constants/constants";
 
 const createRoom = async (roomData: RoomData) => {
   const { roomId } = roomData;

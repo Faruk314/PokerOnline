@@ -2,8 +2,7 @@ import crypto from "crypto";
 import { SessionSchema } from "../../validation/auth";
 import { z } from "zod";
 import { client } from "../redis";
-
-const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7;
+import { SESSION_EXPIRATION_SECONDS } from "../../constants/constants";
 
 const createUserSession = async (user: z.infer<typeof SessionSchema>) => {
   const sessionId = crypto.randomBytes(512).toString("hex").normalize();

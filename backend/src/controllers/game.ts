@@ -4,8 +4,7 @@ import { getRooms } from "../redis/methods/room";
 import { client } from "../redis/redis";
 import { IPlayer, RoomData } from "../types/types";
 import { getPlayerCoins as getPlayerCoinsDb } from "../services/game";
-
-const ROOMS_KEY = "rooms";
+import { ROOMS_KEY } from "../constants/constants";
 
 const fetchRooms = asyncHandler(async (req: Request, res: Response) => {
   try {

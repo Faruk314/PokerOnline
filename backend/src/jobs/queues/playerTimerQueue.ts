@@ -1,7 +1,6 @@
 import { Queue } from "bullmq";
 import connection from "../connection";
-
-export const PLAYER_TIMER_QUEUE_NAME = "playerTimerQueue";
+import { PLAYER_TIMER_QUEUE_NAME } from "../../constants/constants";
 
 export class playerTimerQueue {
   static instance: playerTimerQueue;

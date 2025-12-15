@@ -4,12 +4,8 @@ import dotenv from "dotenv";
 import Stripe from "stripe";
 import { db } from "../drizzle/db";
 import { incrementPlayerCoins } from "../services/game";
+import { STRIPE_KEY, STRIPE_WEBHOOK_SECRET } from "../constants/constants";
 dotenv.config();
-
-const STRIPE_KEY = process.env.STRIPE_KEY ? process.env.STRIPE_KEY : "";
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET
-  ? process.env.STRIPE_WEBHOOK_SECRET
-  : "";
 
 const stripe = new Stripe(STRIPE_KEY);
 

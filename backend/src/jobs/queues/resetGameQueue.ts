@@ -1,7 +1,6 @@
 import { Queue } from "bullmq";
 import connection from "../connection";
-
-export const RESET_GAME_QUEUE_NAME = "resetGameQueue";
+import { RESET_GAME_QUEUE_NAME } from "../../constants/constants";
 
 export class resetGameQueue {
   static instance: resetGameQueue;
