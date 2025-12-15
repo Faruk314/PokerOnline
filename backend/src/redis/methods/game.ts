@@ -5,27 +5,11 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { decrementPlayerCoins } from "../../services/game";
 import { ROOMS_KEY } from "../../constants/constants";
+import { suits, ranks } from "../../constants/constants";
 
 dotenv.config();
 
 const generateDeck = () => {
-  const suits = ["H", "D", "C", "S"];
-  const ranks = [
-    "A",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-  ];
-
   const deck: string[] = [];
 
   for (const suit of suits) {

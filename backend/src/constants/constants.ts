@@ -30,6 +30,24 @@ const handRanks = [
   "royalFlush",
 ];
 
+const suits = ["H", "D", "C", "S"];
+
+const ranks = [
+  "A",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "J",
+  "Q",
+  "K",
+];
+
 export {
   ROOMS_KEY,
   COOKIE_SESSION_KEY,
@@ -39,4 +57,6 @@ export {
   RESET_GAME_QUEUE_NAME,
   SESSION_EXPIRATION_SECONDS,
   handRanks,
+  suits,
+  ranks,
 };
