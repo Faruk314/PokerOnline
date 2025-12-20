@@ -2,16 +2,18 @@ import {
   createContext,
   ReactNode,
   useRef,
-  RefObject,
   useState,
   useCallback,
   useContext,
 } from "react";
-import chip from "../assets/images/chip.png";
-import { IActionAnimation, IPlayer, TCardRefsMap } from "../types/types";
+import {
+  IActionAnimation,
+  IPlayer,
+  TCardRefsMap,
+  ChipMoveDirection,
+} from "../types/types";
 import pokerCards from "../utils/cards";
 import { AudioContext } from "./AudioContext";
-import chipMove from "../assets/audio/chipMove.mp3";
 import cardFlip from "../assets/audio/cardFlip.mp3";
 import cardDeal from "../assets/audio/dealCard.wav";
 
@@ -27,14 +29,13 @@ export const AnimationContextProvider = ({
   children,
 }: AnimationContextProviderProps) => {
   const { playAudio } = useContext(AudioContext);
-  const tablePotRef = useRef<HTMLImageElement>(null);
+  const tablePotRef = useRef<HTMLDivElement | null>(null);
   const [animationMap, setAnimationMap] = useState(
     new Map<string, IActionAnimation>()
   );
   const [animateFlop, setAnimateFlop] = useState(false);
-  const [playerPotRefs, setPlayerPotRefs] = useState<
-    RefObject<HTMLImageElement>[]
-  >([]);
+  const playerPotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const playerSeatRefs = useRef<Map<number, HTMLElement>>(new Map());
   const cardRefsMap: TCardRefsMap = useRef(new Map<string, HTMLElement[]>());
 
   const assignCardRef =
@@ -46,89 +47,93 @@ export const AnimationContextProvider = ({
       }
     };
 
-  const createPlayerPotRef = useCallback(
-    (ref: RefObject<HTMLImageElement>) => {
-      const hasRef = playerPotRefs.some(
-        (item) =>
-          item.current && ref.current && item.current.id === ref.current.id
-      );
-
-      const refs = playerPotRefs;
-
-      refs.push(ref);
-
-      if (!hasRef) setPlayerPotRefs(playerPotRefs);
+  const registerPlayerPot = useCallback(
+    (playerId: number, el: HTMLDivElement | null) => {
+      if (!el) {
+        playerPotRefs.current.delete(playerId);
+      } else {
+        playerPotRefs.current.set(playerId, el);
+      }
     },
-    [playerPotRefs]
+    []
   );
 
-  const createChipElement = (topPos: number, leftPos: number) => {
-    const chipElement = document.createElement("img");
-
-    const rootStyles = getComputedStyle(document.documentElement);
-
-    chipElement.src = chip;
-    chipElement.style.position = "absolute";
-    chipElement.style.zIndex = "300";
-    chipElement.style.top = `${topPos}px`;
-    chipElement.style.left = `${leftPos}px`;
-    chipElement.style.transition = "top 0.5s, left 0.5s";
-    chipElement.style.width = rootStyles
-      .getPropertyValue("--chip-width")
-      .trim();
-    chipElement.style.height = rootStyles
-      .getPropertyValue("--chip-height")
-      .trim();
-
-    return chipElement;
-  };
+  const registerPlayerSeat = useCallback(
+    (playerId: number, el: HTMLDivElement | null) => {
+      if (!el) {
+        playerSeatRefs.current.delete(playerId);
+      } else {
+        playerSeatRefs.current.set(playerId, el);
+      }
+    },
+    []
+  );
 
   const animateMoveChip = useCallback(
-    (playerId: number, winner = false) => {
-      const chipRef = playerPotRefs.find(
-        (ref) => ref.current && ref.current.id === playerId.toString()
-      );
+    (playerId: number, direction: ChipMoveDirection = "playerToTable") => {
+      const playerPotEl = playerPotRefs.current.get(playerId);
+      const playerSeatEl = playerSeatRefs.current.get(playerId);
+      const tableEl = tablePotRef.current;
 
-      if (!chipRef) return;
+      if (!tableEl) return;
 
-      const playerPotRect = chipRef.current?.getBoundingClientRect();
-      const tablePotRect = tablePotRef.current?.getBoundingClientRect();
+      const isTableToPlayer = direction === "tableToPlayer";
 
-      if (!playerPotRect || !tablePotRect) return;
+      const fromEl = isTableToPlayer ? tableEl : playerPotEl;
+      const toEl = isTableToPlayer ? playerSeatEl : tableEl;
 
-      let chipElement = null;
-      let animationDuration = 100;
+      if (!fromEl || !toEl) return;
 
-      if (winner) {
-        chipElement = createChipElement(tablePotRect.top, tablePotRect.left);
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
 
-        document.body.appendChild(chipElement);
+      const originalVisibility = fromEl.style.visibility;
+      fromEl.style.visibility = "hidden";
 
-        animationDuration = 1000;
-      } else {
-        chipElement = createChipElement(playerPotRect.top, playerPotRect.left);
+      const chip = document.createElement("div");
+      chip.style.position = "fixed";
+      chip.style.left = `${fromRect.left}px`;
+      chip.style.top = `${fromRect.top}px`;
+      chip.style.width = `${fromRect.width}px`;
+      chip.style.height = `${fromRect.height}px`;
+      chip.style.pointerEvents = "none";
+      chip.style.zIndex = "9999";
 
-        document.body.appendChild(chipElement);
-      }
+      chip.style.transform = "translate(0px, 0px) scale(1)";
+      chip.style.opacity = "1";
 
-      // Animate the chip movement
+      chip.style.transition =
+        "transform 600ms cubic-bezier(.22,.61,.36,1), opacity 300ms";
+
+      chip.innerHTML = fromEl.innerHTML;
+      document.body.appendChild(chip);
+
+      chip.getBoundingClientRect();
+
+      const dx =
+        toRect.left + toRect.width / 2 - (fromRect.left + fromRect.width / 2);
+
+      const dy =
+        toRect.top + toRect.height / 2 - (fromRect.top + fromRect.height / 2);
+
+      requestAnimationFrame(() => {
+        chip.style.transform = `translate(${dx}px, ${dy}px) scale(0.9)`;
+        chip.style.opacity = "0.85";
+      });
+
       setTimeout(() => {
-        if (winner) {
-          chipElement.style.top = `${playerPotRect.top}px`;
-          chipElement.style.left = `${playerPotRect.left}px`;
-          playAudio(chipMove);
-        } else {
-          chipElement.style.top = `${tablePotRect.top}px`;
-          chipElement.style.left = `${tablePotRect.left}px`;
-          playAudio(chipMove);
+        chip.remove();
+
+        if (fromEl.isConnected) {
+          fromEl.style.visibility = originalVisibility;
         }
 
-        setTimeout(() => {
-          document.body.removeChild(chipElement);
-        }, 500);
-      }, animationDuration);
+        if (toEl.isConnected) {
+          toEl.style.visibility = "visible";
+        }
+      }, 600);
     },
-    [playerPotRefs, playAudio]
+    []
   );
 
   const animateCardFlip = (player: IPlayer) => {
@@ -209,7 +214,8 @@ export const AnimationContextProvider = ({
     animateFlop,
     animationMap,
     setAnimationMap,
-    createPlayerPotRef,
+    registerPlayerPot,
+    registerPlayerSeat,
     animateMoveChip,
     animateCard,
     animateCardFlip,
