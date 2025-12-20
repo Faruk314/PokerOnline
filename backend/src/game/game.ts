@@ -146,6 +146,8 @@ class Game {
           roomId: this.roomId,
           action: data?.action,
           playerId: data?.prevPlayerId,
+          previousPlayerPot: data?.previousPlayerPot,
+          previousTotalPot: data?.previousTotalPot,
         });
       }
 
@@ -285,6 +287,8 @@ class Game {
   }
 
   private resetRound() {
+    this.lastMaxBet = 0;
+
     if (this.currentRound === "showdown") return;
 
     this.movesCount = 0;
@@ -298,7 +302,6 @@ class Game {
       player.isAllIn = false;
     });
 
-    this.lastMaxBet = 0;
     this.minRaiseDiff = 50;
   }
 
@@ -378,7 +381,7 @@ class Game {
     if (!this.playerTurn) return;
 
     const start = Date.now();
-    const turnDuration = 30000;
+    const turnDuration = 300000000000000;
 
     this.playerTurn.time = {
       startTime: new Date(start),

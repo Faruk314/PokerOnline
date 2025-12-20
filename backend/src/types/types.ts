@@ -116,6 +116,8 @@ interface IPlayersMap {
 interface IUpdateGameState {
   prevPlayerId: string;
   action: PlayerAction;
+  previousPlayerPot?: number;
+  previousTotalPot?: number;
 }
 
 interface IResult {
