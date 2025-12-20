@@ -318,14 +318,6 @@
     height: 2.5rem;
   }
 
-  /* .game-page {
-    transform: rotate(90deg);
-    transform-origin: center;
-    width: 100vh;
-    height: 100vw;
-    overflow: hidden;
-  } */
-
   .table-border {
     position: relative;
     border: 1.2rem solid #111827;
@@ -356,4 +348,59 @@
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
     overflow: hidden;
   }
+}
+
+.chip-3d {
+  --main-color: #2563eb;
+  --stripe-color: #ffffff;
+  --edge-dark: #1e40af;
+
+  width: 28px;
+  height: 22px;
+  position: relative;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(circle at top left, #3b82f6, #1e40af);
+
+  box-shadow: 0 1px 0 var(--edge-dark), 0 2px 0 var(--edge-dark),
+    0 3px 0 var(--edge-dark), 0 4px 0 var(--edge-dark),
+    0 5px 4px rgba(0, 0, 0, 0.35);
+}
+
+.chip-value {
+  position: relative;
+  z-index: 3;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+  text-shadow: 0 1px 0 #ffffff;
+  pointer-events: none;
+}
+
+.chip-3d::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #f9fafb;
+  box-shadow: inset 0 0 0 0px var(--main-color),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.chip-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-image: repeating-conic-gradient(
+    var(--stripe-color) 0deg 10deg,
+    var(--main-color) 20deg 60deg
+  );
+  z-index: 1;
 }
