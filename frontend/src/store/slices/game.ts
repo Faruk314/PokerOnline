@@ -82,6 +82,48 @@ const gameSlice = createSlice({
     setGameState(state, action: PayloadAction<IGame | null>) {
       state.gameState = action.payload;
     },
+    updateGameState(state, action: PayloadAction<Partial<IGame>>) {
+      if (!state.gameState) return;
+
+      Object.assign(state.gameState, action.payload);
+    },
+    updatePlayer(
+      state,
+      action: PayloadAction<{
+        playerId: string;
+        data: Partial<IGame["players"][number]>;
+      }>
+    ) {
+      if (!state.gameState) return;
+
+      const players = state.gameState.players;
+      const index = players.findIndex(
+        (p) => p.playerInfo.userId === action.payload.playerId
+      );
+
+      if (index === -1) return;
+
+      players[index] = {
+        ...players[index],
+        ...action.payload.data,
+      };
+    },
+    updatePlayerCoins(
+      state,
+      action: PayloadAction<{ playerId: string; amount: number }>
+    ) {
+      if (!state.gameState) return;
+
+      const players = state.gameState.players;
+
+      const index = players.findIndex(
+        (p) => p.playerInfo.userId === action.payload.playerId
+      );
+
+      if (index === -1) return;
+
+      players[index].coins += action.payload.amount;
+    },
 
     setGameStatus(state, action: PayloadAction<IGameStatus>) {
       state.gameStatus = action.payload;
@@ -141,7 +183,13 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setGameState, setOpenRaiseBar, setGameStatus } =
-  gameSlice.actions;
+export const {
+  setGameState,
+  updateGameState,
+  setOpenRaiseBar,
+  setGameStatus,
+  updatePlayer,
+  updatePlayerCoins,
+} = gameSlice.actions;
 
 export default gameSlice.reducer;
