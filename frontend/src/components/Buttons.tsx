@@ -59,7 +59,6 @@ const Buttons = () => {
       {!canCheck && (
         <button
           onClick={() => {
-            playAudio(clickSound);
             handleCall(callAmount, id);
           }}
           className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
@@ -87,8 +86,6 @@ const Buttons = () => {
       {showRaise && (
         <button
           onClick={() => {
-            playAudio(clickSound);
-
             if (isAllin) return handleRaise(playerTurn.coins, id);
 
             dispatch(setOpenRaiseBar(true));

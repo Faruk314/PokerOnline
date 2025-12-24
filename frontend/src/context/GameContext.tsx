@@ -14,6 +14,7 @@ import { AudioContext } from "./AudioContext";
 import HandName from "../components/HandName";
 import pokerCards from "../utils/cards";
 import classNames from "classnames";
+import chipPlaceSound from "../assets/audio/chipPlace.mp3";
 
 const initialGameContextData: any = {};
 
@@ -195,6 +196,10 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       const CHIP_TO_TABLE_ANIMATION_DURATION = 600;
 
       if (action && action.length) {
+        if (action === "all in" || action === "raise" || action === "call") {
+          playAudio(chipPlaceSound);
+        }
+
         setAnimationMap((prevState: Map<string, IActionAnimation>) => {
           const newMap = new Map(prevState);
           newMap.set(prevPlayerId, { state: action });
