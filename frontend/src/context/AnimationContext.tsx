@@ -34,6 +34,7 @@ export const AnimationContextProvider = ({
     new Map<string, IActionAnimation>()
   );
   const [animateFlop, setAnimateFlop] = useState(false);
+  const frozenTablePotRef = useRef<number | null>(null);
   const playerPotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const playerSeatRefs = useRef<Map<number, HTMLElement>>(new Map());
   const cardRefsMap: TCardRefsMap = useRef(new Map<string, HTMLElement[]>());
@@ -124,11 +125,11 @@ export const AnimationContextProvider = ({
       setTimeout(() => {
         chip.remove();
 
-        if (fromEl.isConnected) {
+        if (fromEl.isConnected && direction === "playerToTable") {
           fromEl.style.visibility = originalVisibility;
         }
 
-        if (toEl.isConnected) {
+        if (toEl.isConnected && direction === "playerToTable") {
           toEl.style.visibility = "visible";
         }
       }, 600);
@@ -211,6 +212,7 @@ export const AnimationContextProvider = ({
   const contextValue: any = {
     tablePotRef,
     playerPotRefs,
+    frozenTablePotRef,
     animateFlop,
     animationMap,
     setAnimationMap,

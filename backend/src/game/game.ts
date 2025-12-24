@@ -246,6 +246,7 @@ class Game {
     }
 
     if (lastMove && allIn && this.currentRound === "preFlop") {
+      this.lastMaxBet = 0;
       this.startFlop();
       this.startTurn();
       this.startRiver();
@@ -254,6 +255,7 @@ class Game {
     }
 
     if (lastMove && allIn && this.currentRound === "flop") {
+      this.lastMaxBet = 0;
       this.startTurn();
       this.startRiver();
       await this.startShowdown();
@@ -261,12 +263,14 @@ class Game {
     }
 
     if (lastMove && allIn && this.currentRound === "turn") {
+      this.lastMaxBet = 0;
       this.startRiver();
       await this.startShowdown();
       return;
     }
 
     if (lastMove && allIn && this.currentRound === "river") {
+      this.lastMaxBet = 0;
       await this.startShowdown();
       return;
     }

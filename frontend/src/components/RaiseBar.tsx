@@ -14,10 +14,7 @@ const RaiseBar = () => {
   const { handleRaise } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();
 
-  const minRaiseAmount =
-    gameState?.lastMaxBet && gameState?.minRaiseDiff
-      ? gameState.lastMaxBet + gameState.minRaiseDiff
-      : 0;
+  const minRaiseAmount = gameState!.lastMaxBet + gameState!.minRaiseDiff;
 
   const maxRaiseAmount = gameState?.playerTurn?.coins ?? 0;
 

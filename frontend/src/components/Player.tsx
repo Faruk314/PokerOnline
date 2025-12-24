@@ -4,12 +4,12 @@ import classNames from "classnames";
 import chip from "../assets/images/chip.png";
 import { useAppSelector } from "../store/hooks";
 import { IPlayer } from "../types/types";
-import { useEffect } from "react";
 import Card from "./Card";
 import { AnimationContext } from "../context/AnimationContext";
 import TimeBar from "./TimeBar";
 import { GameContext } from "../context/GameContext";
 import HandName from "./HandName";
+import ChipStack from "./ChipStack";
 
 interface Props {
   position: string;
@@ -19,20 +19,16 @@ interface Props {
 const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
   const { playerInfo, coins, isFold, isDealer, cards } = player;
-  const { createPlayerPotRef, animationMap } = useContext(AnimationContext);
+  const { registerPlayerPot, registerPlayerSeat, animationMap } =
+    useContext(AnimationContext);
   const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
 
   const actionAnimationState = animationMap.get(playerInfo.userId)?.state;
 
-  useEffect(() => {
-    createPlayerPotRef(potRef);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <div
+      ref={(el) => registerPlayerSeat(player.playerInfo.userId, el)}
       className={classNames(
         "absolute flex z-[30] space-x-2 items-center text-white font-bold",
         {
@@ -61,6 +57,20 @@ const Player = ({ player, position }: Props) => {
           findPotSpliter(player.playerInfo.userId)}
 
         <img src={person} className="rounded-full" />
+
+        {player.playerPot > 0 && (
+          <div
+            ref={(el) => registerPlayerPot(player.playerInfo.userId, el)}
+            className={classNames("absolute", {
+              "left-[5px] top-[-70px]": position === "bottomCenter",
+              "left-[100px] top-[-70px]": position === "bottomLeft",
+              "right-[100px] top-[-70px]": position === "bottomRight",
+              "top-[35px] right-[-70px] translate-x-1/2": position === "left",
+            })}
+          >
+            <ChipStack pot={player.playerPot} />
+          </div>
+        )}
 
         {!isFold && (
           <div className="absolute bottom-2 xl:bottom-0 flex">
@@ -121,7 +131,7 @@ const Player = ({ player, position }: Props) => {
             <span>{coins}</span>
           </div>
 
-          {gameState?.playerTurn.playerInfo.userId ===
+          {gameState?.playerTurn?.playerInfo.userId ===
             player.playerInfo.userId &&
             gameState.playerTurn.time && (
               <TimeBar time={gameState.playerTurn.time} />

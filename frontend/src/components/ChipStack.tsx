@@ -132,7 +132,7 @@ const ChipStack = ({ pot, maxStacksPerRow = 8 }: Props) => {
         </div>
       ))}
 
-      <p className="mb-1 font-bold text-white">{pot}$</p>
+      {pot > 0 && <p className="mb-1 font-bold text-white">{pot}$</p>}
     </div>
   );
 };

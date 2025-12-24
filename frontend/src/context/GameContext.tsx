@@ -3,7 +3,12 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { IActionAnimation, IGame, IPlayerMoveArgs } from "../types/types";
 import { SocketContext } from "./SocketContext";
 import { AnimationContext } from "./AnimationContext";
-import { setGameState } from "../store/slices/game";
+import {
+  setGameState,
+  updateGameState,
+  updatePlayer,
+  updatePlayerCoins,
+} from "../store/slices/game";
 import cardSlide from "../assets/audio/cardSlide.wav";
 import { AudioContext } from "./AudioContext";
 import HandName from "../components/HandName";
@@ -30,8 +35,8 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     setAnimateFlop,
     animateCard,
     animateFlop,
-
     setAnimationMap,
+    frozenTablePotRef,
   } = useContext(AnimationContext);
 
   const handleRaise = (amount: number, roomId: string) => {
@@ -87,7 +92,8 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
 
   const handlePreFlopUpdates = useCallback(
     ({ gameState, delay }: { gameState: IGame; delay: number }) => {
-      let updatedGameState = { ...gameState };
+      const STAGER = 400;
+      const ANIMATION_DURATION = delay * gameState.players.length;
 
       setTimeout(() => {
         gameState.players.forEach((player) => {
@@ -95,37 +101,8 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         });
       }, delay);
 
-      const triggerMoveChipTime = gameState.players.length * 600 + delay;
-
-      setTimeout(() => {
-        const smallBlindPlayer = gameState.players.find((p) => p.isSmallBind);
-
-        if (!smallBlindPlayer) return;
-
-        animateMoveChip(smallBlindPlayer.playerInfo.userId);
-
-        updatedGameState = {
-          ...gameState,
-          totalPot: updatedGameState.totalPot + smallBlindPlayer.playerPot,
-        };
-
-        dispatch(setGameState(updatedGameState));
-      }, triggerMoveChipTime);
-
-      setTimeout(() => {
-        const bigBlindPlayer = gameState.players.find((p) => p.isBigBind);
-
-        if (!bigBlindPlayer) return;
-
-        animateMoveChip(bigBlindPlayer.playerInfo.userId);
-
-        updatedGameState = {
-          ...gameState,
-          totalPot: updatedGameState.totalPot + bigBlindPlayer.playerPot,
-        };
-
-        dispatch(setGameState(updatedGameState));
-      }, triggerMoveChipTime + 500);
+      const flipDelay =
+        delay + gameState.players.length * STAGER + ANIMATION_DURATION;
 
       setTimeout(() => {
         if (!loggedUserInfo?.userId) return;
@@ -134,66 +111,93 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           (p) => p.playerInfo.userId === loggedUserInfo?.userId
         );
 
-        animateCardFlip(player);
-      }, triggerMoveChipTime + 1000);
+        if (player) {
+          animateCardFlip(player);
+        }
+      }, flipDelay);
 
-      updatedGameState = {
-        ...gameState,
-        totalPot: 0,
-      };
-
-      dispatch(setGameState(updatedGameState));
+      dispatch(setGameState(gameState));
     },
-    [
-      animateCard,
-      animateMoveChip,
-      dispatch,
-      loggedUserInfo?.userId,
-      animateCardFlip,
-    ]
+    [animateCard, dispatch, loggedUserInfo?.userId, animateCardFlip]
   );
 
   const handleGameOverUpdates = useCallback(
-    ({ gameState }: { gameState: IGame }) => {
-      const updatedGameState = { ...gameState };
+    ({ gameState: newGameState }: { gameState: IGame }) => {
+      const CHIP_TO_PLAYER_ANIMATION_DURATION = 600;
 
-      if (gameState.potInfo["mainPot"].isDraw) {
-        gameState.potInfo["mainPot"].potSpliters!.forEach(
-          (player, index: number) => {
-            const duration = 500 * index;
-            setTimeout(() => {
-              animateMoveChip(player.userId, true);
-            }, duration);
-          }
-        );
+      dispatch(
+        updateGameState({
+          potInfo: newGameState.potInfo,
+          players: newGameState.players,
+        })
+      );
 
-        gameState.players.forEach((player) => {
+      const mainPot = newGameState.potInfo["mainPot"];
+
+      if (mainPot.isDraw) {
+        const amount = newGameState.potInfo["mainPot"].amount;
+
+        mainPot.potSpliters!.forEach((player) => {
+          setTimeout(() => {
+            animateMoveChip(player.userId, "tableToPlayer");
+          }, 200);
+
+          setTimeout(() => {
+            dispatch(
+              updatePlayerCoins({
+                playerId: player.userId!,
+                amount: amount / mainPot.potSpliters!.length,
+              })
+            );
+          }, CHIP_TO_PLAYER_ANIMATION_DURATION);
+        });
+
+        newGameState.players.forEach((player) => {
           animateCardFlip(player);
         });
       } else {
-        animateMoveChip(gameState.potInfo["mainPot"].winner!.userId, true);
-        gameState.players.forEach((player) => {
+        const winnerId = mainPot.winner?.userId;
+        const amount = mainPot.amount;
+
+        setTimeout(() => {
+          animateMoveChip(winnerId, "tableToPlayer");
+        }, 200);
+
+        setTimeout(() => {
+          dispatch(updateGameState({ totalPot: newGameState.totalPot }));
+          dispatch(
+            updatePlayerCoins({
+              playerId: winnerId!,
+              amount,
+            })
+          );
+        }, CHIP_TO_PLAYER_ANIMATION_DURATION);
+
+        newGameState.players.forEach((player) => {
           animateCardFlip(player);
         });
       }
-
-      dispatch(setGameState(updatedGameState));
     },
     [animateCardFlip, animateMoveChip, dispatch]
   );
 
   const handleUpdateGame = useCallback(
-    ({ gameState, action, playerId }: IPlayerMoveArgs) => {
+    ({
+      gameState: newGameState,
+      action,
+      playerId: prevPlayerId,
+      previousPlayerPot,
+      previousTotalPot,
+    }: IPlayerMoveArgs) => {
       if (!socket) return;
 
-      if (action === "raise" || action === "call" || action === "all in") {
-        animateMoveChip(playerId, false);
-      }
+      const ACTION_ANIMATION_DURATION = 1000;
+      const CHIP_TO_TABLE_ANIMATION_DURATION = 600;
 
       if (action && action.length) {
         setAnimationMap((prevState: Map<string, IActionAnimation>) => {
           const newMap = new Map(prevState);
-          newMap.set(playerId, { state: action });
+          newMap.set(prevPlayerId, { state: action });
           return newMap;
         });
       }
@@ -201,25 +205,57 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       setTimeout(() => {
         setAnimationMap((prevState: Map<string, IActionAnimation>) => {
           const newMap = new Map(prevState);
-          newMap.delete(playerId);
+          newMap.delete(prevPlayerId);
           return newMap;
         });
-      }, 1000);
+      }, ACTION_ANIMATION_DURATION);
 
-      if (gameState.isGameOver) {
-        return handleGameOverUpdates({ gameState });
+      if (newGameState.currentRound === "preFlop" && !action) {
+        return handlePreFlopUpdates({ gameState: newGameState, delay: 0 });
       }
 
-      if (gameState.currentRound === "preFlop" && !action) {
-        return handlePreFlopUpdates({ gameState, delay: 0 });
-      }
-
-      if (gameState.currentRound === "flop" && !animateFlop) {
+      if (newGameState.currentRound === "flop" && !animateFlop) {
+        dispatch(
+          updateGameState({ communityCards: newGameState.communityCards })
+        );
         playAudio(cardSlide);
         setAnimateFlop(true);
       }
 
-      dispatch(setGameState(gameState));
+      if (newGameState.lastMaxBet === 0) {
+        dispatch(
+          updatePlayer({
+            playerId: prevPlayerId,
+            data: { playerPot: previousPlayerPot },
+          })
+        );
+
+        dispatch(updateGameState({ playerTurn: undefined }));
+
+        setTimeout(() => {
+          newGameState.players.forEach((p) => {
+            animateMoveChip(p.playerInfo.userId, "playerToTable");
+          });
+
+          if (newGameState.isGameOver) {
+            dispatch(updateGameState({ totalPot: previousTotalPot }));
+          }
+        }, 200);
+
+        setTimeout(() => {
+          frozenTablePotRef.current = previousTotalPot;
+
+          if (newGameState.isGameOver) {
+            return handleGameOverUpdates({
+              gameState: newGameState,
+            });
+          } else {
+            dispatch(setGameState(newGameState));
+          }
+        }, CHIP_TO_TABLE_ANIMATION_DURATION + 200);
+      } else {
+        dispatch(setGameState(newGameState));
+      }
     },
     [
       dispatch,
@@ -231,6 +267,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       playAudio,
       animateFlop,
       handleGameOverUpdates,
+      frozenTablePotRef,
     ]
   );
 

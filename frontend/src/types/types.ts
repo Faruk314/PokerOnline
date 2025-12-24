@@ -97,6 +97,8 @@ interface IPlayerMoveArgs {
   roomId: string;
   action: ActionState;
   playerId: string;
+  previousPlayerPot: number;
+  previousTotalPot: number;
 }
 
 interface IGameEndData {
@@ -131,6 +133,8 @@ interface IPlayersMap {
   [key: string]: ITablePositionsMap;
 }
 
+type ChipMoveDirection = "playerToTable" | "tableToPlayer";
+
 export type {
   UserData,
   UserInfo,
@@ -150,4 +154,5 @@ export type {
   ShopPackage,
   IGameStatus,
   ITablePositionsMap,
+  ChipMoveDirection,
 };
