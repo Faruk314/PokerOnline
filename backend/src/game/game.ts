@@ -148,6 +148,7 @@ class Game {
           playerId: data?.prevPlayerId,
           previousPlayerPot: data?.previousPlayerPot,
           previousTotalPot: data?.previousTotalPot,
+          previousRound: data?.previousRound,
         });
       }
 
