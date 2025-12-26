@@ -48,6 +48,7 @@ class GameListeners {
     playerTurn.fold();
 
     const previousTotalPot = game.totalPot;
+    const previousRound = game.currentRound;
 
     await game.isRoundOver();
 
@@ -56,6 +57,7 @@ class GameListeners {
       action: "fold",
       previousPlayerPot,
       previousTotalPot,
+      previousRound,
     });
   }
 
@@ -162,6 +164,7 @@ class GameListeners {
     game.totalPot += callAmount;
 
     const previousTotalPot = game.totalPot;
+    const previousRound = game.currentRound;
 
     await game.isRoundOver();
 
@@ -170,6 +173,7 @@ class GameListeners {
       action,
       previousPlayerPot,
       previousTotalPot,
+      previousRound,
     });
   }
 
@@ -200,6 +204,7 @@ class GameListeners {
     playerTurn.check();
 
     const previousTotalPot = game.totalPot;
+    const previousRound = game.currentRound;
 
     await game.isRoundOver();
 
@@ -208,6 +213,7 @@ class GameListeners {
       action: "check",
       previousPlayerPot,
       previousTotalPot,
+      previousRound,
     });
   }
 

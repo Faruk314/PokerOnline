@@ -99,6 +99,7 @@ interface IPlayerMoveArgs {
   playerId: string;
   previousPlayerPot: number;
   previousTotalPot: number;
+  previousRound: string;
 }
 
 interface IGameEndData {
@@ -114,6 +115,13 @@ interface ShopPackage {
 interface IGameStatus {
   isGameOver: boolean;
   reason: TGameEndReason | null;
+}
+
+interface GameStateRollbackParams {
+  gameState: IGame;
+  playerId: string;
+  previousPlayerPot: number;
+  previousTotalPot: number;
 }
 
 type TGameEndReason =
@@ -155,4 +163,5 @@ export type {
   IGameStatus,
   ITablePositionsMap,
   ChipMoveDirection,
+  GameStateRollbackParams,
 };

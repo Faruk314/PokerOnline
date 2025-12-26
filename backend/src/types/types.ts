@@ -118,6 +118,7 @@ interface IUpdateGameState {
   action: PlayerAction;
   previousPlayerPot?: number;
   previousTotalPot?: number;
+  previousRound?: string;
 }
 
 interface IResult {
