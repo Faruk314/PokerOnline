@@ -66,6 +66,9 @@ const Player = ({ player, position }: Props) => {
               "left-[100px] top-[-70px]": position === "bottomLeft",
               "right-[100px] top-[-70px]": position === "bottomRight",
               "top-[35px] right-[-70px] translate-x-1/2": position === "left",
+              "left-[100px] bottom-[-140px]": position === "topLeft",
+              "left-[5px] bottom-[-140px]": position === "topCenter",
+              "right-[100px] bottom-[-140px]": position === "topRight",
             })}
           >
             <ChipStack pot={player.playerPot} />
