@@ -32,7 +32,6 @@ class Game {
   communityCards: string[] = [];
   players: Player[] = [];
   lastMaxBet: number = 0;
-  movesCount: number = 0;
   currentRound = "preFlop";
   potInfo: PotInfo = {};
   isGameOver = false;
@@ -48,7 +47,6 @@ class Game {
     deck,
     communityCards,
     lastMaxBet,
-    movesCount,
     currentRound,
     potInfo,
     isGameOver,
@@ -67,7 +65,6 @@ class Game {
     this.deck = deck;
     this.communityCards = communityCards;
     this.lastMaxBet = lastMaxBet;
-    this.movesCount = movesCount;
     this.currentRound = currentRound;
     this.potInfo = potInfo;
     this.isGameOver = isGameOver;
@@ -211,15 +208,53 @@ class Game {
     this.isRoundOver();
   }
 
+  private async handleAllInRound() {
+    switch (this.currentRound) {
+      case "preFlop":
+        this.lastMaxBet = 0;
+        this.startFlop();
+        this.startTurn();
+        this.startRiver();
+        break;
+      case "flop":
+        this.lastMaxBet = 0;
+        this.startTurn();
+        this.startRiver();
+        break;
+      case "turn":
+        this.lastMaxBet = 0;
+        this.startRiver();
+        break;
+      case "river":
+        this.lastMaxBet = 0;
+        break;
+    }
+
+    await this.startShowdown();
+  }
+
+  private async startNextStreet() {
+    switch (this.currentRound) {
+      case "preFlop":
+        this.startFlop();
+        break;
+      case "flop":
+        this.startTurn();
+        break;
+      case "turn":
+        this.startRiver();
+        break;
+      case "river":
+        await this.startShowdown();
+        break;
+    }
+  }
+
   async isRoundOver() {
-    if (!this.playerTurn?.isFold) this.movesCount += 1;
+    const activePlayers = this.players.filter((p) => !p.isFold);
 
-    const playersNotFold = this.players.filter(
-      (player) => player.isFold === false
-    );
-
-    if (playersNotFold.length === 1) {
-      const winnerId = playersNotFold[0].playerInfo.userId;
+    if (activePlayers.length === 1) {
+      const winnerId = activePlayers[0].playerInfo.userId;
 
       const winner = this.getPlayer(winnerId);
       winner!.coins += this.totalPot;
@@ -237,66 +272,40 @@ class Game {
       return;
     }
 
-    const allIn = playersNotFold.some((player) => player.coins === 0);
+    const maxBet = Math.max(...activePlayers.map((p) => p.playerPot));
 
-    const lastMove = this.movesCount >= playersNotFold.length;
+    const betsAreEqual = activePlayers.every(
+      (p) => p.isAllIn || p.playerPot === maxBet
+    );
 
-    if (!lastMove) {
-      await this.switchTurns();
+    const everyoneActed = activePlayers.every(
+      (p) =>
+        p.isCall ||
+        p.isCheck ||
+        p.isAllIn ||
+        (p.playerRaise.isRaise && p.playerPot === maxBet)
+    );
+
+    if (betsAreEqual && everyoneActed) {
+      const playersWithChips = activePlayers.filter((p) => p.coins > 0);
+
+      if (playersWithChips.length <= 1) {
+        await this.handleAllInRound();
+      } else {
+        this.resetStreet();
+        await this.startNextStreet();
+      }
+
       return;
     }
 
-    if (lastMove && allIn && this.currentRound === "preFlop") {
-      this.lastMaxBet = 0;
-      this.startFlop();
-      this.startTurn();
-      this.startRiver();
-      await this.startShowdown();
-      return;
-    }
-
-    if (lastMove && allIn && this.currentRound === "flop") {
-      this.lastMaxBet = 0;
-      this.startTurn();
-      this.startRiver();
-      await this.startShowdown();
-      return;
-    }
-
-    if (lastMove && allIn && this.currentRound === "turn") {
-      this.lastMaxBet = 0;
-      this.startRiver();
-      await this.startShowdown();
-      return;
-    }
-
-    if (lastMove && allIn && this.currentRound === "river") {
-      this.lastMaxBet = 0;
-      await this.startShowdown();
-      return;
-    }
-
-    if (lastMove) {
-      this.resetRound();
-
-      if (this.currentRound === "river") await this.startShowdown();
-
-      if (this.currentRound === "turn") this.startRiver();
-
-      if (this.currentRound === "flop") this.startTurn();
-
-      if (this.currentRound === "preFlop") this.startFlop();
-
-      if (this.currentRound !== "showdown") await this.switchTurns();
-    }
+    await this.switchTurns();
   }
 
-  private resetRound() {
+  private resetStreet() {
     this.lastMaxBet = 0;
 
     if (this.currentRound === "showdown") return;
-
-    this.movesCount = 0;
 
     this.players.forEach((player) => {
       player.playerPot = 0;
@@ -304,7 +313,6 @@ class Game {
       player.isCheck = false;
       player.playerRaise.isRaise = false;
       player.playerRaise.amount = 0;
-      player.isAllIn = false;
     });
 
     this.minRaiseDiff = 50;
@@ -966,8 +974,6 @@ class Game {
     this.communityCards = [];
     this.potInfo = {};
     this.isGameOver = false;
-    this.movesCount = 0;
-
     this.lastMaxBet = bigBlind;
     this.minRaiseDiff = bigBlind;
 
@@ -982,7 +988,6 @@ class Game {
       smallBlindPlayer.playerPot = smallBlindPlayer.coins;
       smallBlindPlayer.coins = 0;
       smallBlindPlayer.isAllIn = true;
-      this.movesCount += 1;
     } else {
       smallBlindPlayer.playerPot = smallBlind;
       smallBlindPlayer.coins -= smallBlind;
@@ -995,7 +1000,6 @@ class Game {
       bigBlindPlayer.playerPot = bigBlindPlayer.coins;
       bigBlindPlayer.coins = 0;
       bigBlindPlayer.isAllIn = true;
-      this.movesCount += 1;
     } else {
       bigBlindPlayer.playerPot = bigBlind;
       bigBlindPlayer.coins -= bigBlind;

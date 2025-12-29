@@ -91,16 +91,6 @@ class GameListeners {
     if (amount > playerTurn.coins)
       return console.log("Invalid raise: not enough chips");
 
-    const raiserId = playerTurn.playerInfo.userId;
-
-    const playersWhoNeedToAct = game.players.filter(
-      (p) => !p.isFold && !p.isAllIn && p.playerInfo.userId !== raiserId
-    );
-
-    if (playersWhoNeedToAct.length === 0) {
-      return console.log("Invalid raise: No more players left to act");
-    }
-
     const chipsToPutIn = isAllin ? amount : amount - playerTurn.playerPot;
 
     const raiseDiff = amount - game.lastMaxBet;
@@ -121,7 +111,17 @@ class GameListeners {
 
     game.totalPot += chipsToPutIn;
 
-    game.movesCount = game.players.length - playersWhoNeedToAct.length;
+    const raiserId = playerTurn.playerInfo.userId;
+
+    game.players.forEach((p) => {
+      if (p.playerInfo.userId !== raiserId) {
+        p.isCall = false;
+        p.isCheck = false;
+        p.playerRaise.isRaise = false;
+      }
+    });
+
+    playerTurn.playerRaise.isRaise = true;
 
     await game.switchTurns();
 

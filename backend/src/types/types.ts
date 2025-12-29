@@ -39,7 +39,6 @@ interface IGame {
   communityCards: string[];
   players: IPlayer[];
   lastMaxBet: number;
-  movesCount: number;
   currentRound: string;
   potInfo: PotInfo;
   isGameOver: boolean;

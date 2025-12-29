@@ -42,7 +42,6 @@ const initializeGame = async (roomId: string) => {
     deck: [],
     players: [],
     lastMaxBet: 0,
-    movesCount: 0,
     currentRound: "preFlop",
     potInfo: {},
     isGameOver: false,
