@@ -19,13 +19,21 @@ const playerTimerWorker = new Worker(
 
       if (!playerTurn?.time) return;
 
+      const previousPlayerPot = playerTurn.playerPot;
+
       playerTurn.fold();
+
+      const previousTotalPot = game.totalPot;
+      const previousRound = game.currentRound;
 
       await game.isRoundOver();
 
       await game.updateGameState({
         prevPlayerId: playerId,
         action: "fold",
+        previousPlayerPot,
+        previousTotalPot,
+        previousRound,
       });
     } catch (error) {
       console.error(

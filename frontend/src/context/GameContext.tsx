@@ -199,10 +199,15 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
 
   const handleGameOverUpdates = useCallback(
     ({ gameState: newGameState }: { gameState: IGame }) => {
+      const cleanedPlayers = newGameState.players.map((p) => ({
+        ...p,
+        playerPot: 0,
+      }));
+
       dispatch(
         updateGameState({
           potInfo: newGameState.potInfo,
-          players: newGameState.players,
+          players: cleanedPlayers,
         })
       );
 
@@ -343,6 +348,15 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           return newMap;
         });
       }, ACTION_ANIMATION_DURATION);
+
+      if (newGameState.isGameOver && action === "fold") {
+        return handleRoundOverUpdates({
+          gameState: newGameState,
+          playerId: prevPlayerId,
+          previousPlayerPot,
+          previousTotalPot,
+        });
+      }
 
       if (
         newGameState.isGameOver &&
