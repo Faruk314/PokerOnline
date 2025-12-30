@@ -12,7 +12,8 @@ export const useSocketEvents = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { handleUpdateGame, handlePreFlopUpdates } = useContext(GameContext);
+  const { handleUpdateGame, handlePreFlopUpdates, onCardsShow } =
+    useContext(GameContext);
   const { socket } = useContext(SocketContext);
   const loggedUserId = useAppSelector(
     (state) => state.auth.loggedUserInfo?.userId
@@ -77,4 +78,6 @@ export const useSocketEvents = () => {
     toast.success("Room created");
     socket?.emit("joinRoom", { roomId });
   });
+
+  useSocketEvent(socket, "showCards", onCardsShow);
 };

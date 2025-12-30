@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { retrieveGameState } from "../../redis/methods/game";
+import { retrieveGameState, saveGameState } from "../../redis/methods/game";
 import { playerTimerQueue } from "../../jobs/queues/playerTimerQueue";
 
 class GameListeners {
@@ -224,6 +224,9 @@ class GameListeners {
 
     if (!response.gameState) return;
 
+    if (!this.socket.userId)
+      return console.error("Invalid action. user does not exist");
+
     const game = response.gameState;
 
     if (!game.isGameOver) {
@@ -242,7 +245,11 @@ class GameListeners {
 
     player.showCards = true;
 
-    await game.updateGameState(null);
+    await saveGameState(roomId, game);
+
+    this.io
+      .to(roomId)
+      .emit("showCards", { playerId: winner.userId, cards: player.cards });
   }
 }
 

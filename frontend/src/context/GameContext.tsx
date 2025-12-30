@@ -66,6 +66,15 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     socket?.emit("playerCheck", { roomId });
   };
 
+  const onCardsShow = useCallback(
+    ({ playerId, cards }: { playerId: string; cards: string[] }) => {
+      dispatch(
+        updatePlayer({ playerId, data: { cards: cards, showCards: true } })
+      );
+    },
+    [dispatch]
+  );
+
   const getRank = (rank: number) => {
     if (rank === 11) {
       return "J";
@@ -458,6 +467,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     findPotSpliter,
     getRank,
     handleShowCards,
+    onCardsShow,
   };
 
   return (
