@@ -294,6 +294,7 @@ class Game {
       } else {
         this.resetStreet();
         await this.startNextStreet();
+        await this.switchTurns();
       }
 
       return;
