@@ -41,6 +41,7 @@ interface IGame {
   currentRound: string;
   potInfo: PotInfo;
   isGameOver: boolean;
+  bigBlind: number;
 }
 
 interface IRaise {
@@ -69,8 +70,8 @@ interface IPlayer {
   playerInfo: { userId: string; userName: string };
   seatIndex: number;
   isDealer: boolean;
-  isSmallBind: boolean;
-  isBigBind: boolean;
+  isSmallBlind: boolean;
+  isBigBlind: boolean;
   cards: string[];
   playerRaise: IRaise;
   playerPot: number;
@@ -91,6 +92,7 @@ interface RoomData {
   roomName: string;
   maxPlayers: number;
   minStake: number;
+  bigBlind: number;
   players: { userId: string; userName: string }[];
   gameState: IPreGameState | IGame | null;
 }
@@ -99,6 +101,7 @@ interface CreateRoomData {
   maxPlayers: number;
   roomName: string;
   minStake: number;
+  bigBlind: number;
 }
 
 interface GetKickersArgs {

@@ -44,6 +44,7 @@ const initializeGame = async (roomId: string) => {
     currentRound: "preFlop",
     potInfo: {},
     isGameOver: false,
+    bigBlind: room.bigBlind,
   };
 
   if (!room.gameState) return false;
@@ -83,25 +84,25 @@ const initializeGame = async (roomId: string) => {
     Math.random() * room.gameState?.players.length
   );
 
-  const bigBindAmount = 50;
+  const bigBlindAmount = room.bigBlind;
 
   room.gameState.players[randomNumber].isDealer = true;
 
-  const smallBindIndex = (randomNumber + 1) % room.gameState.players.length;
+  const smallBlindIndex = (randomNumber + 1) % room.gameState.players.length;
 
-  room.gameState.players[smallBindIndex].isSmallBind = true;
-  room.gameState.players[smallBindIndex].playerPot = bigBindAmount / 2;
-  room.gameState.players[smallBindIndex].coins -= bigBindAmount / 2;
+  room.gameState.players[smallBlindIndex].isSmallBlind = true;
+  room.gameState.players[smallBlindIndex].playerPot = bigBlindAmount / 2;
+  room.gameState.players[smallBlindIndex].coins -= bigBlindAmount / 2;
 
-  const bigBindIndex = (smallBindIndex + 1) % room.gameState.players.length;
+  const bigBlindIndex = (smallBlindIndex + 1) % room.gameState.players.length;
 
-  room.gameState.players[bigBindIndex].isBigBind = true;
-  room.gameState.players[bigBindIndex].playerPot = bigBindAmount;
-  room.gameState.players[bigBindIndex].coins -= bigBindAmount;
+  room.gameState.players[bigBlindIndex].isBigBlind = true;
+  room.gameState.players[bigBlindIndex].playerPot = bigBlindAmount;
+  room.gameState.players[bigBlindIndex].coins -= bigBlindAmount;
 
-  const playerTurnIndex = (smallBindIndex + 2) % room.gameState.players.length;
+  const playerTurnIndex = (smallBlindIndex + 2) % room.gameState.players.length;
 
-  room.gameState.lastMaxBet = bigBindAmount;
+  room.gameState.lastMaxBet = bigBlindAmount;
   room.gameState.playerTurn = room.gameState.players[playerTurnIndex];
 
   const start = Date.now();
@@ -111,8 +112,8 @@ const initializeGame = async (roomId: string) => {
     startTime: new Date(start),
     endTime: new Date(start + turnDuration),
   };
-  room.gameState.minRaiseDiff = bigBindAmount / 2;
-  room.gameState.totalPot = bigBindAmount + bigBindAmount / 2;
+  room.gameState.minRaiseDiff = bigBlindAmount / 2;
+  room.gameState.totalPot = bigBlindAmount + bigBlindAmount / 2;
   room.gameState.communityCards = [];
 
   try {
@@ -139,8 +140,8 @@ const initializePlayer = ({
     coins: minStake,
     playerInfo,
     isDealer: false,
-    isSmallBind: false,
-    isBigBind: false,
+    isSmallBlind: false,
+    isBigBlind: false,
     cards: [],
     isAllIn: false,
     isFold,

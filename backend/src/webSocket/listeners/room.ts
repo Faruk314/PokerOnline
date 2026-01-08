@@ -29,18 +29,35 @@ class RoomListeners {
   async onCreateRoom(data: CreateRoomData) {
     const stakes = [500, 1000, 10000, 50000, 100000, 500000, 1000000];
 
-    if (!this.socket.id) return console.log("socket id missing in create room");
+    if (!this.socket.id)
+      return console.error("socket id missing in create room");
 
     if (data.maxPlayers > 6 || data.maxPlayers < 1) {
-      return console.log("Invalid maxPlayers number");
+      return console.error("Invalid maxPlayers number");
     }
 
     const isValidStake = stakes.some((stake) => stake === data.minStake);
 
-    if (!isValidStake) return console.log("Invalid min stake amount");
+    if (!isValidStake) return console.error("Invalid min stake amount");
+
+    if (!Number.isInteger(data.bigBlind)) {
+      return console.error("Big blind must be a whole number");
+    }
+
+    if (data.bigBlind > data.minStake) {
+      return console.error("Big blind cannot exceed minimum stake");
+    }
+
+    if (data.bigBlind <= 0) {
+      return console.error("Big blind must be greater than 0");
+    }
+
+    if (data.bigBlind % 5 !== 0) {
+      return console.error("Big blind must be a multiple of 5");
+    }
 
     const roomId = uuidv4();
-    const { maxPlayers, roomName, minStake } = data;
+    const { maxPlayers, roomName, minStake, bigBlind } = data;
 
     const roomData = {
       roomId,
@@ -48,6 +65,7 @@ class RoomListeners {
       roomName,
       minStake,
       players: [],
+      bigBlind,
       gameState: null,
     };
 
@@ -57,64 +75,6 @@ class RoomListeners {
       this.io.to(this.socket.id).emit("roomCreated", { roomId });
     }
   }
-
-  // async onJoinRoom(data: { roomId: string }) {
-  //   const { roomId } = data;
-
-  //   const userId = this.socket.userId;
-  //   const userName = this.socket.userName;
-
-  //   if (!userId || !userName) return;
-
-  //   const response = await joinRoom({ roomId, playerId: userId, userName });
-
-  //   if (response.status === "roomJoined" && response.data) {
-  //     this.socket.join(roomId);
-
-  //     this.io.to(roomId).emit("newPlayerJoined", { gameState: response.data });
-
-  //     return this.io.to(this.socket.id).emit("roomJoined", { roomId });
-  //   }
-
-  //   if (response.status === "roomFull") {
-  //     return this.io
-  //       .to(this.socket.id)
-  //       .emit("joinRoomDenied", { reason: response.status });
-  //   }
-
-  //   if (response.status === "insufficientFunds") {
-  //     return this.io
-  //       .to(this.socket.id)
-  //       .emit("joinRoomDenied", { reason: response.status });
-  //   }
-
-  //   if (response.status === "roomReconnect") {
-  //     this.socket.join(roomId);
-  //     return this.io.to(this.socket.id).emit("roomJoined", { roomId });
-  //   }
-
-  //   if (response.status === "gameStart") {
-  //     this.socket.join(roomId);
-
-  //     const gameInfo = await initializeGame(roomId);
-
-  //     if (!gameInfo) return console.log("Could not initialize game");
-
-  //     const playerTurnId = gameInfo.gameState?.playerTurn?.playerInfo.userId!;
-  //     const endDate = gameInfo.gameState?.playerTurn?.time?.endTime!;
-
-  //     const game = new Game({
-  //       ...gameInfo.gameState!,
-  //       io: this.io,
-  //     });
-
-  //     await playerTimerQueue
-  //       .getInstance()
-  //       .addTimer(roomId, playerTurnId, endDate);
-
-  //     await game.updateGameState(null, "gameStarted");
-  //   }
-  // }
 
   async onJoinRoom(data: { roomId: string }) {
     const { roomId } = data;

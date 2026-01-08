@@ -72,8 +72,8 @@ interface IPlayer {
   playerInfo: { userId: string; userName: string };
   seatIndex: number;
   isDealer: boolean;
-  isSmallBind: boolean;
-  isBigBind: boolean;
+  isSmallBlind: boolean;
+  isBigBlind: boolean;
   cards: string[];
   isAllIn: boolean;
   isFold: boolean;

@@ -12,7 +12,6 @@ import {
   deleteGameState,
   generateDeck,
   saveGameState,
-  sortPlayersBySeat,
 } from "../redis/methods/game";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
@@ -34,6 +33,7 @@ class Game {
   currentRound = "preFlop";
   potInfo: PotInfo = {};
   isGameOver = false;
+  bigBlind: number = 50;
 
   constructor({
     io,
@@ -48,6 +48,7 @@ class Game {
     currentRound,
     potInfo,
     isGameOver,
+    bigBlind,
   }: IGame) {
     this.io = io;
     this.roomId = roomId;
@@ -65,6 +66,7 @@ class Game {
     this.currentRound = currentRound;
     this.potInfo = potInfo;
     this.isGameOver = isGameOver;
+    this.bigBlind = bigBlind;
   }
 
   getPlayer(playerId: string) {
@@ -303,7 +305,7 @@ class Game {
       player.playerRaise.amount = 0;
     });
 
-    this.minRaiseDiff = 50;
+    this.minRaiseDiff = this.bigBlind;
   }
 
   private startFlop() {
@@ -955,7 +957,7 @@ class Game {
 
     this.players = this.players.sort((a, b) => a.seatIndex - b.seatIndex);
 
-    const bigBlind = 50;
+    const bigBlind = this.bigBlind;
     const smallBlind = bigBlind / 2;
 
     this.currentRound = "preFlop";
@@ -971,7 +973,7 @@ class Game {
     const bigBlindIndex = (smallBlindIndex + 1) % this.players.length;
 
     const smallBlindPlayer = this.players[smallBlindIndex];
-    smallBlindPlayer.isSmallBind = true;
+    smallBlindPlayer.isSmallBlind = true;
 
     if (smallBlindPlayer.coins <= smallBlind) {
       smallBlindPlayer.playerPot = smallBlindPlayer.coins;
@@ -983,7 +985,7 @@ class Game {
     }
 
     const bigBlindPlayer = this.players[bigBlindIndex];
-    bigBlindPlayer.isBigBind = true;
+    bigBlindPlayer.isBigBlind = true;
 
     if (bigBlindPlayer.coins <= bigBlind) {
       bigBlindPlayer.playerPot = bigBlindPlayer.coins;

@@ -17,6 +17,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
     maxPlayers: null as number | null,
     minStake: 500,
     roomName: "",
+    bigBlind: 50,
   });
   const [openDropdown, setOpenDropDown] = useState(false);
   const { socket } = useContext(SocketContext);
@@ -52,6 +53,14 @@ const CreateGame = ({ setOpenModal }: Props) => {
       return toast.error("Please add max number of players");
     }
 
+    if (roomSettings.bigBlind % 5 !== 0) {
+      return toast.error("Big blind must be a multiple of 5");
+    }
+
+    if (roomSettings.bigBlind > roomSettings.minStake) {
+      return toast.error("Big blind cannot be bigger than the minimum stake");
+    }
+
     if (!socket)
       return console.log("Socket does not exist in create game component");
 
@@ -83,7 +92,11 @@ const CreateGame = ({ setOpenModal }: Props) => {
   };
 
   return (
-    <Wrapper setOpenModal={setOpenModal} modalRef={modalRef}>
+    <Wrapper
+      setOpenModal={setOpenModal}
+      modalRef={modalRef}
+      disableOutsideClick
+    >
       <div
         ref={modalRef}
         className="relative z-40 w-[21rem] md:w-[30rem] p-4 md:p-6 space-y-4 bg-gray-800 rounded-md button-border"
@@ -98,7 +111,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
         <div className="flex flex-col space-y-4 pt-7">
           <input
             onChange={(e) => handleChange("roomName", e.target.value)}
-            className="rounded-md px-2 py-2 text-gray-500 placeholder:text-[0.9rem] md:placeholder:text-[1rem] button-border"
+            className="rounded-md px-2 py-2 text-gray-500 placeholder:text-[0.9rem] md:placeholder:text-[1rem] button-border focus:outline-none focus:border-blue-500"
             placeholder="Room Name"
           />
         </div>
@@ -151,6 +164,22 @@ const CreateGame = ({ setOpenModal }: Props) => {
           )}
         </div>
 
+        <div className="flex flex-col space-y-4 pt-7">
+          <input
+            type="number"
+            step="5"
+            min="5"
+            onKeyDown={(e) => {
+              if (e.key === "." || e.key === ",") {
+                e.preventDefault();
+              }
+            }}
+            onChange={(e) => handleChange("bigBlind", Number(e.target.value))}
+            className="rounded-md px-2 py-2 text-gray-500 placeholder:text-[0.9rem] md:placeholder:text-[1rem] button-border focus:outline-none focus:border-blue-500"
+            placeholder="Big blind amount (50 default)"
+          />
+        </div>
+
         <div className="pt-7 flex flex-col">
           <h3 className="text-2xl self-start">Number of players</h3>
 
@@ -162,7 +191,7 @@ const CreateGame = ({ setOpenModal }: Props) => {
                 className={classNames(
                   "bg-white text-black px-4 md:px-6 py-1 rounded-md mr-2 mt-2",
                   {
-                    "bg-green-500 text-white": roomSettings.maxPlayers === item,
+                    "bg-blue-500 text-white": roomSettings.maxPlayers === item,
                   }
                 )}
               >
