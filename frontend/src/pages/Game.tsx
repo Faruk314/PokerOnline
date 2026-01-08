@@ -23,11 +23,10 @@ const Game = () => {
   const { id } = useParams<{ id: string }>();
   const { tablePotRef, frozenTablePotRef } = useContext(AnimationContext);
   const { findCard } = useContext(GameContext);
-  const { gameState, isLoading, openRaiseBar } = useAppSelector(
-    (state) => state.game
-  );
+  const { gameState, isLoading, openRaiseBar, currentGameRoom } =
+    useAppSelector((state) => state.game);
   const isCurrentPlayer =
-    loggedUserInfo?.userId === gameState?.playerTurn?.playerInfo.userId;
+    loggedUserInfo?.userId === gameState?.playerTurn?.playerInfo?.userId;
 
   useEffect(() => {
     dispatch(getGameState(id!));
@@ -39,10 +38,13 @@ const Game = () => {
 
   return (
     <section className="game-page game-container bg-gray-800 h-[100vh] w-full">
-      {!gameState && (
-        <p className="fixed top-4 text-white font-black text-2xl">
-          Waiting for other players...
-        </p>
+      {!gameState?.deck && (
+        <>
+          <div className="fixed top-4 text-white font-black text-2xl text-center">
+            <p> Waiting for other players...</p>
+            <p>{`${gameState?.players.length} / ${currentGameRoom?.maxPlayers}`}</p>
+          </div>
+        </>
       )}
 
       <div className="fixed top-4 px-4 flex w-full justify-between items-start">
@@ -71,15 +73,16 @@ const Game = () => {
           <div className="absolute top-[40%] xl:top-[30%] z-10 text-white font-bold flex items-center space-x-2 bg-[rgba(0,0,0,0.7)] lg:bg-[rgba(0,0,0,0.5)] rounded-full px-2">
             <span>TOTAL POT :</span>
             <span className="text-[0.9rem] md:text-[1rem] lg:py-[0.1rem]">
-              {gameState?.totalPot}$
+              {gameState?.totalPot && gameState?.totalPot}$
             </span>
           </div>
 
           <div className="relative flex flex-col items-center">
             <div className="flex space-x-2">
-              {gameState?.communityCards.map((c, index) => {
-                return findCard(c, index);
-              })}
+              {gameState?.communityCards &&
+                gameState?.communityCards.map((c, index) => {
+                  return findCard(c, index);
+                })}
             </div>
           </div>
 
