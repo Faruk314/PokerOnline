@@ -1,7 +1,8 @@
 import { client } from "../redis";
-import { RoomData } from "../../types/types";
+import { IPreGameState, RoomData } from "../../types/types";
 import { getPlayerCoins } from "../../services/game";
 import { ROOMS_KEY } from "../../constants/constants";
+import { assignSeatIndex, initializePlayer, sortPlayersBySeat } from "./game";
 
 const createRoom = async (roomData: RoomData) => {
   const { roomId } = roomData;
@@ -31,42 +32,58 @@ const joinRoom = async ({
   userName: string;
 }) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
-
-  if (!roomJSON) {
-    return { status: "error" };
-  }
+  if (!roomJSON) return { status: "error" };
 
   const room: RoomData = JSON.parse(roomJSON);
 
-  const inRoom = room.players.some((p) => p.userId === playerId);
-
-  if (inRoom) {
-    return { status: "roomJoined" };
-  }
-
-  if (room.gameState !== null) {
-    return { status: "gameInProgress" };
-  }
-
-  if (room.players.length >= room.maxPlayers) {
-    return { status: "roomFull" };
+  if (room.players.some((p) => p.userId === playerId)) {
+    return { status: "roomReconnect" };
   }
 
   const playerCoins = await getPlayerCoins(playerId);
+  if (playerCoins < room.minStake) return { status: "insufficientFunds" };
 
-  if (playerCoins < room.minStake) {
-    return { status: "insufficientFunds" };
+  if (room.players.length >= room.maxPlayers) return { status: "roomFull" };
+
+  room.players.push({ userId: playerId, userName });
+
+  const gameInProgress = room.gameState && "deck" in room.gameState;
+
+  if (!room.gameState || !gameInProgress) {
+    room.gameState = {
+      players: room.players.map((p, i) =>
+        initializePlayer({
+          minStake: room.minStake,
+          playerInfo: { userId: p.userId, userName: p.userName },
+          seatIndex: i,
+          isFold: true,
+        })
+      ),
+    } as IPreGameState;
+  } else {
+    const seatIndex = assignSeatIndex(room.gameState.players, room.maxPlayers);
+
+    const newPlayer = initializePlayer({
+      minStake: room.minStake,
+      playerInfo: { userId: playerId, userName },
+      seatIndex,
+      isFold: true,
+    });
+
+    room.gameState.players.push(newPlayer);
+    room.gameState.players = sortPlayersBySeat(room.gameState.players);
   }
 
-  // Add player to room
-  room.players.push({ userId: playerId, userName });
   await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
 
-  if (room.players.length === room.maxPlayers) {
+  if (!gameInProgress && room.players.length === room.maxPlayers) {
     return { status: "gameStart" };
   }
 
-  return { status: "roomJoined" };
+  return {
+    status: "roomJoined",
+    data: room.gameState,
+  };
 };
 
 const leaveRoom = async ({
@@ -79,18 +96,22 @@ const leaveRoom = async ({
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
   if (!roomJSON) {
-    return false; // Room doesn't exist
+    return false;
   }
 
   const room: RoomData = JSON.parse(roomJSON);
 
-  // Check if the player is in the room
   if (!room.players.some((player) => player.userId === userId)) {
-    return false; // Player is not in the room
+    return false;
   }
 
-  // Remove player from room
   room.players = room.players.filter((player) => player.userId !== userId);
+
+  if (room.gameState) {
+    room.gameState.players = room.gameState.players.filter(
+      (player) => player.playerInfo.userId !== userId
+    );
+  }
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));

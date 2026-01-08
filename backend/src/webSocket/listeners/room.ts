@@ -58,37 +58,92 @@ class RoomListeners {
     }
   }
 
+  // async onJoinRoom(data: { roomId: string }) {
+  //   const { roomId } = data;
+
+  //   const userId = this.socket.userId;
+  //   const userName = this.socket.userName;
+
+  //   if (!userId || !userName) return;
+
+  //   const response = await joinRoom({ roomId, playerId: userId, userName });
+
+  //   if (response.status === "roomJoined" && response.data) {
+  //     this.socket.join(roomId);
+
+  //     this.io.to(roomId).emit("newPlayerJoined", { gameState: response.data });
+
+  //     return this.io.to(this.socket.id).emit("roomJoined", { roomId });
+  //   }
+
+  //   if (response.status === "roomFull") {
+  //     return this.io
+  //       .to(this.socket.id)
+  //       .emit("joinRoomDenied", { reason: response.status });
+  //   }
+
+  //   if (response.status === "insufficientFunds") {
+  //     return this.io
+  //       .to(this.socket.id)
+  //       .emit("joinRoomDenied", { reason: response.status });
+  //   }
+
+  //   if (response.status === "roomReconnect") {
+  //     this.socket.join(roomId);
+  //     return this.io.to(this.socket.id).emit("roomJoined", { roomId });
+  //   }
+
+  //   if (response.status === "gameStart") {
+  //     this.socket.join(roomId);
+
+  //     const gameInfo = await initializeGame(roomId);
+
+  //     if (!gameInfo) return console.log("Could not initialize game");
+
+  //     const playerTurnId = gameInfo.gameState?.playerTurn?.playerInfo.userId!;
+  //     const endDate = gameInfo.gameState?.playerTurn?.time?.endTime!;
+
+  //     const game = new Game({
+  //       ...gameInfo.gameState!,
+  //       io: this.io,
+  //     });
+
+  //     await playerTimerQueue
+  //       .getInstance()
+  //       .addTimer(roomId, playerTurnId, endDate);
+
+  //     await game.updateGameState(null, "gameStarted");
+  //   }
+  // }
+
   async onJoinRoom(data: { roomId: string }) {
     const { roomId } = data;
-
     const userId = this.socket.userId;
     const userName = this.socket.userName;
-
     if (!userId || !userName) return;
 
     const response = await joinRoom({ roomId, playerId: userId, userName });
 
-    if (response.status === "gameInProgress") {
-      return this.io
-        .to(this.socket.id)
-        .emit("joinRoomDenied", { reason: response.status });
+    if (response.status === "roomJoined" && response.data) {
+      this.socket.join(roomId);
+
+      this.io.to(roomId).emit("newPlayerJoined", { gameState: response.data });
+
+      return this.io.to(this.socket.id).emit("roomJoined", { roomId });
     }
 
-    if (response.status === "roomFull") {
-      return this.io
-        .to(this.socket.id)
-        .emit("joinRoomDenied", { reason: response.status });
-    }
-
-    if (response.status === "insufficientFunds") {
-      return this.io
-        .to(this.socket.id)
-        .emit("joinRoomDenied", { reason: response.status });
-    }
-
-    if (response.status === "roomJoined") {
+    if (response.status === "roomReconnect") {
       this.socket.join(roomId);
       return this.io.to(this.socket.id).emit("roomJoined", { roomId });
+    }
+
+    if (
+      response.status === "roomFull" ||
+      response.status === "insufficientFunds"
+    ) {
+      return this.io
+        .to(this.socket.id)
+        .emit("joinRoomDenied", { reason: response.status });
     }
 
     if (response.status === "gameStart") {
@@ -101,10 +156,7 @@ class RoomListeners {
       const playerTurnId = gameInfo.gameState?.playerTurn?.playerInfo.userId!;
       const endDate = gameInfo.gameState?.playerTurn?.time?.endTime!;
 
-      const game = new Game({
-        ...gameInfo.gameState!,
-        io: this.io,
-      });
+      const game = new Game({ ...gameInfo.gameState!, io: this.io });
 
       await playerTimerQueue
         .getInstance()
@@ -128,6 +180,13 @@ class RoomListeners {
     if (!response.gameState) return;
 
     const game = response.gameState;
+
+    if (!(game instanceof Game)) {
+      return this.io?.to(roomId).emit("playerLeft", {
+        playerId: this.socket.userId,
+        userName: this.socket.userName,
+      });
+    }
 
     const playerTurnId = game.playerTurn?.playerInfo.userId;
 
