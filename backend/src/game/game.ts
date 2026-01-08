@@ -2,7 +2,6 @@ import { Server } from "socket.io";
 import {
   IGame,
   Hand,
-  IPlayersMap,
   GameStatus,
   IUpdateGameState,
   SidePotsMap,
@@ -13,6 +12,7 @@ import {
   deleteGameState,
   generateDeck,
   saveGameState,
+  sortPlayersBySeat,
 } from "../redis/methods/game";
 import { resetGameQueue } from "../jobs/queues/resetGameQueue";
 import { playerTimerQueue } from "../jobs/queues/playerTimerQueue";
@@ -25,7 +25,6 @@ class Game {
   io: Server | null;
   roomId: string;
   totalPot: number;
-  tablePositions: IPlayersMap = {};
   minRaiseDiff: number;
   playerTurn: Player | null;
   deck: string[];
@@ -40,7 +39,6 @@ class Game {
     io,
     roomId,
     totalPot,
-    tablePositions,
     minRaiseDiff,
     playerTurn,
     players,
@@ -53,7 +51,6 @@ class Game {
   }: IGame) {
     this.io = io;
     this.roomId = roomId;
-    this.tablePositions = tablePositions;
     this.totalPot = totalPot;
     this.minRaiseDiff = minRaiseDiff;
     this.players = players.map((player) => new Player(player));
@@ -68,16 +65,6 @@ class Game {
     this.currentRound = currentRound;
     this.potInfo = potInfo;
     this.isGameOver = isGameOver;
-  }
-
-  private updateTablePositions(playerId: string) {
-    delete this.tablePositions[playerId];
-
-    Object.entries(this.tablePositions).forEach(([_, positionsMap]) => {
-      if (positionsMap[playerId]) {
-        delete positionsMap[playerId];
-      }
-    });
   }
 
   getPlayer(playerId: string) {
@@ -190,11 +177,11 @@ class Game {
       return true;
     });
 
-    this.updateTablePositions(playerId);
-
     if (disconnectedPlayerCoins) {
       await incrementPlayerCoins(playerId, disconnectedPlayerCoins);
     }
+
+    this.players = this.players.sort((a, b) => a.seatIndex - b.seatIndex);
 
     this.io?.to(this.roomId).emit("playerLeft", { playerId, userName });
 
@@ -395,7 +382,7 @@ class Game {
     if (!this.playerTurn) return;
 
     const start = Date.now();
-    const turnDuration = 30000;
+    const turnDuration = 300000000000000;
 
     this.playerTurn.time = {
       startTime: new Date(start),
@@ -941,7 +928,6 @@ class Game {
         }
 
         this.players.splice(i, 1);
-        this.updateTablePositions(player.playerInfo.userId);
         continue;
       }
 
@@ -966,6 +952,8 @@ class Game {
     if (this.players.length === 1) {
       return await this.initGameOver("opponentInsufficientFunds");
     }
+
+    this.players = this.players.sort((a, b) => a.seatIndex - b.seatIndex);
 
     const bigBlind = 50;
     const smallBlind = bigBlind / 2;

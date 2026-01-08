@@ -1,31 +1,60 @@
 import { useAppSelector } from "../store/hooks";
 import Player from "./Player";
 
+const VISUAL_POSITIONS = [
+  "bottomCenter",
+  "bottomLeft",
+  "left",
+  "topLeft",
+  "topCenter",
+  "topRight",
+] as const;
+
 const TablePositions = () => {
-  const loggedUserInfo = useAppSelector((state) => state.auth.loggedUserInfo);
-  const gameState = useAppSelector((state) => state.game.gameState);
+  const players = useAppSelector((state) => state.game.gameState?.players);
+  const maxSeats = useAppSelector(
+    (state) => state.game.currentGameRoom?.maxPlayers
+  );
+  const viewerUserId = useAppSelector(
+    (state) => state.auth.loggedUserInfo
+  )?.userId;
+  const TOTAL_SEATS = maxSeats || 5;
 
-  if (!gameState) return null;
+  if (!players || !viewerUserId) return null;
 
-  const tablePositions = gameState?.tablePositions;
+  const viewer = players.find(
+    (p) => String(p.playerInfo.userId) === String(viewerUserId)
+  );
+  if (!viewer) return null;
 
-  if (!tablePositions) return null;
+  const viewerSeat = viewer.seatIndex;
 
-  if (!loggedUserInfo?.userId) return null;
+  const positionMap: Partial<
+    Record<(typeof VISUAL_POSITIONS)[number], (typeof players)[0]>
+  > = {};
 
-  const userTablePositions = tablePositions[loggedUserInfo.userId];
-
-  if (!userTablePositions) return null;
-
-  return Object.entries(userTablePositions).map(([key, value]) => {
-    const playerData = gameState?.players.find(
-      (p) => p.playerInfo.userId === key
-    );
-
-    if (typeof value !== "string" || !playerData) return null;
-
-    return <Player key={key} player={playerData} position={value} />;
+  players.forEach((player) => {
+    const relativeIndex =
+      (player.seatIndex - viewerSeat + TOTAL_SEATS) % TOTAL_SEATS;
+    const position = VISUAL_POSITIONS[relativeIndex];
+    positionMap[position] = player;
   });
+
+  return (
+    <>
+      {VISUAL_POSITIONS.map((position) => {
+        const player = positionMap[position];
+
+        return player ? (
+          <Player
+            key={player.playerInfo.userId}
+            player={player}
+            position={position}
+          />
+        ) : null;
+      })}
+    </>
+  );
 };
 
 export default TablePositions;

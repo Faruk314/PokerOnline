@@ -3,6 +3,7 @@ import { IRaise, Hand, ITime, IPlayer, PlayerAction } from "../types/types";
 class Player {
   coins: number;
   playerInfo: { userId: string; userName: string };
+  seatIndex: number;
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;
@@ -23,6 +24,7 @@ class Player {
   constructor({
     coins,
     playerInfo,
+    seatIndex,
     isDealer,
     isSmallBind,
     isBigBind,
@@ -39,6 +41,7 @@ class Player {
   }: IPlayer) {
     this.coins = coins;
     this.playerInfo = playerInfo;
+    this.seatIndex = seatIndex;
     this.isDealer = isDealer;
     this.isSmallBind = isSmallBind;
     this.isBigBind = isBigBind;

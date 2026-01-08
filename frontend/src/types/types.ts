@@ -14,7 +14,8 @@ interface GameRoom {
   roomName: string;
   maxPlayers: number;
   minStake: number;
-  players: [];
+  players: { userId: string; userName: string }[];
+  gameState?: IGame;
 }
 
 interface IActionAnimation {
@@ -26,7 +27,6 @@ type ActionState = "fold" | "check" | "raise" | "call" | "all in" | null;
 interface IGame {
   roomId: string;
   totalPot: number;
-  tablePositions: IPlayersMap;
   minRaiseDiff: number;
   playerTurn: IPlayer;
   deck: string[];
@@ -70,6 +70,7 @@ interface ITime {
 interface IPlayer {
   coins: number;
   playerInfo: { userId: string; userName: string };
+  seatIndex: number;
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;
@@ -137,10 +138,6 @@ interface ITablePositionsMap {
   [key: string]: string;
 }
 
-interface IPlayersMap {
-  [key: string]: ITablePositionsMap;
-}
-
 type ChipMoveDirection = "playerToTable" | "tableToPlayer";
 
 export type {
@@ -151,7 +148,6 @@ export type {
   IGame,
   IPlayer,
   ITime,
-  IPlayersMap,
   IActionAnimation,
   IPlayerMoveArgs,
   TCardRefsMap,

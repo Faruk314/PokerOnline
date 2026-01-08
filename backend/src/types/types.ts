@@ -31,7 +31,6 @@ interface PotState {
 interface IGame {
   io: Server | null;
   roomId: string;
-  tablePositions: IPlayersMap;
   minRaiseDiff: number;
   totalPot: number;
   playerTurn: IPlayer | null;
@@ -68,6 +67,7 @@ interface ITime {
 interface IPlayer {
   coins: number;
   playerInfo: { userId: string; userName: string };
+  seatIndex: number;
   isDealer: boolean;
   isSmallBind: boolean;
   isBigBind: boolean;
@@ -83,13 +83,16 @@ interface IPlayer {
   showCards: boolean;
 }
 
+interface IPreGameState {
+  players: IPlayer[];
+}
 interface RoomData {
   roomId: string;
   roomName: string;
   maxPlayers: number;
   minStake: number;
   players: { userId: string; userName: string }[];
-  gameState: IGame | null;
+  gameState: IPreGameState | IGame | null;
 }
 
 interface CreateRoomData {
@@ -106,10 +109,6 @@ interface GetKickersArgs {
 
 interface ITablePositionsMap {
   [key: string]: string;
-}
-
-interface IPlayersMap {
-  [key: string]: ITablePositionsMap;
 }
 
 interface IUpdateGameState {
@@ -159,11 +158,11 @@ export type {
   RanksMap,
   GetKickersArgs,
   ITablePositionsMap,
-  IPlayersMap,
   IUpdateGameState,
   IResult,
   GameStatus,
   PlayerAction,
   SidePotsMap,
   PotInfo,
+  IPreGameState,
 };
