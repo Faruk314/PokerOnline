@@ -1,4 +1,4 @@
-import { IGame, RoomData, IPlayer, IPlayersMap } from "../../types/types";
+import { IGame, RoomData, IPlayer, IPreGameState } from "../../types/types";
 import { client } from "../redis";
 import Game from "../../game/game";
 import { Server } from "socket.io";
@@ -34,13 +34,12 @@ const initializeGame = async (roomId: string) => {
   room.gameState = {
     io: null,
     roomId,
-    tablePositions: {},
     minRaiseDiff: 0,
     totalPot: 0,
     playerTurn: null,
     communityCards: [],
     deck: [],
-    players: [],
+    players: room.gameState?.players || [],
     lastMaxBet: 0,
     currentRound: "preFlop",
     potInfo: {},
@@ -51,10 +50,8 @@ const initializeGame = async (roomId: string) => {
 
   room.gameState.deck = generateDeck();
 
-  for (let i = 0; i < room.players.length; i++) {
-    if (!room.gameState?.deck) return;
-
-    const user = room.players[i];
+  for (let i = 0; i < room.gameState.players.length; i++) {
+    const player = room.gameState.players[i];
 
     const firstRandomCardIndex = Math.floor(
       Math.random() * room.gameState.deck.length
@@ -69,37 +66,18 @@ const initializeGame = async (roomId: string) => {
     const secondCard = room.gameState.deck.splice(secondRandomCardIndex, 1);
 
     const playerBalanceUpdated = await decrementPlayerCoins(
-      user.userId,
+      player.playerInfo.userId,
       room.minStake
     );
 
     if (!playerBalanceUpdated) return false;
 
-    const player: IPlayer = {
-      coins: room.minStake,
-      playerInfo: user,
-      isDealer: false,
-      isSmallBind: false,
-      isBigBind: false,
-      cards: [...firstCard, ...secondCard],
-      isAllIn: false,
-      isFold: false,
-      isCall: false,
-      isCheck: false,
-      playerRaise: {
-        amount: 0,
-        isRaise: false,
-      },
-      playerPot: 0,
-      hand: null,
-      time: null,
-      showCards: false,
-    };
+    const cards = [...firstCard, ...secondCard];
 
-    room.gameState?.players.push(player);
+    player.cards = cards;
+
+    player.isFold = false;
   }
-
-  room.gameState.tablePositions = determineTablePositions(room.gameState);
 
   const randomNumber = Math.floor(
     Math.random() * room.gameState?.players.length
@@ -146,6 +124,42 @@ const initializeGame = async (roomId: string) => {
   }
 };
 
+const initializePlayer = ({
+  minStake,
+  playerInfo,
+  seatIndex,
+  isFold = true,
+}: {
+  minStake: number;
+  playerInfo: { userId: string; userName: string };
+  seatIndex: number;
+  isFold: boolean;
+}) => {
+  const player: IPlayer = {
+    coins: minStake,
+    playerInfo,
+    isDealer: false,
+    isSmallBind: false,
+    isBigBind: false,
+    cards: [],
+    isAllIn: false,
+    isFold,
+    isCall: false,
+    isCheck: false,
+    playerRaise: {
+      amount: 0,
+      isRaise: false,
+    },
+    playerPot: 0,
+    hand: null,
+    time: null,
+    showCards: false,
+    seatIndex,
+  };
+
+  return player;
+};
+
 const retrieveGameState = async (roomId: string, io: Server) => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
@@ -157,16 +171,17 @@ const retrieveGameState = async (roomId: string, io: Server) => {
   const room: RoomData = JSON.parse(roomJSON);
 
   if (room.gameState) {
-    const gameState = room.gameState as IGame;
+    const gameState = room.gameState;
 
-    if (!gameState.playerTurn) return { status: "error" };
+    if (!("deck" in gameState))
+      return { status: "success", gameState: gameState as IPreGameState };
 
     const game = new Game({
       ...gameState,
       io,
     });
 
-    return { status: "success", gameState: game };
+    return { status: "success", gameState: game as IGame };
   }
 
   return { status: "error", gameState: null };
@@ -183,7 +198,7 @@ const saveGameState = async (roomId: string, gameState: IGame) => {
   const room: RoomData = JSON.parse(roomJSON);
 
   room.gameState = gameState;
-  room.gameState.io = null;
+  (room.gameState as IGame).io = null;
 
   try {
     await client.set(`${ROOMS_KEY}:${roomId}`, JSON.stringify(room));
@@ -210,45 +225,27 @@ const deleteGameState = async (roomId: string) => {
   }
 };
 
-const determineTablePositions = (gameState: IGame) => {
-  let playersMap: IPlayersMap = {};
+const assignSeatIndex = (players: IPlayer[], maxSeats: number): number => {
+  const occupiedSeats = new Set(players.map((p) => p.seatIndex));
 
-  const positions = [
-    "bottomCenter",
-    "bottomLeft",
-    "left",
-    "topLeft",
-    "topCenter",
-    "topRight",
-    "right",
-    "bottomRight",
-  ];
-
-  const totalPlayers = gameState.players.length;
-
-  for (let i = 0; i < totalPlayers; i++) {
-    const currentIterationId = gameState.players[i].playerInfo.userId;
-
-    if (!playersMap[currentIterationId]) {
-      playersMap[currentIterationId] = {};
-    }
-
-    for (let j = 0; j < totalPlayers; j++) {
-      const otherPlayerId = gameState.players[j].playerInfo.userId;
-
-      const relativeIndex = (j - i + totalPlayers) % totalPlayers;
-
-      playersMap[currentIterationId][otherPlayerId] = positions[relativeIndex];
-    }
+  for (let i = 0; i < maxSeats; i++) {
+    if (!occupiedSeats.has(i)) return i;
   }
 
-  return playersMap;
+  throw new Error("Table is full");
+};
+
+const sortPlayersBySeat = (players: IPlayer[]) => {
+  return players.sort((a, b) => a.seatIndex - b.seatIndex);
 };
 
 export {
   initializeGame,
+  initializePlayer,
   retrieveGameState,
   saveGameState,
   deleteGameState,
   generateDeck,
+  assignSeatIndex,
+  sortPlayersBySeat,
 };

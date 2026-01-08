@@ -5,15 +5,23 @@ import { toast } from "react-toastify";
 import { useContext } from "react";
 import { GameContext } from "../context/GameContext";
 import { IGame, IGameEndData, TRoomJoinDenied } from "../types/types";
-import { setGameState, setGameStatus } from "../store/slices/game";
+import {
+  removePlayer,
+  setGameState,
+  setGameStatus,
+} from "../store/slices/game";
 import { SocketContext } from "../context/SocketContext";
 
 export const useSocketEvents = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { handleUpdateGame, handlePreFlopUpdates, onCardsShow } =
-    useContext(GameContext);
+  const {
+    handleUpdateGame,
+    handlePreFlopUpdates,
+    onCardsShow,
+    handleNewPlayerJoin,
+  } = useContext(GameContext);
   const { socket } = useContext(SocketContext);
   const loggedUserId = useAppSelector(
     (state) => state.auth.loggedUserInfo?.userId
@@ -69,6 +77,9 @@ export const useSocketEvents = () => {
 
   useSocketEvent(socket, "playerLeft", ({ playerId, userName }) => {
     const user = loggedUserId === playerId ? `You` : `Player ${userName}`;
+
+    dispatch(removePlayer({ playerId }));
+
     toast.error(`${user} left the game`);
   });
 
@@ -78,6 +89,8 @@ export const useSocketEvents = () => {
     toast.success("Room created");
     socket?.emit("joinRoom", { roomId });
   });
+
+  useSocketEvent(socket, "newPlayerJoined", handleNewPlayerJoin);
 
   useSocketEvent(socket, "showCards", onCardsShow);
 };

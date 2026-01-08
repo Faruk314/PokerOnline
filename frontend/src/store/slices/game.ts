@@ -4,6 +4,7 @@ import { GameRoom, IGame, IGameStatus } from "../../types/types";
 
 interface GameState {
   gameRooms: GameRoom[];
+  currentGameRoom: GameRoom | null;
   gameState: IGame | null;
   isError: boolean;
   isSuccess: boolean;
@@ -15,6 +16,7 @@ interface GameState {
 
 const initialState: GameState = {
   gameRooms: [],
+  currentGameRoom: null,
   gameState: null,
   isError: false,
   isSuccess: false,
@@ -60,7 +62,7 @@ export const fetchChips = createAsyncThunk<
 });
 
 export const getGameState = createAsyncThunk<
-  IGame,
+  GameRoom,
   string,
   { rejectValue: string }
 >("game/getGameState", async (roomId, thunkAPI) => {
@@ -87,6 +89,24 @@ const gameSlice = createSlice({
 
       Object.assign(state.gameState, action.payload);
     },
+
+    removePlayer(state, action: PayloadAction<{ playerId: string }>) {
+      const playerId = action.payload.playerId;
+
+      if (state.gameState?.players) {
+        state.gameState.players = state.gameState.players.filter(
+          (p) => p.playerInfo.userId !== playerId
+        );
+      }
+
+      if (state.currentGameRoom?.players) {
+        const updatedPlayers = state.currentGameRoom.players.filter(
+          (p) => p.userId !== playerId
+        );
+        state.currentGameRoom.players = updatedPlayers;
+      }
+    },
+
     updatePlayer(
       state,
       action: PayloadAction<{
@@ -108,6 +128,7 @@ const gameSlice = createSlice({
         ...action.payload.data,
       };
     },
+
     updatePlayerCoins(
       state,
       action: PayloadAction<{ playerId: string; amount: number }>
@@ -164,9 +185,20 @@ const gameSlice = createSlice({
       })
       .addCase(
         getGameState.fulfilled,
-        (state, action: PayloadAction<IGame>) => {
+        (state, action: PayloadAction<GameRoom>) => {
+          state.currentGameRoom = null;
+          state.gameState = null;
+
+          const data = action.payload;
+
           state.isSuccess = true;
-          state.gameState = action.payload;
+
+          if (data.gameState) state.gameState = data.gameState;
+
+          state.currentGameRoom = {
+            ...data,
+          };
+
           state.isLoading = false;
         }
       )
@@ -190,6 +222,7 @@ export const {
   setGameStatus,
   updatePlayer,
   updatePlayerCoins,
+  removePlayer,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

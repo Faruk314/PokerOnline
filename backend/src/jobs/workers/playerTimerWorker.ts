@@ -3,6 +3,7 @@ import { retrieveGameState } from "../../redis/methods/game";
 import { io } from "../..";
 import { Worker, Job } from "bullmq";
 import connection from "../connection";
+import Game from "../../game/game";
 
 const playerTimerWorker = new Worker(
   PLAYER_TIMER_QUEUE_NAME,
@@ -13,6 +14,9 @@ const playerTimerWorker = new Worker(
       const response = await retrieveGameState(roomId, io);
 
       if (response.status !== "success" || !response.gameState) return;
+
+      if (!(response.gameState instanceof Game))
+        return console.error("gameState is not an instance of game");
 
       const playerTurn = response.gameState.playerTurn;
       const game = response.gameState;

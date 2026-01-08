@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { retrieveGameState, saveGameState } from "../../redis/methods/game";
 import { playerTimerQueue } from "../../jobs/queues/playerTimerQueue";
+import Game from "../../game/game";
 
 class GameListeners {
   io: Server;
@@ -27,6 +28,9 @@ class GameListeners {
     if (!response.gameState) return;
 
     const game = response.gameState;
+
+    if (!(game instanceof Game))
+      return console.error("gameState is not an instance of game");
 
     const playerTurn = game.playerTurn;
 
@@ -66,6 +70,10 @@ class GameListeners {
     if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
+
+    if (!(game instanceof Game))
+      return console.error("gameState is not an instance of game");
+
     const playerTurn = game.playerTurn;
     if (!playerTurn) return;
 
@@ -136,6 +144,10 @@ class GameListeners {
     if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
+
+    if (!(game instanceof Game))
+      return console.error("gameState is not an instance of game");
+
     const playerTurn = game.playerTurn;
 
     if (!playerTurn) return;
@@ -182,6 +194,10 @@ class GameListeners {
     if (response.status !== "success" || !response.gameState) return;
 
     const game = response.gameState;
+
+    if (!(game instanceof Game))
+      return console.error("gameState is not an instance of game");
+
     const playerTurn = game.playerTurn;
     if (!playerTurn) return;
 
@@ -228,6 +244,9 @@ class GameListeners {
       return console.error("Invalid action. user does not exist");
 
     const game = response.gameState;
+
+    if (!(game instanceof Game))
+      return console.error("gameState is not an instance of game");
 
     if (!game.isGameOver) {
       return console.log("Invalid card show");

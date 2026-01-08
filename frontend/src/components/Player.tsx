@@ -13,18 +13,27 @@ import ChipStack from "./ChipStack";
 
 interface Props {
   position: string;
-  player: IPlayer;
+  player: IPlayer | null;
 }
 
 const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
-  const { playerInfo, coins, isFold, isDealer, cards } = player;
   const { registerPlayerPot, registerPlayerSeat, animationMap } =
     useContext(AnimationContext);
   const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
 
+  if (!player) return null;
+
+  const { playerInfo, coins, isFold, isDealer, cards } = player;
+
   const actionAnimationState = animationMap.get(playerInfo.userId)?.state;
+
+  const mainPot = gameState?.potInfo?.["mainPot"];
+
+  const winner = mainPot?.winner;
+
+  const isUserWinner = winner && winner.userId === player.playerInfo?.userId;
 
   return (
     <div
@@ -44,17 +53,14 @@ const Player = ({ player, position }: Props) => {
       )}
     >
       <div className="player-image text-[0.8rem] xl:text-[1.2rem] relative flex flex-col items-center">
-        {gameState?.potInfo["mainPot"]?.winner &&
-          gameState?.potInfo["mainPot"].winner.userId ===
-            player.playerInfo?.userId && (
-            <div className="absolute flex items-center flex-col top-[-3rem] lg:top-[-4rem] text-yellow-400 text-2xl lg:text-4xl font-bold z-40">
-              <span>WINNER</span>
-              <HandName hand={gameState.potInfo["mainPot"].winner.hand!} />
-            </div>
-          )}
+        {isUserWinner && (
+          <div className="absolute flex items-center flex-col top-[-3rem] lg:top-[-4rem] text-yellow-400 text-2xl lg:text-4xl font-bold z-40">
+            <span>WINNER</span>
+            <HandName hand={winner.hand!} />
+          </div>
+        )}
 
-        {gameState?.potInfo["mainPot"]?.isDraw &&
-          findPotSpliter(player.playerInfo.userId)}
+        {mainPot?.isDraw && findPotSpliter(player.playerInfo.userId)}
 
         <img src={person} className="rounded-full" />
 
@@ -116,7 +122,7 @@ const Player = ({ player, position }: Props) => {
             "player-container flex flex-col justify-center z-[20] rounded-md relative top-[-1rem] items-center shadow-md bg-gray-900",
             {
               highlight:
-                gameState?.playerTurn?.playerInfo.userId === playerInfo.userId,
+                gameState?.playerTurn?.playerInfo?.userId === playerInfo.userId,
             }
           )}
         >
@@ -134,7 +140,7 @@ const Player = ({ player, position }: Props) => {
             <span>{coins}</span>
           </div>
 
-          {gameState?.playerTurn?.playerInfo.userId ===
+          {gameState?.playerTurn?.playerInfo?.userId ===
             player.playerInfo.userId &&
             gameState.playerTurn.time && (
               <TimeBar time={gameState.playerTurn.time} />

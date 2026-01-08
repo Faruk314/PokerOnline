@@ -11,7 +11,8 @@ const ShowCardsBtn = () => {
   const { playAudio } = useContext(AudioContext);
   const { handleShowCards } = useContext(GameContext);
   const { id } = useParams<{ id: string }>();
-  const winner = gameState?.potInfo["mainPot"]?.winner;
+  const mainPot = gameState?.potInfo?.["mainPot"];
+  const winner = mainPot?.winner;
   const isWinnerByEveryoneFolding = winner?.hand === null;
   const isUserWinner = loggedUserInfo?.userId === winner?.userId;
   const winnerCardsShown = gameState?.players.find(

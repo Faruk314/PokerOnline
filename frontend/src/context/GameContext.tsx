@@ -434,6 +434,17 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     ]
   );
 
+  const handleNewPlayerJoin = useCallback(
+    ({ gameState: newGameState }: { gameState: IGame }) => {
+      dispatch(
+        updateGameState({
+          players: newGameState.players,
+        })
+      );
+    },
+    [dispatch]
+  );
+
   const findCard = (c: string, index: number) => {
     const card = pokerCards.find((card) => card.card === c);
 
@@ -468,6 +479,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     getRank,
     handleShowCards,
     onCardsShow,
+    handleNewPlayerJoin,
   };
 
   return (

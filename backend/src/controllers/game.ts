@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { getRooms } from "../redis/methods/room";
 import { client } from "../redis/redis";
-import { IPlayer, RoomData } from "../types/types";
+import { IGame, IPlayer, RoomData } from "../types/types";
 import { getPlayerCoins as getPlayerCoinsDb } from "../services/game";
 import { ROOMS_KEY } from "../constants/constants";
 
@@ -26,7 +26,22 @@ const getGameState = asyncHandler(async (req: Request, res: Response) => {
     if (roomJSON) {
       const room: RoomData = JSON.parse(roomJSON);
 
-      const updatedGameState = { ...room.gameState };
+      const gameState = room.gameState;
+
+      if (!gameState) {
+        res.status(404);
+        throw new Error("Game state not found");
+      }
+
+      if (!("deck" in gameState)) {
+        res.status(200).json({
+          ...room,
+        });
+
+        return;
+      }
+
+      const updatedGameState = { ...room.gameState } as IGame;
       const currentPlayerId = updatedGameState.playerTurn?.playerInfo.userId;
 
       if (!updatedGameState) {
@@ -74,7 +89,10 @@ const getGameState = asyncHandler(async (req: Request, res: Response) => {
         updatedGameState.playerTurn = playerTurnClone;
       }
 
-      res.status(200).json(updatedGameState);
+      res.status(200).json({
+        ...room,
+        gameState: updatedGameState,
+      });
     }
   } catch (error) {
     res.status(404);
