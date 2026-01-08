@@ -5,10 +5,18 @@ interface Props {
   children: ReactNode;
   modalRef: RefObject<HTMLElement>;
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
+  disableOutsideClick?: boolean;
 }
 
-const Wrapper = ({ children, modalRef, setOpenModal }: Props) => {
+const Wrapper = ({
+  children,
+  modalRef,
+  setOpenModal,
+  disableOutsideClick,
+}: Props) => {
   useEffect(() => {
+    if (disableOutsideClick) return;
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         modalRef.current &&
@@ -23,7 +31,7 @@ const Wrapper = ({ children, modalRef, setOpenModal }: Props) => {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [setOpenModal, modalRef]);
+  }, [setOpenModal, modalRef, disableOutsideClick]);
 
   return (
     <div className="fixed top-0 bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-center text-center bg-[rgb(0,0,0,0.2)]">
