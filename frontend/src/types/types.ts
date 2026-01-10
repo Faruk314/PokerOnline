@@ -43,6 +43,7 @@ interface IGame {
   currentRound: string;
   potInfo: PotInfo;
   isGameOver: boolean;
+  bigBlind: number;
 }
 
 interface PotState {
