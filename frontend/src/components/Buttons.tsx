@@ -55,7 +55,7 @@ const Buttons = () => {
           playAudio(clickSound);
           handleFold(id);
         }}
-        className="button-border bg-red-700 hover:bg-red-600 w-[10rem] py-2 rounded-full text-2xl"
+        className="button-border bg-red-700 hover:bg-red-600 w-[10rem] h-[5rem] rounded-md text-2xl"
       >
         FOLD
       </button>
@@ -65,11 +65,11 @@ const Buttons = () => {
           onClick={() => {
             handleCall(callAmount, id);
           }}
-          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 w-[10rem] py-2 rounded-full text-2xl"
+          className="button-border flex flex-col items-center justify-center space-x-2 bg-gray-800 hover:bg-gray-700 w-[10rem] h-[5rem] rounded-md text-2xl"
         >
           <span>{isAllInCall ? "ALL IN" : "CALL"}</span>
           <div className="flex items-center space-x-1">
-            <span>{callAmount}</span>
+            <span className="text-[1rem]">{callAmount}</span>
             <img src={chip} className="w-4 h-4" />
           </div>
         </button>
@@ -81,7 +81,7 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCheck(id);
           }}
-          className="button-border bg-gray-800 hover:bg-gray-700 w-[10rem] py-2 rounded-full text-2xl"
+          className="button-border bg-gray-800 hover:bg-gray-700 w-[10rem] h-[5rem] rounded-md text-2xl"
         >
           CHECK
         </button>
@@ -94,12 +94,12 @@ const Buttons = () => {
 
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border flex justify-center items-center space-x-2 bg-green-700 hover:bg-green-600 w-[10rem] py-2 rounded-full text-2xl"
+          className="button-border flex justify-center items-center space-x-2 bg-green-700 hover:bg-green-600 w-[10rem] h-[5rem] rounded-md text-2xl"
         >
           <span>{raiseButtonLabel}</span>
 
           {isAllin && (
-            <div className="flex items-center space-x-1">
+            <div className="flex flex-col items-center gap-1">
               <span>{playerTurn.coins}</span>
               <img src={chip} className="w-4 h-4" />
             </div>
