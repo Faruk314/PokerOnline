@@ -22,7 +22,14 @@ interface IActionAnimation {
   state: ActionState;
 }
 
-type ActionState = "fold" | "check" | "raise" | "call" | "all in" | null;
+type ActionState =
+  | "fold"
+  | "check"
+  | "raise"
+  | "call"
+  | "all in"
+  | "bet"
+  | null;
 
 interface IGame {
   roomId: string;

@@ -44,6 +44,10 @@ const Buttons = () => {
 
   const showRaise = !isAllInCall && playersWhoNeedToAct.length > 0;
 
+  const isBet = gameState.lastMaxBet === 0;
+
+  const raiseButtonLabel = isAllin ? "ALL IN" : isBet ? "BET" : "RAISE";
+
   return (
     <div className="flex space-x-3">
       <button
@@ -51,7 +55,7 @@ const Buttons = () => {
           playAudio(clickSound);
           handleFold(id);
         }}
-        className="button-border bg-red-700 hover:bg-red-600 px-8 xl:py-2 rounded-full text-[0.9rem] xl:text-2xl"
+        className="button-border bg-red-700 hover:bg-red-600 px-12 py-2 rounded-full text-2xl"
       >
         FOLD
       </button>
@@ -61,7 +65,7 @@ const Buttons = () => {
           onClick={() => {
             handleCall(callAmount, id);
           }}
-          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-12 py-2 rounded-full text-2xl"
         >
           <span>{isAllInCall ? "ALL IN" : "CALL"}</span>
           <div className="flex items-center space-x-1">
@@ -77,7 +81,7 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCheck(id);
           }}
-          className="button-border bg-gray-800 hover:bg-gray-700 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border bg-gray-800 hover:bg-gray-700 px-12 py-2 rounded-full text-2xl"
         >
           CHECK
         </button>
@@ -90,9 +94,9 @@ const Buttons = () => {
 
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border flex items-center space-x-2 bg-green-700 hover:bg-green-600 px-8 xl:py-2 rounded-full text-[1rem] xl:text-2xl"
+          className="button-border flex items-center space-x-2 bg-green-700 hover:bg-green-600 px-12 py-2 rounded-full text-2xl"
         >
-          <span>{isAllin ? "ALL IN" : "RAISE"}</span>
+          <span>{raiseButtonLabel}</span>
 
           {isAllin && (
             <div className="flex items-center space-x-1">

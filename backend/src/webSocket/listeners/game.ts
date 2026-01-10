@@ -111,11 +111,17 @@ class GameListeners {
 
     if (isFullRaise) game.minRaiseDiff = raiseDiff;
 
+    const previousMaxBet = game.lastMaxBet;
+
     game.lastMaxBet = amount;
 
     if (isAllin) game.lastMaxBet = amount + playerTurn.playerPot;
 
-    const action = playerTurn.raise(chipsToPutIn);
+    let action = playerTurn.raise(chipsToPutIn);
+
+    if (previousMaxBet === 0 && action !== "all in") {
+      action = "bet";
+    }
 
     game.totalPot += chipsToPutIn;
 

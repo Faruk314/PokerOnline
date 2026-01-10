@@ -105,7 +105,9 @@ const Player = ({ player, position }: Props) => {
               className={classNames(
                 "bg-[rgba(0,0,0,0.8)] border-2 font-bold rounded-md px-4 xl:py-1 lg:px-5 text-white highlight",
                 {
-                  "border-green-600": actionAnimationState === "raise",
+                  "border-green-600":
+                    actionAnimationState === "raise" ||
+                    actionAnimationState === "bet",
                   "border-red-600": actionAnimationState === "fold",
                   "border-blue-400": actionAnimationState === "call",
                   "border-yellow-400": actionAnimationState === "check",

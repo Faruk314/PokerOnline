@@ -133,7 +133,7 @@ interface ISidePot {
   players?: string[];
 }
 
-type PlayerAction = "fold" | "check" | "raise" | "call" | "all in" | "";
+type PlayerAction = "fold" | "check" | "raise" | "call" | "all in" | "bet" | "";
 
 type GameStatus = "inProgress" | "gameStarted" | "gameEnd";
 
