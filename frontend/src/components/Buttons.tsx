@@ -94,13 +94,13 @@ const Buttons = () => {
 
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border flex justify-center items-center space-x-2 bg-green-700 hover:bg-green-600 w-[10rem] h-[5rem] rounded-md text-2xl"
+          className="button-border flex flex-col justify-center items-center space-x-2 bg-green-700 hover:bg-green-600 w-[10rem] h-[5rem] rounded-md text-2xl"
         >
           <span>{raiseButtonLabel}</span>
 
           {isAllin && (
-            <div className="flex flex-col items-center gap-1">
-              <span>{playerTurn.coins}</span>
+            <div className="flex items-center space-x-1">
+              <span className="text-[1rem]">{playerTurn.coins}</span>
               <img src={chip} className="w-4 h-4" />
             </div>
           )}
