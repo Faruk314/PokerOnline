@@ -55,7 +55,7 @@ const Buttons = () => {
           playAudio(clickSound);
           handleFold(id);
         }}
-        className="button-border bg-red-700 hover:bg-red-600 px-12 py-2 rounded-full text-2xl"
+        className="button-border bg-red-700 hover:bg-red-600 w-[10rem] py-2 rounded-full text-2xl"
       >
         FOLD
       </button>
@@ -65,7 +65,7 @@ const Buttons = () => {
           onClick={() => {
             handleCall(callAmount, id);
           }}
-          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-12 py-2 rounded-full text-2xl"
+          className="button-border flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 w-[10rem] py-2 rounded-full text-2xl"
         >
           <span>{isAllInCall ? "ALL IN" : "CALL"}</span>
           <div className="flex items-center space-x-1">
@@ -81,7 +81,7 @@ const Buttons = () => {
             playAudio(clickSound);
             handleCheck(id);
           }}
-          className="button-border bg-gray-800 hover:bg-gray-700 px-12 py-2 rounded-full text-2xl"
+          className="button-border bg-gray-800 hover:bg-gray-700 w-[10rem] py-2 rounded-full text-2xl"
         >
           CHECK
         </button>
@@ -94,7 +94,7 @@ const Buttons = () => {
 
             dispatch(setOpenRaiseBar(true));
           }}
-          className="button-border flex items-center space-x-2 bg-green-700 hover:bg-green-600 px-12 py-2 rounded-full text-2xl"
+          className="button-border flex justify-center items-center space-x-2 bg-green-700 hover:bg-green-600 w-[10rem] py-2 rounded-full text-2xl"
         >
           <span>{raiseButtonLabel}</span>
 
