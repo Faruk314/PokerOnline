@@ -129,10 +129,6 @@ class RoomListeners {
   async onLeaveRoom({ roomId }: { roomId: string }) {
     if (!this.socket.userId) return;
 
-    const playerLeft = await leaveRoom({ roomId, userId: this.socket.userId });
-
-    if (!playerLeft) return;
-
     const response = await retrieveGameState(roomId, this.io);
 
     if (response.status !== "success") return;
@@ -142,6 +138,8 @@ class RoomListeners {
     const game = response.gameState;
 
     if (!(game instanceof Game)) {
+      await leaveRoom({ roomId, userId: this.socket.userId });
+
       return this.io?.to(roomId).emit("playerLeft", {
         playerId: this.socket.userId,
         userName: this.socket.userName,
@@ -149,6 +147,12 @@ class RoomListeners {
     }
 
     const playerTurnId = game.playerTurn?.playerInfo.userId;
+
+    const playerLeft = await leaveRoom({ roomId, userId: this.socket.userId });
+
+    if (!playerLeft) return;
+
+    console.log(playerTurnId, "playerTurn");
 
     if (playerTurnId === this.socket.userId)
       await playerTimerQueue

@@ -1,4 +1,10 @@
-import { IGame, RoomData, IPlayer, IPreGameState } from "../../types/types";
+import {
+  IGame,
+  RoomData,
+  IPlayer,
+  IPreGameState,
+  RetrieveGameStateResult,
+} from "../../types/types";
 import { client } from "../redis";
 import Game from "../../game/game";
 import { Server } from "socket.io";
@@ -161,31 +167,39 @@ const initializePlayer = ({
   return player;
 };
 
-const retrieveGameState = async (roomId: string, io: Server) => {
+const retrieveGameState = async (
+  roomId: string,
+  io: Server
+): Promise<RetrieveGameStateResult> => {
   const roomJSON = await client.get(`${ROOMS_KEY}:${roomId}`);
 
   if (!roomJSON) {
     console.log(`Room ${roomId} does not exist in Redis.`);
-    return { status: "error" };
+    return { status: "error", gameState: null };
   }
 
   const room: RoomData = JSON.parse(roomJSON);
 
-  if (room.gameState) {
-    const gameState = room.gameState;
-
-    if (!("deck" in gameState))
-      return { status: "success", gameState: gameState as IPreGameState };
-
-    const game = new Game({
-      ...gameState,
-      io,
-    });
-
-    return { status: "success", gameState: game as IGame };
+  if (!room.gameState) {
+    return { status: "error", gameState: null };
   }
 
-  return { status: "error", gameState: null };
+  const gameState = room.gameState;
+
+  if (!("deck" in gameState)) {
+    return {
+      status: "success",
+      gameState: gameState as IPreGameState,
+    };
+  }
+
+  return {
+    status: "success",
+    gameState: new Game({
+      ...gameState,
+      io,
+    }),
+  };
 };
 
 const saveGameState = async (roomId: string, gameState: IGame) => {

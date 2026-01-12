@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import Game from "../game/game";
 
 declare global {
   namespace Express {
@@ -147,6 +148,11 @@ type SidePotsMap = Record<string, ISidePot>;
 
 type PotInfo = Record<string, PotState>;
 
+type RetrieveGameStateResult =
+  | { status: "error"; gameState: null }
+  | { status: "success"; gameState: IPreGameState }
+  | { status: "success"; gameState: Game };
+
 export type {
   UserData,
   GetUserCallback,
@@ -168,4 +174,5 @@ export type {
   SidePotsMap,
   PotInfo,
   IPreGameState,
+  RetrieveGameStateResult,
 };
