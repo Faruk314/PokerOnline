@@ -19,6 +19,7 @@ import { getUser } from "../redis/methods/user";
 import { incrementPlayerCoins } from "../services/game";
 import Player from "./player";
 import { handRanks } from "../constants/constants";
+import { leaveRoom } from "../redis/methods/room";
 
 class Game {
   io: Server | null;
@@ -930,6 +931,12 @@ class Game {
         }
 
         this.players.splice(i, 1);
+
+        await leaveRoom({
+          roomId: this.roomId,
+          userId: player.playerInfo.userId,
+        });
+
         continue;
       }
 
