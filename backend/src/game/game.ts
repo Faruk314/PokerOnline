@@ -663,41 +663,29 @@ class Game {
       .sort((a, b) => a.playerPot - b.playerPot);
 
     const minAllInAmount = playersNotFold[0].playerPot;
-
     const mainPot = minAllInAmount * playersNotFold.length;
-
     const sidePots: SidePotsMap = {};
 
     for (let i = 0; i < playersNotFold.length; i++) {
       const player = playersNotFold[i];
       const playerRemainingPot = player.playerPot - minAllInAmount;
-
       player.playerPot = player.playerPot - minAllInAmount;
-
       if (playerRemainingPot === 0) continue;
 
       for (let j = 0; j < playersNotFold.length; j++) {
         const opponent = playersNotFold[j];
         const opponentRemainingPot = opponent.playerPot - minAllInAmount;
-
         if (opponentRemainingPot === 0) continue;
-
         if (player.playerInfo.userId === opponent.playerInfo.userId) continue;
-
         if (player.playerPot === 0) continue;
-
         if (player.playerPot <= opponent.playerPot) {
           const sidePot = playerRemainingPot;
-
           opponent.playerPot = opponent.playerPot - playerRemainingPot;
-
           if (!sidePots[i]) {
             sidePots[i] = { amount: 0, players: [] };
           }
-
           sidePots[i].amount += sidePot;
           sidePots[i].players!.push(opponent.playerInfo.userId);
-
           if (j === playersNotFold.length - 1) {
             player.playerPot = player.playerPot - playerRemainingPot;
             sidePots[i].amount += sidePot;
@@ -706,8 +694,24 @@ class Game {
         }
       }
     }
-
     return { mainPot: { amount: mainPot }, ...sidePots };
+    // return {
+    //   mainPot: {
+    //     amount: 300,
+    //     players: [
+    //       this.players[0].playerInfo.userId,
+    //       this.players[1].playerInfo.userId,
+    //       this.players[2].playerInfo.userId,
+    //     ],
+    //   },
+    //   sidePot1: {
+    //     amount: 400,
+    //     players: [
+    //       this.players[1].playerInfo.userId,
+    //       this.players[2].playerInfo.userId,
+    //     ],
+    //   },
+    // };
   }
 
   private handleSidePotPayout() {

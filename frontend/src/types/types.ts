@@ -92,6 +92,7 @@ interface IPlayer {
   hand: Hand | null;
   time: ITime | null;
   showCards: boolean;
+  winInfo?: { status: "win" | "draw"; potName: string };
 }
 
 interface UserInfo {

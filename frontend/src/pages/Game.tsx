@@ -21,10 +21,13 @@ const Game = () => {
   const loggedUserInfo = useAppSelector((state) => state.auth.loggedUserInfo);
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
-  const { tablePotRef, frozenTablePotRef } = useContext(AnimationContext);
+  const { tablePotRef, frozenTablePotRef, registerTablePotRefs } =
+    useContext(AnimationContext);
   const { findCard } = useContext(GameContext);
   const { gameState, isLoading, openRaiseBar, currentGameRoom } =
     useAppSelector((state) => state.game);
+  const pots = Object.entries(gameState?.potInfo || []);
+
   const isCurrentPlayer =
     loggedUserInfo?.userId === gameState?.playerTurn?.playerInfo?.userId;
 
@@ -92,7 +95,20 @@ const Game = () => {
               invisible: gameState?.currentRound === "preflop",
             })}
           >
-            <ChipStack pot={frozenTablePotRef.current} />
+            {pots.length === 0 && <ChipStack pot={frozenTablePotRef.current} />}
+
+            {pots.length > 0 && (
+              <div className="flex space-x-4">
+                {pots.map(([potName, pot]) => (
+                  <div
+                    key={potName}
+                    ref={(el) => registerTablePotRefs(potName, el)}
+                  >
+                    <ChipStack pot={pot.amount} />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

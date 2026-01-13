@@ -7,7 +7,6 @@ import { IPlayer } from "../types/types";
 import Card from "./Card";
 import { AnimationContext } from "../context/AnimationContext";
 import TimeBar from "./TimeBar";
-import { GameContext } from "../context/GameContext";
 import HandName from "./HandName";
 import ChipStack from "./ChipStack";
 
@@ -20,7 +19,6 @@ const Player = ({ player, position }: Props) => {
   const { gameState } = useAppSelector((state) => state.game);
   const { registerPlayerPot, registerPlayerSeat, animationMap } =
     useContext(AnimationContext);
-  const { findPotSpliter } = useContext(GameContext);
   const potRef = useRef<HTMLImageElement>(null);
 
   if (!player) return null;
@@ -29,11 +27,9 @@ const Player = ({ player, position }: Props) => {
 
   const actionAnimationState = animationMap.get(playerInfo.userId)?.state;
 
-  const mainPot = gameState?.potInfo?.["mainPot"];
+  const isDraw = player.winInfo?.status === "draw";
 
-  const winner = mainPot?.winner;
-
-  const isUserWinner = winner && winner.userId === player.playerInfo?.userId;
+  const isWinner = player.winInfo?.status === "win";
 
   return (
     <div
@@ -53,14 +49,28 @@ const Player = ({ player, position }: Props) => {
       )}
     >
       <div className="player-image text-[0.8rem] xl:text-[1.2rem] relative flex flex-col items-center">
-        {isUserWinner && (
-          <div className="absolute flex items-center flex-col top-[-3rem] lg:top-[-4rem] text-yellow-400 text-2xl lg:text-4xl font-bold z-40">
-            <span>WINNER</span>
-            <HandName hand={winner.hand!} />
+        {(isWinner || isDraw) && (
+          <div
+            className="
+    absolute top-[-3.2rem] lg:top-[-4rem]
+    flex flex-col items-center
+    text-yellow-400 font-bold z-40
+    leading-tight
+  "
+          >
+            <span className="text-[0.75rem] text-white opacity-90 -mb-0.5">
+              {player.winInfo?.potName}
+            </span>
+
+            <span className="text-xl lg:text-3xl tracking-wide">
+              {isWinner ? "WINNER" : "DRAW"}
+            </span>
+
+            <div className="-mt-1 scale-95">
+              <HandName hand={player.hand!} />
+            </div>
           </div>
         )}
-
-        {mainPot?.isDraw && findPotSpliter(player.playerInfo.userId)}
 
         <img src={person} className="rounded-full" />
 

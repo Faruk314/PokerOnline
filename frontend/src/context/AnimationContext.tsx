@@ -16,6 +16,7 @@ import pokerCards from "../utils/cards";
 import { AudioContext } from "./AudioContext";
 import cardFlip from "../assets/audio/cardFlip.mp3";
 import cardDeal from "../assets/audio/dealCard.wav";
+import { useAppSelector } from "../store/hooks";
 
 const initialAnimationContextData: any = {};
 
@@ -33,10 +34,12 @@ export const AnimationContextProvider = ({
   const [animationMap, setAnimationMap] = useState(
     new Map<string, IActionAnimation>()
   );
+  const gameState = useAppSelector((state) => state.game.gameState);
   const [animateFlop, setAnimateFlop] = useState(false);
-  const frozenTablePotRef = useRef<number | null>(null);
+  const frozenTablePotRef = useRef<number | null>(gameState?.totalPot || 0);
   const playerPotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const playerSeatRefs = useRef<Map<number, HTMLElement>>(new Map());
+  const tablePotRefs = useRef<Map<string, HTMLElement>>(new Map());
   const cardRefsMap: TCardRefsMap = useRef(new Map<string, HTMLElement[]>());
 
   const assignCardRef =
@@ -70,11 +73,29 @@ export const AnimationContextProvider = ({
     []
   );
 
+  const registerTablePotRefs = useCallback(
+    (potId: string, el: HTMLDivElement | null) => {
+      if (!el) {
+        tablePotRefs.current.delete(potId);
+      } else {
+        tablePotRefs.current.set(potId, el);
+      }
+    },
+    []
+  );
+
   const animateMoveChip = useCallback(
-    (playerId: number, direction: ChipMoveDirection = "playerToTable") => {
+    (
+      playerId: number,
+      direction: ChipMoveDirection = "playerToTable",
+      potId: string = "totalPot"
+    ) => {
       const playerPotEl = playerPotRefs.current.get(playerId);
       const playerSeatEl = playerSeatRefs.current.get(playerId);
-      const tableEl = tablePotRef.current;
+      const tableEl =
+        potId === "totalPot"
+          ? tablePotRef.current
+          : tablePotRefs.current.get(potId);
 
       if (!tableEl) return;
 
@@ -218,6 +239,7 @@ export const AnimationContextProvider = ({
     setAnimationMap,
     registerPlayerPot,
     registerPlayerSeat,
+    registerTablePotRefs,
     animateMoveChip,
     animateCard,
     animateCardFlip,
