@@ -270,8 +270,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
 
             dispatch(updateGameState({ totalPot: newTotalPot }));
 
-            console.log(amount, "amount that player takes");
-
             dispatch(
               updatePlayerCoins({
                 playerId: winnerId!,
@@ -373,11 +371,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       previousRound,
     }: IPlayerMoveArgs) => {
       if (!socket) return;
-
-      if (newGameState.currentRound === "showdown") {
-        console.log("previous total pot", previousTotalPot);
-        console.log("staled total pot", gameState?.totalPot);
-      }
 
       if (newGameState.currentRound === "preFlop" && !action) {
         frozenTablePotRef.current = 0;
@@ -491,7 +484,6 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       handleGameOverUpdates,
       frozenTablePotRef,
       animateCardFlip,
-      gameState?.totalPot,
     ]
   );
 
