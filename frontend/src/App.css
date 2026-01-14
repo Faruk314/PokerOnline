@@ -8,7 +8,7 @@
   --card-container-height: 6rem;
   --chip-height: 1.2rem;
   --chip-width: 1.2rem;
-  --community-cards-width: 4.3rem;
+  --community-cards-width: 4.4rem;
 }
 
 .dealer-badge {
@@ -44,7 +44,9 @@
 }
 
 .community-cards {
+  position: relative;
   width: var(--community-cards-width);
+  height: 6.5rem;
 }
 
 .table-size {
@@ -114,6 +116,15 @@
   }
 }
 
+@keyframes slideUpDiagonal {
+  from {
+    transform: translate(-18px, 68px);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
 .highlight {
   animation: flash 1s infinite;
 }
@@ -124,6 +135,10 @@
 
 .cardSlideTwo {
   animation: slideRightTwo 0.5s ease;
+}
+
+.cardSlideUp {
+  animation: slideUpDiagonal 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .slider {

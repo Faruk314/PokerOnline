@@ -82,10 +82,9 @@ const Game = () => {
 
           <div className="relative flex flex-col items-center">
             <div className="flex space-x-2">
-              {gameState?.communityCards &&
-                gameState?.communityCards.map((c, index) => {
-                  return findCard(c, index);
-                })}
+              {[0, 1, 2, 3, 4].map((c, index) => {
+                return findCard(c, index);
+              })}
             </div>
           </div>
 

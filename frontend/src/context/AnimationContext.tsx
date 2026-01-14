@@ -36,6 +36,8 @@ export const AnimationContextProvider = ({
   );
   const gameState = useAppSelector((state) => state.game.gameState);
   const [animateFlop, setAnimateFlop] = useState(false);
+  const [animateRiver, setAnimateRiver] = useState(false);
+  const [animateTurn, setAnimateTurn] = useState(false);
   const frozenTablePotRef = useRef<number | null>(gameState?.totalPot || 0);
   const playerPotRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const playerSeatRefs = useRef<Map<number, HTMLElement>>(new Map());
@@ -235,6 +237,8 @@ export const AnimationContextProvider = ({
     playerPotRefs,
     frozenTablePotRef,
     animateFlop,
+    animateTurn,
+    animateRiver,
     animationMap,
     setAnimationMap,
     registerPlayerPot,
@@ -244,6 +248,8 @@ export const AnimationContextProvider = ({
     animateCard,
     animateCardFlip,
     setAnimateFlop,
+    setAnimateTurn,
+    setAnimateRiver,
     assignCardRef,
   };
 

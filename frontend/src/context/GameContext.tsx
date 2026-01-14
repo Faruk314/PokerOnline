@@ -38,8 +38,12 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     animateMoveChip,
     animateCardFlip,
     setAnimateFlop,
+    setAnimateTurn,
+    setAnimateRiver,
     animateCard,
     animateFlop,
+    animateTurn,
+    animateRiver,
     setAnimationMap,
     frozenTablePotRef,
   } = useContext(AnimationContext);
@@ -102,7 +106,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       gameState: IGame;
       previousRound: string;
     }) => {
-      const WAIT_TIME = 1000;
+      const WAIT_TIME = 2000;
 
       switch (previousRound) {
         case "preFlop":
@@ -116,6 +120,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           );
 
           setTimeout(() => {
+            playAudio(cardSlide);
+            setAnimateTurn(true);
+
             dispatch(
               updateGameState({
                 communityCards: newGameState.communityCards.slice(0, 4),
@@ -123,6 +130,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
             );
 
             setTimeout(() => {
+              playAudio(cardSlide);
+              setAnimateRiver(true);
+
               dispatch(
                 updateGameState({ communityCards: newGameState.communityCards })
               );
@@ -132,6 +142,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           return FLOP_ANIMATION_DURATION + WAIT_TIME * 2;
         case "flop":
           setTimeout(() => {
+            playAudio(cardSlide);
+            setAnimateTurn(true);
+
             dispatch(
               updateGameState({
                 communityCards: newGameState.communityCards.slice(0, 4),
@@ -139,6 +152,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
             );
 
             setTimeout(() => {
+              playAudio(cardSlide);
+              setAnimateRiver(true);
+
               dispatch(
                 updateGameState({ communityCards: newGameState.communityCards })
               );
@@ -147,6 +163,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           return WAIT_TIME * 2;
         case "turn":
           setTimeout(() => {
+            playAudio(cardSlide);
+            setAnimateRiver(true);
+
             dispatch(
               updateGameState({ communityCards: newGameState.communityCards })
             );
@@ -156,7 +175,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         default:
       }
     },
-    [dispatch, playAudio, setAnimateFlop]
+    [dispatch, playAudio, setAnimateFlop, setAnimateTurn, setAnimateRiver]
   );
 
   const handlePreFlopUpdates = useCallback(
@@ -192,8 +211,9 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
 
   const handleGameOverUpdates = useCallback(
     ({ gameState: newGameState }: { gameState: IGame }) => {
-      const cleanedPlayers = gameState?.players.map((p) => ({
+      const cleanedPlayers = gameState?.players.map((p, index) => ({
         ...p,
+        cards: newGameState.players[index].cards,
         playerPot: 0,
       }));
 
@@ -374,6 +394,10 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
 
       if (newGameState.currentRound === "preFlop" && !action) {
         frozenTablePotRef.current = 0;
+        setAnimateFlop(false);
+        setAnimateTurn(false);
+        setAnimateRiver(false);
+        return handlePreFlopUpdates({ gameState: newGameState, delay: 0 });
       }
 
       if (action && action.length) {
@@ -447,16 +471,29 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         }, RUNOUT_DURATION);
       }
 
-      if (newGameState.currentRound === "preFlop" && !action) {
-        return handlePreFlopUpdates({ gameState: newGameState, delay: 0 });
-      }
-
       if (newGameState.currentRound === "flop" && !animateFlop) {
         dispatch(
           updateGameState({ communityCards: newGameState.communityCards })
         );
         playAudio(cardSlide);
         setAnimateFlop(true);
+      }
+
+      if (newGameState.currentRound === "turn" && !animateTurn) {
+        dispatch(
+          updateGameState({ communityCards: newGameState.communityCards })
+        );
+        playAudio(cardSlide);
+        setAnimateTurn(true);
+      }
+
+      if (newGameState.currentRound === "river" && !animateRiver) {
+        dispatch(
+          updateGameState({ communityCards: newGameState.communityCards })
+        );
+
+        playAudio(cardSlide);
+        setAnimateRiver(true);
       }
 
       if (newGameState.lastMaxBet === 0) {
@@ -484,6 +521,10 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       handleGameOverUpdates,
       frozenTablePotRef,
       animateCardFlip,
+      animateRiver,
+      setAnimateRiver,
+      animateTurn,
+      setAnimateTurn,
     ]
   );
 
@@ -498,20 +539,29 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     [dispatch]
   );
 
-  const findCard = (c: string, index: number) => {
+  const findCard = (index: number) => {
+    const c = gameState?.communityCards?.[index];
     const card = pokerCards.find((card) => card.card === c);
 
     return (
-      <div
-        key={c}
-        className={classNames("community-cards", {
-          cardSlideOne: index === 1 && animateFlop,
-          cardSlideTwo: index === 2 && animateFlop,
-        })}
-      >
-        <div className="h-full bg-white w-full rounded-sm">
-          <img src={card?.image} className="h-full rounded-md" />
-        </div>
+      <div key={index} className="community-cards">
+        <div className="absolute inset-0 rounded-sm border border-gray-400/60" />
+
+        {card && (
+          <div
+            className={classNames("absolute inset-0 bg-white rounded-sm", {
+              cardSlideOne: index === 1 && animateFlop,
+              cardSlideTwo: index === 2 && animateFlop,
+              cardSlideUp:
+                (index === 3 && animateTurn) || (index === 4 && animateRiver),
+            })}
+          >
+            <img
+              src={card.image}
+              className="h-full w-full rounded-sm object-cover"
+            />
+          </div>
+        )}
       </div>
     );
   };
