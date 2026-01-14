@@ -214,6 +214,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       const cleanedPlayers = gameState?.players.map((p, index) => ({
         ...p,
         cards: newGameState.players[index].cards,
+        isFold: newGameState.players[index].isFold,
         playerPot: 0,
       }));
 
