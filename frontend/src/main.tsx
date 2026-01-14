@@ -25,7 +25,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </AnimationContextProvider>
           </AudioContextProvider>
         </SocketContextProvider>
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          toastClassName="!bg-gradient-to-br !from-gray-900/90 !to-gray-950/90 !backdrop-blur-xl !border !border-white/10 !rounded-2xl !shadow-2xl"
+          bodyClassName="!text-white !font-medium"
+          progressClassName="!bg-gradient-to-r !from-yellow-500 !to-amber-500"
+        />
       </Provider>
     </BrowserRouter>
   </React.StrictMode>

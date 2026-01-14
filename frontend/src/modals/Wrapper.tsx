@@ -34,7 +34,7 @@ const Wrapper = ({
   }, [setOpenModal, modalRef, disableOutsideClick]);
 
   return (
-    <div className="fixed top-0 bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-center text-center bg-[rgb(0,0,0,0.2)]">
+    <div className="fixed top-0 bottom-0 left-0 right-0 z-30 flex flex-col items-center justify-center text-center bg-gradient-to-b from-black/80 via-gray-950/90 to-black/80 backdrop-blur-sm">
       {children}
     </div>
   );

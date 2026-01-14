@@ -4,6 +4,8 @@ import { Routes, Route } from "react-router-dom";
 import Menu from "./pages/Menu";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import JoinGame from "./pages/JoinGame";
+import CreateGame from "./pages/CreateGame";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { getLoginStatus } from "./store/slices/auth";
 import ProtectedRoutes from "./protection/ProtectedRoutes";
@@ -14,6 +16,7 @@ import PaymentCanceled from "./pages/PaymentCanceled";
 import { useSocketEvents } from "./hooks/useSocketEvents";
 import NotFound from "./pages/NotFound";
 import Loader from "./components/Loader";
+import Shop from "./pages/Shop";
 
 function App() {
   const { gameStatus } = useAppSelector((state) => state.game);
@@ -32,6 +35,9 @@ function App() {
       <Routes>
         <Route element={<ProtectedRoutes />}>
           <Route path="/menu" element={<Menu />} />
+          <Route path="/join" element={<JoinGame />} />
+          <Route path="/create" element={<CreateGame />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/game/:id" element={<Game />} />

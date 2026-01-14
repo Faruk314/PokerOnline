@@ -50,20 +50,21 @@ const CHIP_TYPES: ChipType[] = [
   },
   {
     value: 100000,
-    color: "#f97316", // orange
-    stripeColor: "#ffffff",
-    edgeColor: "#9a3412",
+    color: "#fbbf24", // Amber-400 (Extremely bright, glowing gold)
+    stripeColor: "#ffffff", // Pure white (provides the sharpest contrast/shine)
+    edgeColor: "#92400e", // Rich brown (keeps it looking 3D)
   },
 ];
 
 interface Props {
   pot: number;
   maxStacksPerRow?: number;
+  showAmount?: boolean;
 }
 
 const CHIPS_PER_STACK = 5;
 
-const ChipStack = ({ pot, maxStacksPerRow = 8 }: Props) => {
+const ChipStack = ({ pot, maxStacksPerRow = 8, showAmount = true }: Props) => {
   let remaining = pot;
   const stacks: ChipType[][] = [];
 
@@ -132,7 +133,9 @@ const ChipStack = ({ pot, maxStacksPerRow = 8 }: Props) => {
         </div>
       ))}
 
-      {pot > 0 && <p className="mb-1 font-bold text-white">{pot}$</p>}
+      {pot > 0 && showAmount && (
+        <p className="mb-1 font-bold text-white">{pot}$</p>
+      )}
     </div>
   );
 };

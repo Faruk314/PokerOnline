@@ -1,7 +1,7 @@
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppDispatch } from "../store/hooks";
 import { useSocketEvent } from "./useSocketEvent";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast from "../utils/toast";
 import { useContext } from "react";
 import { GameContext } from "../context/GameContext";
 import { IGame, IGameEndData, TRoomJoinDenied } from "../types/types";
@@ -23,9 +23,7 @@ export const useSocketEvents = () => {
     handleNewPlayerJoin,
   } = useContext(GameContext);
   const { socket } = useContext(SocketContext);
-  const loggedUserId = useAppSelector(
-    (state) => state.auth.loggedUserInfo?.userId
-  );
+
 
   useSocketEvent(
     socket,
@@ -64,29 +62,26 @@ export const useSocketEvents = () => {
     "joinRoomDenied",
     (data: { reason: TRoomJoinDenied }) => {
       if (data.reason === "roomFull")
-        toast.error("Could not join this room. Room is full");
+        toast.showRoomFull();
 
       if (data.reason === "insufficientFunds")
-        toast.error("Could not join this room due to insufficient funds");
+        toast.showInsufficientFunds();
 
       if (data.reason === "gameInProgress") {
-        toast.error("Could not join this room. Game is already in progress");
+        toast.showGameInProgress();
       }
     }
   );
 
   useSocketEvent(socket, "playerLeft", ({ playerId, userName }) => {
-    const user = loggedUserId === playerId ? `You` : `Player ${userName}`;
-
     dispatch(removePlayer({ playerId }));
-
-    toast.error(`${user} left the game`);
+    toast.showPlayerLeft(userName);
   });
 
   useSocketEvent(socket, "updateGame", handleUpdateGame);
 
   useSocketEvent(socket, "roomCreated", ({ roomId }) => {
-    toast.success("Room created");
+    toast.showRoomCreated("New Room");
     socket?.emit("joinRoom", { roomId });
   });
 

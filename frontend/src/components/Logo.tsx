@@ -2,9 +2,30 @@ import pokerLogo from "../assets/images/pokerlogo.png";
 
 const Logo = () => {
   return (
-    <div className="flex flex-col items-center space-x-2 mb-10">
-      <img src={pokerLogo} className="h-[5.5rem] w-[5.5rem]" />
-      <div className="flex flex-col font-bold text-2xl">Poker Online</div>
+    <div className="flex flex-col items-center mb-12">
+      <div className="relative mb-6">
+        <div className="absolute -inset-6 bg-gradient-to-r from-yellow-500/30 to-red-500/30 rounded-full blur-2xl"></div>
+        <img 
+          src={pokerLogo} 
+          className="relative h-24 w-24 drop-shadow-2xl animate-pulse"
+          alt="Poker Logo"
+        />
+      </div>
+      <div className="text-center">
+        <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-2">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600">
+            POKER
+          </span>
+          <span className="text-white"> ONLINE</span>
+        </h1>
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+          <p className="text-gray-400 text-sm uppercase tracking-[0.3em] font-semibold">
+            PREMIUM TABLES
+          </p>
+          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+        </div>
+      </div>
     </div>
   );
 };
