@@ -2,16 +2,15 @@ import { useContext, useEffect } from "react";
 import { AudioContext } from "../context/AudioContext";
 import UserInfo from "../components/UserInfo";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-
 import Logo from "../components/Logo";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout, reset } from "../store/slices/auth";
 import toast from "../utils/toast";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
+import pokerLogo from "../assets/images/pokerlogo.png";
 
 const Menu = () => {
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { volumeOn, handleVolume } = useContext(AudioContext);
@@ -99,21 +98,28 @@ const Menu = () => {
 
             {/* Menu Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               {/* Create Game Card */}
-               <div className="group">
-                 <button
-                   onClick={() => navigate("/create")}
-                   className="relative w-full h-48 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-white/10 hover:border-yellow-500/30 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
-                 >
+              {/* Create Game Card */}
+              <div className="group">
+                <button
+                  onClick={() => navigate("/create")}
+                  className="relative w-full h-48 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-white/10 hover:border-yellow-500/30 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 shadow-2xl overflow-hidden"
+                >
                   <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-red-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   <div className="relative h-full flex flex-col items-center justify-center p-6">
-                    <div className="mb-4 text-4xl">🎴</div>
+                    <div className="relative mb-6">
+                      <div className="absolute -inset-6 bg-gradient-to-r from-yellow-500/30 to-red-500/30 rounded-full blur-2xl"></div>
+                      <img
+                        src={pokerLogo}
+                        className="relative top-3 h-12 w-12 drop-shadow-2xl animate-pulse"
+                        alt="Poker Logo"
+                      />
+                    </div>
                     <h3 className="text-2xl font-bold text-white mb-2">
                       Create Game
                     </h3>
                     <p className="text-gray-400 text-sm">
-                      Start your own poker table
+                      Create your own poker table
                     </p>
 
                     <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -264,8 +270,6 @@ const Menu = () => {
           <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
         </div>
       </div>
-
-
     </section>
   );
 };

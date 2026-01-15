@@ -70,7 +70,7 @@ const Login = () => {
       </div>
 
       {/* Main Content Container */}
-      <div className="relative z-10 w-full max-w-md px-4">
+      <div className="relative z-10 w-full max-w-xl px-4">
         {/* Animated Border Glow */}
         <div className="absolute -inset-6 bg-gradient-to-r from-yellow-600 via-red-600 to-purple-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
 

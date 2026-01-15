@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import toast from "../utils/toast";
 import { register, reset } from "../store/slices/auth";
 import Loader from "../components/Loader";
+import chip from "../assets/images/chip.png";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -101,8 +102,8 @@ const Register = () => {
 
               {/* Welcome Bonus */}
               <div className="mt-4 inline-flex items-center gap-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl px-4 py-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-center">
-                  <span className="text-black text-sm font-bold">🎴</span>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                  <img src={chip} className="text-black text-sm font-bold" />
                 </div>
                 <div className="text-left">
                   <div className="text-white font-bold">1B BONUS CHIPS</div>
