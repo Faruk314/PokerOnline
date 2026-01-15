@@ -55,7 +55,7 @@ const RaiseBar = () => {
     : [0.25, 0.4, 0.6, 1].map((f) => callAmount + Math.floor(pot * f));
 
   return (
-    <div className="flex flex-col gap-4 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl min-w-[350px]">
+    <div className="flex flex-col gap-4 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-6 shadow-2xl w-[480px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">

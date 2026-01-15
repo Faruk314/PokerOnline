@@ -155,7 +155,7 @@ const Game = () => {
 
       {/* Action Controls */}
       {isCurrentPlayer && (
-        <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5 z-20">
+        <div className="fixed text-white font-bold text-2xl flex space-x-2 lg:space-x-4 right-1 bottom-1 lg:right-5 lg:bottom-5 z-20 w-[480px]">
           {!openRaiseBar && <Buttons />}
           {openRaiseBar && <RaiseBar />}
         </div>
