@@ -18,13 +18,13 @@ const RoomCard = ({ gameRoom }: Props) => {
   };
 
   return (
-    <div 
+    <div
       onClick={() => handleJoin(gameRoom.roomId)}
       className="relative group cursor-pointer bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl p-7 hover:border-blue-500/30 hover:scale-[1.02] transition-all duration-500 shadow-2xl"
     >
       {/* Enhanced Background Glow on Hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
+
       {/* Animated Border Effect */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -38,14 +38,11 @@ const RoomCard = ({ gameRoom }: Props) => {
               {/* Room Logo with Enhanced Effects */}
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <img 
-                  src={logo} 
-                  className="relative w-16 h-16 rounded-2xl border-2 border-white/20 shadow-lg" 
-                  alt="Room Logo" 
+                <img
+                  src={logo}
+                  className="relative w-16 h-16 rounded-2xl border-2 border-white/20 shadow-lg"
+                  alt="Room Logo"
                 />
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center border-2 border-gray-900">
-                  <span className="text-white text-xs font-bold">🎴</span>
-                </div>
               </div>
 
               {/* Room Name and Status */}
@@ -70,7 +67,7 @@ const RoomCard = ({ gameRoom }: Props) => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Room ID Badge */}
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-gray-500"></div>
@@ -92,13 +89,17 @@ const RoomCard = ({ gameRoom }: Props) => {
                   <div className="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping"></div>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">MIN STAKE</div>
+                  <div className="text-gray-500 text-xs uppercase tracking-wider">
+                    MIN STAKE
+                  </div>
                   <div className="text-2xl font-bold text-white">
                     {gameRoom.minStake.toLocaleString()}
                   </div>
                 </div>
               </div>
-              <div className="text-gray-400 text-xs">Starting chips required</div>
+              <div className="text-gray-400 text-xs">
+                Starting chips required
+              </div>
             </div>
 
             {/* Big Blind */}
@@ -108,7 +109,9 @@ const RoomCard = ({ gameRoom }: Props) => {
                   <span className="text-white text-sm font-bold">BB</span>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">BIG BLIND</div>
+                  <div className="text-gray-500 text-xs uppercase tracking-wider">
+                    BIG BLIND
+                  </div>
                   <div className="text-2xl font-bold text-white">
                     {Math.floor(gameRoom.minStake / 10).toLocaleString()}
                   </div>
@@ -124,7 +127,9 @@ const RoomCard = ({ gameRoom }: Props) => {
                   <span className="text-white text-sm font-bold">SB</span>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">SMALL BLIND</div>
+                  <div className="text-gray-500 text-xs uppercase tracking-wider">
+                    SMALL BLIND
+                  </div>
                   <div className="text-2xl font-bold text-white">
                     {Math.floor(gameRoom.minStake / 20).toLocaleString()}
                   </div>
@@ -140,7 +145,9 @@ const RoomCard = ({ gameRoom }: Props) => {
                   <span className="text-white text-sm font-bold">💰</span>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">BUY-IN</div>
+                  <div className="text-gray-500 text-xs uppercase tracking-wider">
+                    BUY-IN
+                  </div>
                   <div className="text-2xl font-bold text-white">
                     {Math.floor(gameRoom.minStake * 2).toLocaleString()}
                   </div>
@@ -162,24 +169,35 @@ const RoomCard = ({ gameRoom }: Props) => {
                   <div className="absolute -inset-3 bg-blue-500/10 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">PLAYERS</div>
+                  <div className="text-gray-500 text-xs uppercase tracking-wider">
+                    PLAYERS
+                  </div>
                   <div className="text-3xl font-black text-white">
                     {gameRoom.players.length}
-                    <span className="text-gray-500 text-xl">/{gameRoom.maxPlayers}</span>
+                    <span className="text-gray-500 text-xl">
+                      /{gameRoom.maxPlayers}
+                    </span>
                   </div>
                 </div>
               </div>
-              
+
               {/* Player Progress Bar */}
               <div className="w-24">
                 <div className="h-2 bg-gray-800 rounded-full overflow-hidden mb-1">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-500"
-                    style={{ width: `${(gameRoom.players.length / gameRoom.maxPlayers) * 100}%` }}
+                    style={{
+                      width: `${
+                        (gameRoom.players.length / gameRoom.maxPlayers) * 100
+                      }%`,
+                    }}
                   ></div>
                 </div>
                 <div className="text-gray-500 text-xs text-right">
-                  {Math.round((gameRoom.players.length / gameRoom.maxPlayers) * 100)}% full
+                  {Math.round(
+                    (gameRoom.players.length / gameRoom.maxPlayers) * 100
+                  )}
+                  % full
                 </div>
               </div>
             </div>
@@ -228,8 +246,18 @@ const RoomCard = ({ gameRoom }: Props) => {
                 <>
                   <FiLogIn className="text-xl" />
                   JOIN TABLE
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    ></path>
                   </svg>
                 </>
               )}
