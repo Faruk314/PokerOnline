@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack, IoRefresh } from "react-icons/io5";
 import { FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
+import Logo from "../components/Logo";
 
 const PaymentCanceled = () => {
   const navigate = useNavigate();
@@ -23,37 +24,33 @@ const PaymentCanceled = () => {
 
       {/* Header Section */}
       <div className="relative z-10">
-        <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
+        <div className="px-6 py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
               {/* Back Button */}
               <div className="flex items-center gap-6">
                 <button
                   onClick={() => navigate("/menu")}
-                  className="relative group flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-red-500/30 transition-all duration-300"
+                  className="relative group px-4 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-red-500/30 transition-all duration-300"
                 >
                   <div className="absolute -inset-1 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <IoArrowBack className="relative text-xl text-gray-400 group-hover:text-red-400 transition-colors" />
-                  <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-gray-400 group-hover:from-red-300 group-hover:to-red-400 transition-all duration-300">
-                    BACK TO MENU
-                  </span>
+                  <IoArrowBack className="relative text-2xl text-gray-400 group-hover:text-red-400 transition-colors" />
                 </button>
 
-                <div className="hidden md:block">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-red-600 flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">⚠️</span>
-                    </div>
-                    <span className="text-gray-400 text-sm">
-                      Payment Canceled
+                <div className="hidden md:flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 animate-pulse"></div>
+                  <h2 className="text-2xl font-black text-white">
+                    PAYMENT{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+                      CANCELED
                     </span>
-                  </div>
+                  </h2>
                 </div>
               </div>
 
               {/* Status Indicator */}
               <div className="flex items-center gap-3">
-                <div className="hidden md:flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
                   <span className="text-gray-300 text-sm">
                     Transaction Canceled
@@ -66,16 +63,36 @@ const PaymentCanceled = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col items-center justify-center min-h-[70vh]">
-            {/* Canceled Card */}
-            <div className="relative w-full max-w-2xl">
-              {/* Animated Border Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
+      <div className="relative z-10 flex-1 overflow-hidden">
+        <div className="h-full flex flex-col items-center justify-center px-4 py-8">
+          <div className="relative w-full max-w-6xl">
+            {/* Page Header with Logo */}
+            <div className="text-center mb-12">
+              <Logo />
+              <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl px-8 py-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-red-500 to-red-600 animate-pulse"></div>
+                  <h1 className="text-4xl font-black text-white">
+                    PAYMENT{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+                      CANCELED
+                    </span>
+                  </h1>
+                </div>
+              </div>
+              <p className="text-gray-400 text-lg">
+                Your payment was canceled. No charges have been made to your
+                account.
+              </p>
+            </div>
 
-              {/* Main Card */}
-              <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-3xl border border-white/10 p-8 md:p-12 shadow-2xl">
+            {/* Grid Container with Enhanced Styling */}
+            <div className="relative">
+              {/* Animated Border Glow */}
+              <div className="absolute -inset-8 bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
+
+              {/* Main Content */}
+              <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
                 {/* Canceled Icon */}
                 <div className="flex justify-center mb-8">
                   <div className="relative">
@@ -88,17 +105,7 @@ const PaymentCanceled = () => {
 
                 {/* Canceled Message */}
                 <div className="text-center mb-10">
-                  <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
-                    PAYMENT{" "}
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-600">
-                      CANCELED
-                    </span>
-                  </h1>
-                  <p className="text-gray-400 text-lg md:text-xl mb-6 max-w-2xl mx-auto">
-                    Your payment was canceled. No charges have been made to your
-                    account.
-                  </p>
-                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3">
+                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl px-6 py-3 mb-6">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
                       <span className="text-gray-300">
@@ -181,31 +188,16 @@ const PaymentCanceled = () => {
                     </span>
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Bottom Info */}
-      <div className="relative z-10 border-t border-white/10 bg-gradient-to-t from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-gray-600 text-sm">
-              Payment canceled • No charges were made to your account
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                <span className="text-gray-300 text-sm">
-                  Transaction ID: {Date.now().toString(36).toUpperCase()}
-                </span>
-              </div>
-              <div className="text-gray-600 text-sm">
-                {new Date().toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {/* Footer Note */}
+                <div className="mt-12 pt-8 border-t border-white/10 text-center">
+                  <p className="text-gray-400 text-sm">
+                    <span className="text-red-500 font-semibold">
+                      Secure checkout
+                    </span>{" "}
+                    • No charges made • Try again anytime
+                  </p>
+                </div>
               </div>
             </div>
           </div>
