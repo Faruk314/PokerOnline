@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setGameStatus } from "../store/slices/game";
+import pokerLogo from "../assets/images/pokerlogo.png";
 
 const GameOver = () => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -18,9 +19,6 @@ const GameOver = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      {/* Animated Border Glow */}
-      <div className="absolute -inset-8 bg-gradient-to-r from-red-600 via-yellow-600 to-red-600 rounded-3xl blur-2xl opacity-30 animate-gradient-x"></div>
-      
       {/* Glassmorphism Container */}
       <div
         ref={modalRef}
@@ -28,11 +26,18 @@ const GameOver = () => {
       >
         {/* Game Over Icon */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-red-600 to-red-500 mb-6 mx-auto">
-            <div className="text-4xl">🎴</div>
+          <div className="relative flex items-center justify-center mb-4">
+            <div className="absolute -inset-6 bg-gradient-to-r from-yellow-500/30 to-red-500/30 rounded-full blur-2xl"></div>
+            <img
+              src={pokerLogo}
+              className="relative h-12 w-12 drop-shadow-2xl animate-pulse"
+              alt="Poker Logo"
+            />
           </div>
-          
-          <h2 className="text-4xl font-black text-white mb-2 tracking-wider">GAME OVER</h2>
+
+          <h2 className="text-4xl font-black text-white mb-2 tracking-wider">
+            GAME OVER
+          </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-red-600 to-yellow-600 rounded-full mx-auto"></div>
         </div>
 
@@ -43,7 +48,7 @@ const GameOver = () => {
               <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
               <h3 className="text-white font-bold text-lg">REASON</h3>
             </div>
-            
+
             <p className="text-white text-lg">
               {reason === "insufficientFunds" &&
                 "Game ended due to insufficient funds"}
@@ -64,8 +69,18 @@ const GameOver = () => {
             <span className="relative flex items-center justify-center gap-3">
               <div className="w-3 h-3 rounded-full bg-white"></div>
               CONTINUE
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                ></path>
               </svg>
             </span>
           </button>
