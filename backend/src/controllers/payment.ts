@@ -64,6 +64,54 @@ export const createCheckoutSession = asyncHandler(
   }
 );
 
+export const createPaymentIntent = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { packageId } = req.body;
+    const userId = req.user?.userId;
+
+    if (!packageId || !userId) {
+      res.status(400);
+      throw new Error("Unable to create payment intent");
+    }
+
+    const selectedPackage = await db.query.CoinPackagesTable.findFirst({
+      where: (coinPackages, { eq }) => eq(coinPackages.packageId, packageId),
+      columns: {
+        amount: true,
+        price: true,
+      },
+    });
+
+    if (!selectedPackage) {
+      res.status(400);
+      throw new Error("Unable to create payment intent");
+    }
+
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: selectedPackage.price * 100,
+        currency: "usd",
+        metadata: {
+          userId,
+          chips: selectedPackage.amount,
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.status(200).json({ 
+        clientSecret: paymentIntent.client_secret,
+        amount: selectedPackage.price,
+        chips: selectedPackage.amount
+      });
+    } catch (error) {
+      res.status(500);
+      throw new Error("Unable to create payment intent");
+    }
+  }
+);
+
 export const handleWebHook = asyncHandler(
   async (req: Request, res: Response) => {
     const sig = req.headers["stripe-signature"] as string;
@@ -92,6 +140,32 @@ export const handleWebHook = asyncHandler(
           }
 
           await incrementPlayerCoins(userId, Number(amount));
+
+          res.status(200).json({
+            error: false,
+            message: "Successfully updated user chips balance",
+          });
+
+          return;
+        } catch (err) {
+          res.status(400);
+          throw new Error("Could not update user chips balance");
+        }
+
+        break;
+
+      case "payment_intent.succeeded":
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const paymentUserId = paymentIntent.metadata?.userId;
+        const paymentAmount = paymentIntent.metadata?.chips;
+
+        try {
+          if (!paymentUserId || !paymentAmount) {
+            res.status(400);
+            throw new Error("Missing required metadata");
+          }
+
+          await incrementPlayerCoins(paymentUserId, Number(paymentAmount));
 
           res.status(200).json({
             error: false,
