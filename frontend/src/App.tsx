@@ -17,6 +17,7 @@ import { useSocketEvents } from "./hooks/useSocketEvents";
 import NotFound from "./pages/NotFound";
 import Loader from "./components/Loader";
 import Shop from "./pages/Shop";
+import Payment from "./pages/Payment";
 
 function App() {
   const { gameStatus } = useAppSelector((state) => state.game);
@@ -38,6 +39,7 @@ function App() {
           <Route path="/join" element={<JoinGame />} />
           <Route path="/create" element={<CreateGame />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/payment/:packageId" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/game/:id" element={<Game />} />

@@ -1,6 +1,5 @@
+import { useNavigate } from "react-router-dom";
 import { ShopPackage } from "../types/types";
-import { createCheckoutSession } from "../store/slices/payment";
-import { useAppDispatch } from "../store/hooks";
 
 // Import shop images
 import smallChip from "../assets/images/shopImages/smallChip.png";
@@ -23,10 +22,10 @@ const SHOP_PACKAGE_NAMES = [
 ] as const;
 
 const ShopCard = ({ shopPackage, index }: Props) => {
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    dispatch(createCheckoutSession(shopPackage.packageId));
+    navigate(`/payment/${shopPackage.packageId}`);
   };
 
   // Determine which image to use based on package amount
