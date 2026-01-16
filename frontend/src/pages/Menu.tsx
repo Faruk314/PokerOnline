@@ -9,6 +9,7 @@ import toast from "../utils/toast";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import pokerLogo from "../assets/images/pokerlogo.png";
+import { RiLogoutCircleRFill } from "react-icons/ri";
 
 const Menu = () => {
   const dispatch = useAppDispatch();
@@ -231,7 +232,9 @@ const Menu = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-rose-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   <div className="relative h-full flex flex-col items-center justify-center p-6">
-                    <div className="mb-4 text-4xl">🚪</div>
+                    <div className="mb-4 text-5xl">
+                      <RiLogoutCircleRFill className="text-red-700" />
+                    </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Exit</h3>
                     <p className="text-gray-400 text-sm">
                       Leave the poker room
