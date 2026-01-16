@@ -10,8 +10,17 @@ const createCheckoutSession = async (packageId: string) => {
   return response.data;
 };
 
+const createPaymentIntent = async (data: { packageId: string; amount: number; price: number }) => {
+  const response = await apiClient.post(API_URL + "createPaymentIntent", {
+    packageId: data.packageId,
+  });
+
+  return response.data;
+};
+
 const paymentService = {
   createCheckoutSession,
+  createPaymentIntent,
 };
 
 export default paymentService;

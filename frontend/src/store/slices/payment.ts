@@ -29,6 +29,22 @@ export const createCheckoutSession = createAsyncThunk<
   }
 });
 
+export const createPaymentIntent = createAsyncThunk<
+  { clientSecret: string; amount: number; chips: number },
+  { packageId: string; amount: number; price: number },
+  { rejectValue: string }
+>("payment/createPaymentIntent", async (data, thunkAPI) => {
+  try {
+    return await paymentService.createPaymentIntent(data);
+  } catch (error: any) {
+    const message =
+      (error.response && error.response.data && error.response.data.message) ||
+      error.message ||
+      error.toString();
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
 const paymentSlice = createSlice({
   name: "payment",
   initialState,
@@ -53,6 +69,17 @@ const paymentSlice = createSlice({
         state.isError = true;
       })
       .addCase(createCheckoutSession.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createPaymentIntent.fulfilled, (state) => {
+        state.isSuccess = true;
+        state.isLoading = false;
+      })
+      .addCase(createPaymentIntent.rejected, (state) => {
+        state.isLoading = false;
+        state.isError = true;
+      })
+      .addCase(createPaymentIntent.pending, (state) => {
         state.isLoading = true;
       });
   },
