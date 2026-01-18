@@ -4,7 +4,6 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { login, reset } from "../store/slices/auth";
 import toast from "../utils/toast";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import Loader from "../components/Loader";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -48,10 +47,6 @@ const Login = () => {
 
     dispatch(login(userData));
   };
-
-  if (isLoading) {
-    return <Loader />;
-  }
 
   return (
     <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
@@ -150,23 +145,27 @@ const Login = () => {
                 className="relative group w-full py-4 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_30px_rgba(202,138,4,0.4)] hover:shadow-[0_0_40px_rgba(202,138,4,0.6)] hover:scale-[1.02]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative flex items-center justify-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
-                  LOGIN TO POKER
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    ></path>
-                  </svg>
-                </span>
+                {!isLoading ? (
+                  <span className="relative flex items-center justify-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                    LOGIN TO POKER
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
+                    </svg>
+                  </span>
+                ) : (
+                  <div className="loader mx-auto"></div>
+                )}
               </button>
             </div>
           </form>

@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import toast from "../utils/toast";
 import { register, reset } from "../store/slices/auth";
-import Loader from "../components/Loader";
 import chip from "../assets/images/chip.png";
 
 const Register = () => {
@@ -20,7 +19,7 @@ const Register = () => {
 
   const { userName, email, password, password2 } = formData;
 
-  const { loggedUserInfo, isLoading, isError, isSuccess } = useAppSelector(
+  const { loggedUserInfo, isError, isSuccess, isLoading } = useAppSelector(
     (state) => state.auth
   );
 
@@ -59,13 +58,10 @@ const Register = () => {
     }
   };
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   return (
     <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
       {/* Animated Background Elements */}
+
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -301,23 +297,27 @@ const Register = () => {
                 className="relative group w-full py-4 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-green-600 via-emerald-500 to-green-600 shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:scale-[1.02]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative flex items-center justify-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
-                  CREATE ACCOUNT & GET BONUS
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    ></path>
-                  </svg>
-                </span>
+                {!isLoading ? (
+                  <span className="relative flex items-center justify-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                    CREATE ACCOUNT & GET BONUS
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
+                    </svg>
+                  </span>
+                ) : (
+                  <div className="loader mx-auto"></div>
+                )}
               </button>
             </div>
           </form>
