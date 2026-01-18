@@ -657,75 +657,44 @@ class Game {
     return result;
   }
 
-  private determineSidepots() {
-    const playersNotFold = this.players
-      .filter((player) => !player.isFold)
+  private determineSidepots(): SidePotsMap {
+    let activePlayers = [...this.players]
+      .filter((p) => !p.isFold && p.playerPot > 0)
       .sort((a, b) => a.playerPot - b.playerPot);
 
-    const minAllInAmount = playersNotFold[0].playerPot;
-    const mainPot = minAllInAmount * playersNotFold.length;
-    const sidePots: SidePotsMap = {};
+    const pots: SidePotsMap = {};
+    let previousPot = 0;
+    let index = 0;
 
-    for (let i = 0; i < playersNotFold.length; i++) {
-      const player = playersNotFold[i];
-      const playerRemainingPot = player.playerPot - minAllInAmount;
-      player.playerPot = player.playerPot - minAllInAmount;
-      if (playerRemainingPot === 0) continue;
+    while (activePlayers.length > 0) {
+      const currentPot = activePlayers[0].playerPot;
+      const amount = (currentPot - previousPot) * activePlayers.length;
 
-      for (let j = 0; j < playersNotFold.length; j++) {
-        const opponent = playersNotFold[j];
-        const opponentRemainingPot = opponent.playerPot - minAllInAmount;
-        if (opponentRemainingPot === 0) continue;
-        if (player.playerInfo.userId === opponent.playerInfo.userId) continue;
-        if (player.playerPot === 0) continue;
-        if (player.playerPot <= opponent.playerPot) {
-          const sidePot = playerRemainingPot;
-          opponent.playerPot = opponent.playerPot - playerRemainingPot;
-          if (!sidePots[i]) {
-            sidePots[i] = { amount: 0, players: [] };
-          }
-          sidePots[i].amount += sidePot;
-          sidePots[i].players!.push(opponent.playerInfo.userId);
-          if (j === playersNotFold.length - 1) {
-            player.playerPot = player.playerPot - playerRemainingPot;
-            sidePots[i].amount += sidePot;
-            sidePots[i].players!.push(player.playerInfo.userId);
-          }
-        }
+      const potName = index === 0 ? "mainPot" : `sidePot${index}`;
+
+      pots[potName] = {
+        amount,
+        players: activePlayers.map((p) => p.playerInfo.userId),
+      };
+
+      previousPot = currentPot;
+
+      while (
+        activePlayers.length &&
+        activePlayers[0].playerPot === currentPot
+      ) {
+        activePlayers.shift();
       }
+
+      index++;
     }
-    return { mainPot: { amount: mainPot }, ...sidePots };
-    // return {
-    //   mainPot: {
-    //     amount: 300,
-    //     players: [
-    //       this.players[0].playerInfo.userId,
-    //       this.players[1].playerInfo.userId,
-    //       this.players[2].playerInfo.userId,
-    //     ],
-    //   },
-    //   sidePot1: {
-    //     amount: 400,
-    //     players: [
-    //       this.players[1].playerInfo.userId,
-    //       this.players[2].playerInfo.userId,
-    //     ],
-    //   },
-    // };
+
+    return pots;
   }
 
   private handleSidePotPayout() {
     const sidePots: SidePotsMap = this.determineSidepots();
     const handOrder = this.getHandOrder(this.players);
-
-    this.players.forEach((player, index) => {
-      const remainingCoins = player.playerPot;
-
-      const currentPlayer = this.players[index];
-
-      currentPlayer.coins += remainingCoins;
-      currentPlayer.playerPot -= remainingCoins;
-    });
 
     for (const [potKey, pot] of Object.entries(sidePots)) {
       let eligiblePlayers = [];
@@ -740,12 +709,33 @@ class Game {
         eligiblePlayers.some((ep) => p.userId === ep!.playerInfo.userId)
       );
 
+      if (eligibleHandOrder.length === 1) {
+        const player = eligiblePlayers[0];
+
+        if (!player) {
+          console.error("player does not exist in eligible hand order");
+          continue;
+        }
+
+        const result: IResult = {
+          isDraw: false,
+          winner: { userId: player.playerInfo.userId, hand: player.hand },
+          potSpliters: [],
+        };
+
+        this.handlePayout(result, { potName: potKey, amount: pot.amount });
+
+        continue;
+      }
+
       const result = this.findBestHand(eligibleHandOrder);
 
       this.handlePayout(result, { potName: potKey, amount: pot.amount });
     }
 
-    this.totalPot = 0;
+    for (const player of this.players) {
+      player.playerPot = 0;
+    }
   }
 
   private handlePayout(
@@ -765,6 +755,8 @@ class Game {
         const player = this.getPlayer(potSplitter.userId);
         player!.coins += share;
       }
+
+      this.totalPot -= potData.amount;
     } else {
       const winner = this.getPlayer(result.winner?.userId);
 
@@ -775,9 +767,8 @@ class Game {
       };
 
       winner!.coins += potData.amount;
+      this.totalPot -= potData.amount;
     }
-
-    this.totalPot = 0;
   }
 
   private getSuit(card: string) {
