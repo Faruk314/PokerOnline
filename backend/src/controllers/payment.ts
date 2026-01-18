@@ -9,61 +9,6 @@ dotenv.config();
 
 const stripe = new Stripe(STRIPE_KEY);
 
-export const createCheckoutSession = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { packageId } = req.body;
-    const userId = req.user?.userId;
-
-    if (!packageId || !userId) {
-      res.status(400);
-      throw new Error("Unable to create checkout session");
-    }
-
-    const selectedPackage = await db.query.CoinPackagesTable.findFirst({
-      where: (coinPackages, { eq }) => eq(coinPackages.packageId, packageId),
-      columns: {
-        amount: true,
-        price: true,
-      },
-    });
-
-    if (!selectedPackage) {
-      res.status(400);
-      throw new Error("Unable to create checkout session");
-    }
-
-    try {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: `${selectedPackage.amount} Coins`,
-              },
-              unit_amount: selectedPackage.price * 100,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: "http://localhost:3000/payment-success",
-        cancel_url: "http://localhost:3000/payment-canceled",
-        metadata: {
-          userId,
-          chips: selectedPackage.amount,
-        },
-      });
-
-      res.status(200).json({ url: session.url });
-    } catch (error) {
-      res.status(500);
-      throw new Error("Unable to create checkout session");
-    }
-  }
-);
-
 export const createPaymentIntent = asyncHandler(
   async (req: Request, res: Response) => {
     const { packageId } = req.body;

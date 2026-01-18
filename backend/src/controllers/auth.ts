@@ -45,7 +45,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        // domain: ".farukspahic.com",
+        ...(process.env.NODE_ENV === "production"
+          ? { domain: process.env.COOKIE_DOMAIN }
+          : {}),
       })
       .status(200)
       .json({
@@ -105,7 +107,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       httpOnly: true,
       sameSite: "none",
       secure: true,
-      // domain: ".farukspahic.com",
+      ...(process.env.NODE_ENV === "production"
+        ? { domain: process.env.COOKIE_DOMAIN }
+        : {}),
     })
     .status(200)
     .json({
@@ -129,7 +133,9 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        // domain: ".farukspahic.com",
+        ...(process.env.NODE_ENV === "production"
+          ? { domain: process.env.COOKIE_DOMAIN }
+          : {}),
       })
       .status(200)
       .json("successfully logged out");

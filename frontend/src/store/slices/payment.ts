@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import paymentService from "../services/paymentServices";
 
 interface PaymentState {
@@ -12,22 +12,6 @@ const initialState: PaymentState = {
   isSuccess: false,
   isLoading: false,
 };
-
-export const createCheckoutSession = createAsyncThunk<
-  { url: string },
-  string,
-  { rejectValue: string }
->("payment/createCheckoutSession", async (packageId, thunkAPI) => {
-  try {
-    return await paymentService.createCheckoutSession(packageId);
-  } catch (error: any) {
-    const message =
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      error.toString();
-    return thunkAPI.rejectWithValue(message);
-  }
-});
 
 export const createPaymentIntent = createAsyncThunk<
   { clientSecret: string; amount: number; chips: number },
@@ -57,20 +41,6 @@ const paymentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(
-        createCheckoutSession.fulfilled,
-        (state, action: PayloadAction<{ url: string }>) => {
-          window.location.href = action.payload.url;
-          state.isSuccess = true;
-        }
-      )
-      .addCase(createCheckoutSession.rejected, (state) => {
-        state.isLoading = false;
-        state.isError = true;
-      })
-      .addCase(createCheckoutSession.pending, (state) => {
-        state.isLoading = true;
-      })
       .addCase(createPaymentIntent.fulfilled, (state) => {
         state.isSuccess = true;
         state.isLoading = false;
