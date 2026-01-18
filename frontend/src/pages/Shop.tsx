@@ -18,11 +18,7 @@ const Shop = () => {
   }, [dispatch]);
 
   if (shopLoading) {
-    return (
-      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+    return <Loader />;
   }
 
   return (

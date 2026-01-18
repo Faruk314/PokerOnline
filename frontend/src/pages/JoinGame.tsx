@@ -130,11 +130,7 @@ const JoinGame = () => {
   ).length;
 
   if (roomsLoading) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black">
-        <Loader />
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
