@@ -47,12 +47,12 @@ const Payment = () => {
     navigate("/shop");
   };
 
-  if (shopLoading || !selectedPackage) {
-    return <Loader />;
-  }
+  if (!selectedPackage) return null;
 
   return (
     <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
+      <Loader isLoading={shopLoading} />
+
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl animate-pulse"></div>
@@ -146,7 +146,7 @@ const Payment = () => {
                     <p className="text-gray-400 text-lg">
                       You're purchasing{" "}
                       <span className="text-yellow-400 font-semibold">
-                        {selectedPackage.amount.toLocaleString()} chips
+                        {selectedPackage?.amount.toLocaleString()} chips
                       </span>
                     </p>
                   </div>

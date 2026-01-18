@@ -35,12 +35,9 @@ const Game = () => {
     dispatch(getGameState(id!));
   }, [dispatch, id]);
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
   return (
     <section className="game-page game-container bg-gradient-to-b from-gray-950 via-gray-900 to-black h-[100vh] w-full relative overflow-hidden">
+      <Loader isLoading={isLoading} />
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-3xl animate-pulse"></div>

@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout, reset } from "../store/slices/auth";
 import toast from "../utils/toast";
 import { useNavigate } from "react-router-dom";
-import Loader from "../components/Loader";
 import pokerLogo from "../assets/images/pokerlogo.png";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 
@@ -15,9 +14,7 @@ const Menu = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { volumeOn, handleVolume } = useContext(AudioContext);
-  const { isLoading, isError, isSuccess } = useAppSelector(
-    (state) => state.auth
-  );
+  const { isError, isSuccess } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (isError) {
@@ -34,10 +31,6 @@ const Menu = () => {
   const handleExit = () => {
     dispatch(logout());
   };
-
-  if (isLoading) {
-    return <Loader />;
-  }
 
   return (
     <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">

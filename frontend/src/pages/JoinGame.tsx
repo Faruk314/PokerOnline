@@ -129,12 +129,9 @@ const JoinGame = () => {
     (room) => room.players.length < room.maxPlayers
   ).length;
 
-  if (roomsLoading) {
-    return <Loader />;
-  }
-
   return (
     <div className="w-full overflow-x-hidden">
+      <Loader isLoading={roomsLoading} />
       <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
         {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">

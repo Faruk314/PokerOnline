@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import Game from "./pages/Game";
 import { Routes, Route } from "react-router-dom";
 import Menu from "./pages/Menu";
@@ -15,12 +15,13 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 import { useSocketEvents } from "./hooks/useSocketEvents";
 import NotFound from "./pages/NotFound";
-import Loader from "./components/Loader";
 import Shop from "./pages/Shop";
 import Payment from "./pages/Payment";
+import Loader from "./components/Loader";
 
 function App() {
   const { gameStatus } = useAppSelector((state) => state.game);
+  const { fetchingLoginState } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -30,7 +31,8 @@ function App() {
   useSocketEvents();
 
   return (
-    <Suspense fallback={<Loader />}>
+    <>
+      <Loader isLoading={fetchingLoginState} />
       {gameStatus.isGameOver && <GameOver />}
 
       <Routes>
@@ -50,7 +52,7 @@ function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </Suspense>
+    </>
   );
 }
 
