@@ -220,62 +220,6 @@ const Payment = () => {
                         </div>
                       </div>
 
-                      {/* Security & Trust */}
-                      <div className="bg-gradient-to-b from-gray-900/30 to-gray-950/30 border border-white/10 rounded-2xl p-10">
-                        <div className="flex items-center gap-4 mb-10">
-                          <h2 className="text-2xl font-bold text-white">
-                            Security & Trust
-                          </h2>
-                        </div>
-
-                        <div className="space-y-8">
-                          <div className="flex items-start gap-5">
-                            <div className="w-4 h-4 rounded-full bg-green-500 mt-2"></div>
-                            <div>
-                              <h4 className="text-white font-bold text-xl">
-                                Bank-Level Security
-                              </h4>
-                              <p className="text-gray-400 text-base mt-2">
-                                256-bit SSL encryption & PCI DSS compliant
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-5">
-                            <div className="w-4 h-4 rounded-full bg-green-500 mt-2"></div>
-                            <div>
-                              <h4 className="text-white font-bold text-xl">
-                                Instant Delivery
-                              </h4>
-                              <p className="text-gray-400 text-base mt-2">
-                                Chips added to your account immediately
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-5">
-                            <div className="w-4 h-4 rounded-full bg-green-500 mt-2"></div>
-                            <div>
-                              <h4 className="text-white font-bold text-xl">
-                                24/7 Support
-                              </h4>
-                              <p className="text-gray-400 text-base mt-2">
-                                Email support for any issues
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-5">
-                            <div className="w-4 h-4 rounded-full bg-green-500 mt-2"></div>
-                            <div>
-                              <h4 className="text-white font-bold text-xl">
-                                Money-Back Guarantee
-                              </h4>
-                              <p className="text-gray-400 text-base mt-2">
-                                30-day refund policy
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
                       {/* Accepted Cards */}
                       <div className="bg-gradient-to-b from-gray-900/30 to-gray-950/30 border border-white/10 rounded-2xl p-10">
                         <div className="flex items-center gap-4 mb-10">
@@ -335,14 +279,6 @@ const Payment = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Floating Elements */}
-      <div className="fixed bottom-8 right-8 z-20">
-        <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
-          <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
-          <span className="font-bold text-sm">100% Secure Payment</span>
         </div>
       </div>
     </section>
