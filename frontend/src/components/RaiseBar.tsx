@@ -105,13 +105,15 @@ const RaiseBar = () => {
           </div>
           <div>
             <div className="text-gray-400 text-xs">RAISE AMOUNT</div>
-            <div className="text-white font-bold text-2xl">{amount.toLocaleString()}</div>
+            <div className="text-white font-bold text-2xl">
+              {amount.toLocaleString()}
+            </div>
           </div>
         </div>
 
         <input
           type="number"
-          value={amount}
+          defaultValue={amount}
           onChange={(e) => setIfLegal(+e.target.value)}
           className="w-32 px-4 py-3 bg-gray-800/50 border border-white/10 rounded-xl text-white text-right text-lg focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
         />
