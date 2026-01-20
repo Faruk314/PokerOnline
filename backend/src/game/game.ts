@@ -134,6 +134,7 @@ class Game {
           action: data?.action,
           playerId: data?.prevPlayerId,
           previousPlayerPot: data?.previousPlayerPot,
+          previousPlayerCoins: data?.previousPlayerCoins,
           previousTotalPot: data?.previousTotalPot,
           previousRound: data?.previousRound,
         });

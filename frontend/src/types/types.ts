@@ -108,6 +108,7 @@ interface IPlayerMoveArgs {
   action: ActionState;
   playerId: string;
   previousPlayerPot: number;
+  previousPlayerCoins: number;
   previousTotalPot: number;
   previousRound: string;
 }
@@ -131,6 +132,7 @@ interface GameStateRollbackParams {
   gameState: IGame;
   playerId: string;
   previousPlayerPot: number;
+  previousPlayerCoins: number;
   previousTotalPot: number;
 }
 

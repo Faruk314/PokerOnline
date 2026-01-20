@@ -24,6 +24,7 @@ const playerTimerWorker = new Worker(
       if (!playerTurn?.time) return;
 
       const previousPlayerPot = playerTurn.playerPot;
+      const previousPlayerCoins = playerTurn.coins;
 
       playerTurn.fold();
 
@@ -36,6 +37,7 @@ const playerTimerWorker = new Worker(
         prevPlayerId: playerId,
         action: "fold",
         previousPlayerPot,
+        previousPlayerCoins,
         previousTotalPot,
         previousRound,
       });

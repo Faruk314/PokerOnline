@@ -209,21 +209,41 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
     [animateCard, dispatch, loggedUserInfo?.userId, animateCardFlip]
   );
 
-  const handleGameOverUpdates = useCallback(
-    ({ gameState: newGameState }: { gameState: IGame }) => {
-      const cleanedPlayers = gameState?.players.map((p, index) => ({
-        ...p,
-        cards: newGameState.players[index].cards,
-        isFold: newGameState.players[index].isFold,
-        playerPot: 0,
-      }));
+  const syncPlayers = useCallback(
+    ({
+      gameState: newGameState,
+      playerId,
+      previousPlayerCoins,
+    }: {
+      gameState: IGame;
+      playerId: string;
+      previousPlayerCoins: number;
+    }) => {
+      const cleanedPlayers = gameState?.players.map((p, index) => {
+        const serverPlayerUpdate = newGameState.players[index];
+
+        const shouldKeepOldCoins = p.playerInfo.userId === playerId;
+
+        return {
+          ...p,
+          cards: serverPlayerUpdate.cards,
+          isFold: serverPlayerUpdate.isFold,
+          playerPot: 0,
+          coins: shouldKeepOldCoins ? previousPlayerCoins : p.coins,
+        };
+      });
 
       dispatch(
         updateGameState({
           players: cleanedPlayers,
         })
       );
+    },
+    [dispatch, gameState?.players]
+  );
 
+  const handleGameOverUpdates = useCallback(
+    ({ gameState: newGameState }: { gameState: IGame }) => {
       const pots = newGameState.potInfo;
 
       if (!pots) return console.error("pots dont exist");
@@ -309,12 +329,13 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       playerId: prevPlayerId,
       previousTotalPot,
       previousPlayerPot,
+      previousPlayerCoins,
       gameState: newGameState,
     }: GameStateRollbackParams) => {
       dispatch(
         updatePlayer({
           playerId: prevPlayerId,
-          data: { playerPot: previousPlayerPot },
+          data: { playerPot: previousPlayerPot, coins: previousPlayerCoins },
         })
       );
 
@@ -342,11 +363,13 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       gameState: newGameState,
       playerId: prevPlayerId,
       previousPlayerPot,
+      previousPlayerCoins,
       previousTotalPot,
     }: GameStateRollbackParams) => {
       syncPlayerToTableChips({
         playerId: prevPlayerId,
         previousPlayerPot,
+        previousPlayerCoins,
         previousTotalPot,
         gameState: newGameState,
       });
@@ -357,6 +380,12 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         if (newGameState.isGameOver) {
           newGameState.players.forEach((player) => {
             animateCardFlip(player);
+          });
+
+          syncPlayers({
+            gameState: newGameState,
+            playerId: prevPlayerId,
+            previousPlayerCoins,
           });
 
           dispatch(
@@ -379,6 +408,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       handleGameOverUpdates,
       syncPlayerToTableChips,
       animateCardFlip,
+      syncPlayers,
     ]
   );
 
@@ -388,6 +418,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       action,
       playerId: prevPlayerId,
       previousPlayerPot,
+      previousPlayerCoins,
       previousTotalPot,
       previousRound,
     }: IPlayerMoveArgs) => {
@@ -431,6 +462,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           gameState: newGameState,
           playerId: prevPlayerId,
           previousPlayerPot,
+          previousPlayerCoins,
           previousTotalPot,
         });
       }
@@ -443,6 +475,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
         syncPlayerToTableChips({
           playerId: prevPlayerId,
           previousPlayerPot,
+          previousPlayerCoins,
           previousTotalPot,
           gameState: newGameState,
         });
@@ -454,9 +487,14 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
             animateCardFlip(player);
           });
 
+          syncPlayers({
+            gameState: newGameState,
+            playerId: prevPlayerId,
+            previousPlayerCoins,
+          });
+
           dispatch(
             updateGameState({
-              players: newGameState.players,
               potInfo: newGameState.potInfo,
             })
           );
@@ -502,6 +540,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           gameState: newGameState,
           playerId: prevPlayerId,
           previousPlayerPot,
+          previousPlayerCoins,
           previousTotalPot,
         });
       } else {

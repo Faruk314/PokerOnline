@@ -48,6 +48,7 @@ class GameListeners {
       .removeTimer(roomId, playerTurn.playerInfo.userId);
 
     const previousPlayerPot = playerTurn.playerPot;
+    const previousPlayerCoins = playerTurn.coins;
 
     playerTurn.fold();
 
@@ -60,6 +61,7 @@ class GameListeners {
       prevPlayerId: this.socket.userId,
       action: "fold",
       previousPlayerPot,
+      previousPlayerCoins,
       previousTotalPot,
       previousRound,
     });
@@ -181,6 +183,7 @@ class GameListeners {
 
     game.totalPot += callAmount;
 
+    const previousPlayerCoins = playerTurn.coins;
     const previousTotalPot = game.totalPot;
     const previousRound = game.currentRound;
 
@@ -190,6 +193,7 @@ class GameListeners {
       prevPlayerId: this.socket.userId,
       action,
       previousPlayerPot,
+      previousPlayerCoins,
       previousTotalPot,
       previousRound,
     });
@@ -222,6 +226,7 @@ class GameListeners {
       .removeTimer(roomId, playerTurn.playerInfo.userId);
 
     const previousPlayerPot = playerTurn.playerPot;
+    const previousPlayerCoins = playerTurn.coins;
 
     playerTurn.check();
 
@@ -234,6 +239,7 @@ class GameListeners {
       prevPlayerId: this.socket.userId,
       action: "check",
       previousPlayerPot,
+      previousPlayerCoins,
       previousTotalPot,
       previousRound,
     });
