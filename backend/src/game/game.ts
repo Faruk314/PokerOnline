@@ -386,7 +386,7 @@ class Game {
     if (!this.playerTurn) return;
 
     const start = Date.now();
-    const turnDuration = 300000000000000;
+    const turnDuration = 40000;
 
     this.playerTurn.time = {
       startTime: new Date(start),
