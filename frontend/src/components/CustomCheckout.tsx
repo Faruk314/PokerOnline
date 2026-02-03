@@ -134,16 +134,16 @@ const CheckoutForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10">
+    <form onSubmit={handleSubmit} className="space-y-6 md:space-y-10">
       {/* Form Header */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-gray-900/30 to-gray-950/30 border border-white/10 rounded-xl px-6 py-3 mb-4">
-          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
-          <span className="text-lg font-semibold text-white">
+      <div className="text-center mb-4 md:mb-6">
+        <div className="inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-gray-900/30 to-gray-950/30 border border-white/10 rounded-xl px-4 py-2 md:px-6 md:py-3 mb-2 md:mb-4">
+          <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
+          <span className="text-sm md:text-lg font-semibold text-white">
             Complete Your Payment
           </span>
         </div>
-        <p className="text-gray-400 text-lg">
+        <p className="text-gray-400 text-sm md:text-lg">
           Purchasing{" "}
           <span className="text-yellow-400 font-semibold">
             {amount.toLocaleString()} chips
@@ -153,19 +153,19 @@ const CheckoutForm = ({
       </div>
 
       {/* Single Column Layout with Better Spacing */}
-      <div className="space-y-10">
+      <div className="space-y-6 md:space-y-10">
         {/* Contact Information - Simplified */}
-        <div className="bg-gradient-to-b from-gray-900/20 to-gray-950/20 border border-white/10 rounded-2xl p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
-            <h3 className="text-xl font-bold text-white">
+        <div className="bg-gradient-to-b from-gray-900/20 to-gray-950/20 border border-white/10 rounded-2xl p-4 md:p-8">
+          <div className="flex items-center gap-2 md:gap-4 mb-4 md:mb-8">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
+            <h3 className="text-lg md:text-xl font-bold text-white">
               Contact Information
             </h3>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-base font-medium text-gray-300 mb-3">
+              <label className="block text-xs md:text-base font-medium text-gray-300 mb-1 md:mb-3">
                 Cardholder Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -173,18 +173,18 @@ const CheckoutForm = ({
                 name="cardholderName"
                 value={formData.cardholderName}
                 onChange={handleInputChange}
-                className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-lg"
+                className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-sm md:text-lg"
                 placeholder="John Doe"
                 required
               />
-              <p className="text-gray-500 text-sm mt-2">
+              <p className="text-gray-500 text-xs md:text-sm mt-1 md:mt-2">
                 As it appears on your card
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div>
-                <label className="block text-base font-medium text-gray-300 mb-3">
+                <label className="block text-xs md:text-base font-medium text-gray-300 mb-1 md:mb-3">
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -192,17 +192,17 @@ const CheckoutForm = ({
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-lg"
+                  className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-sm md:text-lg"
                   placeholder="john@example.com"
                   required
                 />
-                <p className="text-gray-500 text-sm mt-2">
+                <p className="text-gray-500 text-xs md:text-sm mt-1 md:mt-2">
                   For receipt and updates
                 </p>
               </div>
 
               <div>
-                <label className="block text-base font-medium text-gray-300 mb-3">
+                <label className="block text-xs md:text-base font-medium text-gray-300 mb-1 md:mb-3">
                   Phone Number (Optional)
                 </label>
                 <input
@@ -210,22 +210,22 @@ const CheckoutForm = ({
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-lg"
+                  className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-sm md:text-lg"
                   placeholder="+1 (555) 123-4567"
                 />
-                <p className="text-gray-500 text-sm mt-2">For order updates</p>
+                <p className="text-gray-500 text-xs md:text-sm mt-1 md:mt-2">For order updates</p>
               </div>
             </div>
 
             <div>
-              <label className="block text-base font-medium text-gray-300 mb-3">
+              <label className="block text-xs md:text-base font-medium text-gray-300 mb-1 md:mb-3">
                 Country <span className="text-red-500">*</span>
               </label>
               <select
                 name="country"
                 value={formData.country}
                 onChange={handleInputChange}
-                className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-lg"
+                className="w-full bg-gray-900/40 border border-white/10 rounded-xl px-4 py-3 md:px-5 md:py-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-sm md:text-lg"
                 required
               >
                 <option value="US">United States</option>
@@ -244,23 +244,23 @@ const CheckoutForm = ({
         </div>
 
         {/* Card Information */}
-        <div className="bg-gradient-to-b from-gray-900/20 to-gray-950/20 border border-white/10 rounded-2xl p-8">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-purple-600"></div>
-            <h3 className="text-xl font-bold text-white">Payment Details</h3>
+        <div className="bg-gradient-to-b from-gray-900/20 to-gray-950/20 border border-white/10 rounded-2xl p-4 md:p-8">
+          <div className="flex items-center gap-2 md:gap-4 mb-4 md:mb-8">
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-r from-purple-500 to-purple-600"></div>
+            <h3 className="text-lg md:text-xl font-bold text-white">Payment Details</h3>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div>
-              <label className="block text-base font-medium text-gray-300 mb-3">
+              <label className="block text-xs md:text-base font-medium text-gray-300 mb-1 md:mb-3">
                 Card Information <span className="text-red-500">*</span>
               </label>
-              <div className="bg-gray-900/40 border border-white/10 rounded-xl p-5">
+              <div className="bg-gray-900/40 border border-white/10 rounded-xl p-4 md:p-5">
                 <CardElement
                   options={{
                     style: {
                       base: {
-                        fontSize: "18px",
+                        fontSize: window.innerWidth < 768 ? "14px" : "18px",
                         color: "#ffffff",
                         "::placeholder": {
                           color: "#9ca3af",
@@ -271,9 +271,9 @@ const CheckoutForm = ({
                   }}
                 />
               </div>
-              <div className="flex items-center gap-3 mt-4">
-                <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse"></div>
-                <p className="text-gray-400 text-sm">
+              <div className="flex items-center gap-2 md:gap-3 mt-2 md:mt-4">
+                <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-green-500 animate-pulse"></div>
+                <p className="text-gray-400 text-xs md:text-sm">
                   Secured by Stripe • Your card details are never stored on our
                   servers
                 </p>
@@ -284,34 +284,34 @@ const CheckoutForm = ({
 
         {/* Error Display */}
         {error && (
-          <div className="bg-gradient-to-b from-red-900/20 to-red-950/20 border border-red-500/30 rounded-2xl p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-5 h-5 rounded-full bg-red-500 animate-pulse"></div>
+          <div className="bg-gradient-to-b from-red-900/20 to-red-950/20 border border-red-500/30 rounded-2xl p-4 md:p-6">
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-red-500 animate-pulse"></div>
               <div>
-                <p className="text-red-300 text-lg font-semibold">
+                <p className="text-red-300 text-base md:text-lg font-semibold">
                   Payment Error
                 </p>
-                <p className="text-red-400 mt-1">{error}</p>
+                <p className="text-red-400 mt-0.5 md:mt-1 text-sm md:text-base">{error}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="space-y-6">
+        <div className="space-y-3 md:space-y-6">
           <button
             type="submit"
             disabled={!stripe || isProcessing}
-            className="w-full py-4 px-8 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-white rounded-2xl font-bold text-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(202,138,4,0.4)] hover:shadow-[0_0_60px_rgba(202,138,4,0.6)] hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full py-3 md:py-4 px-6 md:px-8 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-white rounded-2xl font-bold text-base md:text-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(202,138,4,0.4)] hover:shadow-[0_0_60px_rgba(202,138,4,0.6)] hover:scale-[1.02] active:scale-[0.98]"
           >
             {isProcessing ? (
-              <div className="flex items-center justify-center gap-4">
-                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-lg">Processing Your Payment...</span>
+              <div className="flex items-center justify-center gap-2 md:gap-4">
+                <div className="w-5 h-5 md:w-6 md:h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm md:text-lg">Processing Your Payment...</span>
               </div>
             ) : (
-              <div className="flex items-center justify-center gap-4">
-                <span>Pay ${price} Now</span>
+              <div className="flex items-center justify-center gap-2 md:gap-4">
+                <span className="text-sm md:text-lg">Pay ${price} Now</span>
               </div>
             )}
           </button>
@@ -320,14 +320,14 @@ const CheckoutForm = ({
             type="button"
             onClick={onClose}
             disabled={isProcessing}
-            className="w-full py-4 px-8 bg-gray-800/30 hover:bg-gray-700/40 text-gray-300 rounded-2xl font-medium text-lg transition-all duration-300 disabled:opacity-50 border border-white/10 hover:border-white/20"
+            className="w-full py-3 md:py-4 px-6 md:px-8 bg-gray-800/30 hover:bg-gray-700/40 text-gray-300 rounded-2xl font-medium text-sm md:text-lg transition-all duration-300 disabled:opacity-50 border border-white/10 hover:border-white/20"
           >
             Cancel & Return to Shop
           </button>
         </div>
 
-        <div className="text-center pt-6 border-t border-white/10">
-          <p className="text-gray-500 text-sm mt-3">
+        <div className="text-center pt-4 md:pt-6 border-t border-white/10">
+          <p className="text-gray-500 text-xs md:text-sm mt-2 md:mt-3">
             By completing your purchase, you agree to our Terms of Service and
             Privacy Policy.
           </p>
