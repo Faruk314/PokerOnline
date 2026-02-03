@@ -132,7 +132,7 @@ const JoinGame = () => {
   return (
     <div className="w-full overflow-x-hidden">
       <Loader isLoading={roomsLoading} />
-      <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
+      <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-y-auto overflow-x-hidden relative">
         {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-[24rem] h-[24rem] max-w-96 max-h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
@@ -149,19 +149,19 @@ const JoinGame = () => {
 
         {/* Header Section */}
         <div className="relative z-10">
-          <div className="px-4 sm:px-6 lg:px-8 py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
+          <div className="px-3 py-2 md:px-8 md:py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center justify-between">
                 {/* Back Button and Logo */}
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 md:gap-6">
                   <button
                     onClick={handleBackToMenu}
-                    className="relative group flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300"
+                    className="relative group flex items-center gap-2 md:gap-3 px-3 py-2 md:px-4 md:py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300"
                   >
                     <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <IoArrowBack className="relative text-xl text-gray-400 group-hover:text-yellow-400 transition-colors" />
-                    <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-gray-400 group-hover:from-yellow-300 group-hover:to-yellow-400 transition-all duration-300">
-                      BACK TO MENU
+                    <IoArrowBack className="relative text-lg md:text-xl text-gray-400 group-hover:text-yellow-400 transition-colors" />
+                    <span className="relative text-xs md:text-base text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-gray-400 group-hover:from-yellow-300 group-hover:to-yellow-400 transition-all duration-300">
+                      BACK
                     </span>
                   </button>
                 </div>
@@ -207,12 +207,12 @@ const JoinGame = () => {
                   {/* Create Table Button */}
                   <button
                     onClick={() => navigate("/create")}
-                    className="relative group px-6 py-3 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_20px_rgba(202,138,4,0.3)] hover:shadow-[0_0_30px_rgba(202,138,4,0.5)] hover:scale-105"
+                    className="relative group px-3 py-2 md:px-6 md:py-3 rounded-xl text-white text-xs md:text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_20px_rgba(202,138,4,0.3)] hover:shadow-[0_0_30px_rgba(202,138,4,0.5)] hover:scale-105"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
-                      CREATE TABLE
+                    <span className="relative flex items-center gap-1 md:gap-2">
+                      <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
+                      CREATE
                     </span>
                   </button>
                 </div>
@@ -222,20 +222,20 @@ const JoinGame = () => {
         </div>
 
         {/* Main Content */}
-        <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden scrollable-container">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="relative z-10 flex-1 overflow-visible scrollable-container">
+          <div className="max-w-7xl mx-auto px-3 py-4 md:px-8 md:py-8">
             {/* Page Header */}
-            <div className="mb-12 text-center">
-              <div className="inline-block mb-6">
+            <div className="mb-6 md:mb-12 text-center">
+              <div className="inline-block mb-4 md:mb-6">
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
-                <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 px-8 py-6 shadow-2xl">
-                  <h1 className="text-4xl md:text-5xl font-black text-white mb-3">
+                <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 px-4 py-3 md:px-8 md:py-6 shadow-2xl">
+                  <h1 className="text-2xl md:text-5xl font-black text-white mb-2 md:mb-3">
                     JOIN{" "}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
                       POKER TABLE
                     </span>
                   </h1>
-                  <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                  <p className="text-gray-400 text-xs md:text-lg max-w-2xl mx-auto">
                     Browse available poker tables, find your perfect match, and
                     join the action
                   </p>
@@ -243,26 +243,26 @@ const JoinGame = () => {
               </div>
 
               {/* Filters and Search */}
-              <div className="max-w-4xl mx-auto mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="max-w-4xl mx-auto mb-4 md:mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-8">
                   {/* Search Input */}
                   <div>
-                    <label className="block text-gray-300 text-sm font-semibold mb-2 uppercase tracking-wider">
+                    <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-1 md:mb-2 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></div>
                         Search Tables
                       </div>
                     </label>
                     <div className="relative group">
                       <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative flex items-center">
-                        <IoSearch className="absolute left-4 text-gray-500 text-xl" />
+                        <IoSearch className="absolute left-3 md:left-4 text-gray-500 text-lg md:text-xl" />
                         <input
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Search by table name..."
-                          className="w-full pl-12 pr-4 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                          className="w-full pl-10 pr-4 py-3 md:pl-12 md:pr-4 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                         />
                       </div>
                     </div>
@@ -270,29 +270,29 @@ const JoinGame = () => {
 
                   {/* Stake Filter Dropdown */}
                   <div className="relative" ref={stakeDropdownRef}>
-                    <label className="block text-gray-300 text-sm font-semibold mb-2 uppercase tracking-wider">
+                    <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-1 md:mb-2 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500"></div>
                         Minimal Stake
                       </div>
                     </label>
                     <button
                       onClick={handleStakeDropdownClick}
-                      className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-green-500/30 transition-all duration-300"
+                      className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-green-500/30 transition-all duration-300"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <div className="relative">
-                          <img src={chipSM} className="h-6 w-6" alt="Chip" />
+                          <img src={chipSM} className="h-5 w-5 md:h-6 md:w-6" alt="Chip" />
                           <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
                         </div>
-                        <span className="text-white font-bold text-lg">
+                        <span className="text-white font-bold text-sm md:text-lg">
                           {minStakeFilter
                             ? minStakeFilter.toLocaleString()
                             : "All Stakes"}
                         </span>
-                        <span className="text-gray-400 text-sm">CHIPS</span>
+                        <span className="text-gray-400 text-xs md:text-sm">CHIPS</span>
                       </div>
-                      <div className="text-2xl text-gray-400 group-hover:text-green-400 transition-colors">
+                      <div className="text-xl md:text-2xl text-gray-400 group-hover:text-green-400 transition-colors">
                         {openStakeDropdown ? (
                           <MdKeyboardArrowUp />
                         ) : (
@@ -308,19 +308,19 @@ const JoinGame = () => {
                             e.stopPropagation();
                             handleStakeClick(null);
                           }}
-                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 group transition-all duration-300"
+                          className="w-full px-4 py-3 md:px-5 md:py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 group transition-all duration-300"
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 md:gap-3">
                             <div className="relative">
                               <img
                                 src={chipSM}
-                                className="h-5 w-5 opacity-50"
+                                className="h-4 w-4 md:h-5 md:w-5 opacity-50"
                                 alt="Chip"
                               />
                             </div>
                             <span
                               className={classNames(
-                                "font-bold text-lg transition-colors",
+                                "font-bold text-sm md:text-lg transition-colors",
                                 minStakeFilter === null
                                   ? "text-green-400"
                                   : "text-white group-hover:text-green-300"
@@ -330,7 +330,7 @@ const JoinGame = () => {
                             </span>
                           </div>
                           {minStakeFilter === null && (
-                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 animate-pulse"></div>
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 animate-pulse"></div>
                           )}
                         </button>
                         {stakes.map((stake) => (
@@ -339,21 +339,21 @@ const JoinGame = () => {
                               e.stopPropagation();
                               handleStakeClick(stake);
                             }}
-                            className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
+                            className="w-full px-4 py-3 md:px-5 md:py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
                             key={stake}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 md:gap-3">
                               <div className="relative">
                                 <img
                                   src={chipSM}
-                                  className="h-5 w-5"
+                                  className="h-4 w-4 md:h-5 md:w-5"
                                   alt="Chip"
                                 />
                                 <div className="absolute inset-0 bg-green-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                               </div>
                               <span
                                 className={classNames(
-                                  "font-bold text-lg transition-colors",
+                                  "font-bold text-sm md:text-lg transition-colors",
                                   minStakeFilter === stake
                                     ? "text-green-400"
                                     : "text-white group-hover:text-green-300"
@@ -363,7 +363,7 @@ const JoinGame = () => {
                               </span>
                             </div>
                             {minStakeFilter === stake && (
-                              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 animate-pulse"></div>
+                              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600 animate-pulse"></div>
                             )}
                           </button>
                         ))}
@@ -373,31 +373,31 @@ const JoinGame = () => {
 
                   {/* Sort By Dropdown */}
                   <div className="relative" ref={sortDropdownRef}>
-                    <label className="block text-gray-300 text-sm font-semibold mb-2 uppercase tracking-wider">
+                    <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-1 md:mb-2 uppercase tracking-wider">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500"></div>
                         Sort By
                       </div>
                     </label>
                     <button
                       onClick={handleSortDropdownClick}
-                      className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-purple-500/30 transition-all duration-300"
+                      className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-purple-500/30 transition-all duration-300"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="text-lg md:text-2xl">
                           {
                             sortOptions.find((opt) => opt.value === sortBy)
                               ?.icon
                           }
                         </div>
-                        <span className="text-white font-bold text-lg">
+                        <span className="text-white font-bold text-sm md:text-lg">
                           {
                             sortOptions.find((opt) => opt.value === sortBy)
                               ?.label
                           }
                         </span>
                       </div>
-                      <div className="text-2xl text-gray-400 group-hover:text-purple-400 transition-colors">
+                      <div className="text-xl md:text-2xl text-gray-400 group-hover:text-purple-400 transition-colors">
                         {openSortDropdown ? (
                           <MdKeyboardArrowUp />
                         ) : (
@@ -416,14 +416,14 @@ const JoinGame = () => {
                                 option.value as "players" | "stake" | "name"
                               );
                             }}
-                            className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
+                            className="w-full px-4 py-3 md:px-5 md:py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
                             key={option.value}
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="text-xl">{option.icon}</div>
+                            <div className="flex items-center gap-2 md:gap-3">
+                              <div className="text-base md:text-xl">{option.icon}</div>
                               <span
                                 className={classNames(
-                                  "font-bold text-lg transition-colors",
+                                  "font-bold text-sm md:text-lg transition-colors",
                                   sortBy === option.value
                                     ? "text-purple-400"
                                     : "text-white group-hover:text-purple-300"
@@ -433,7 +433,7 @@ const JoinGame = () => {
                               </span>
                             </div>
                             {sortBy === option.value && (
-                              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 animate-pulse"></div>
+                              <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 animate-pulse"></div>
                             )}
                           </button>
                         ))}
@@ -444,11 +444,11 @@ const JoinGame = () => {
               </div>
 
               {/* Results Count */}
-              <div className="mb-8">
-                <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl px-6 py-3">
+              <div className="mb-4 md:mb-8">
+                <div className="inline-flex items-center gap-2 md:gap-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 md:px-6 md:py-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-                    <span className="text-gray-300">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-blue-500 animate-pulse"></div>
+                    <span className="text-gray-300 text-xs md:text-base">
                       Showing{" "}
                       <span className="text-white font-bold">
                         {filteredRooms.length}
@@ -463,7 +463,7 @@ const JoinGame = () => {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery("")}
-                      className="text-sm text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-300 hover:to-blue-500 transition-all duration-300"
+                      className="text-xs md:text-sm text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-300 hover:to-blue-500 transition-all duration-300"
                     >
                       Clear search
                     </button>
@@ -473,7 +473,7 @@ const JoinGame = () => {
             </div>
 
             {/* Rooms Grid */}
-            <div className="space-y-8">
+            <div className="space-y-4 md:space-y-8">
               {filteredRooms.length > 0 ? (
                 filteredRooms.map((gameRoom) => (
                   <div
@@ -484,36 +484,36 @@ const JoinGame = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-20">
-                  <div className="inline-block max-w-2xl">
+                <div className="text-center py-10 md:py-20">
+                  <div className="inline-block max-w-2xl w-full">
                     <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20 rounded-3xl blur-2xl"></div>
-                    <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-12 shadow-2xl">
-                      <h3 className="text-3xl font-bold text-white mb-4">
+                    <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-6 md:p-12 shadow-2xl">
+                      <h3 className="text-xl md:text-3xl font-bold text-white mb-2 md:mb-4">
                         No Tables Found
                       </h3>
-                      <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
+                      <p className="text-gray-400 text-sm md:text-lg mb-6 md:mb-8 max-w-md mx-auto">
                         {searchQuery || minStakeFilter
                           ? "No tables match your current filters. Try adjusting your search criteria."
                           : "There are no poker tables available at the moment. Be the first to create one!"}
                       </p>
-                      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                         <button
                           onClick={() => {
                             setSearchQuery("");
                             setMinStakeFilter(null);
                           }}
-                          className="relative group px-6 py-3 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-gray-900/80 to-gray-950/80 border border-white/10 hover:border-blue-500/30"
+                          className="relative group px-4 py-3 md:px-6 md:py-3 rounded-xl text-white text-xs md:text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-gray-900/80 to-gray-950/80 border border-white/10 hover:border-blue-500/30"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <span className="relative">CLEAR FILTERS</span>
                         </button>
                         <button
                           onClick={() => navigate("/create")}
-                          className="relative group px-6 py-3 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 to-yellow-500 shadow-[0_0_20px_rgba(202,138,4,0.3)] hover:shadow-[0_0_30px_rgba(202,138,4,0.5)] hover:scale-105"
+                          className="relative group px-4 py-3 md:px-6 md:py-3 rounded-xl text-white text-xs md:text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 to-yellow-500 shadow-[0_0_20px_rgba(202,138,4,0.3)] hover:shadow-[0_0_30px_rgba(202,138,4,0.5)] hover:scale-105"
                         >
                           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <span className="relative flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
                             CREATE TABLE
                           </span>
                         </button>
@@ -525,31 +525,31 @@ const JoinGame = () => {
             </div>
 
             {/* Footer Stats */}
-            <div className="mt-16 pt-8 border-t border-white/10">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="mt-8 md:mt-16 pt-4 md:pt-8 border-t border-white/10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-500 mb-2">
+                  <div className="text-xl md:text-3xl font-bold text-blue-500 mb-1 md:mb-2">
                     24/7
                   </div>
-                  <div className="text-gray-400 text-sm">Active Support</div>
+                  <div className="text-gray-400 text-xs md:text-sm">Active Support</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-500 mb-2">
+                  <div className="text-xl md:text-3xl font-bold text-green-500 mb-1 md:mb-2">
                     100%
                   </div>
-                  <div className="text-gray-400 text-sm">Secure Games</div>
+                  <div className="text-gray-400 text-xs md:text-sm">Secure Games</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-500 mb-2">
+                  <div className="text-xl md:text-3xl font-bold text-purple-500 mb-1 md:mb-2">
                     Fast
                   </div>
-                  <div className="text-gray-400 text-sm">Matchmaking</div>
+                  <div className="text-gray-400 text-xs md:text-sm">Matchmaking</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-500 mb-2">
+                  <div className="text-xl md:text-3xl font-bold text-yellow-500 mb-1 md:mb-2">
                     Fair
                   </div>
-                  <div className="text-gray-400 text-sm">Random Dealing</div>
+                  <div className="text-gray-400 text-xs md:text-sm">Random Dealing</div>
                 </div>
               </div>
             </div>
@@ -559,16 +559,16 @@ const JoinGame = () => {
         {/* Bottom Info */}
         <div className="relative z-10 border-t border-white/10 bg-gradient-to-t from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="text-gray-600 text-sm">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 text-center md:text-left">
+              <div className="text-gray-600 text-[10px] md:text-sm">
                 Tables auto-refresh every 30 seconds • Double-click to join
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-gray-300 text-sm">Live Server</span>
+                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-gray-300 text-[10px] md:text-sm">Live Server</span>
                 </div>
-                <div className="text-gray-600 text-sm">
+                <div className="text-gray-600 text-[10px] md:text-sm">
                   {new Date().toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
