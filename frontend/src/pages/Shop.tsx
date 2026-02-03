@@ -117,7 +117,7 @@ const Shop = () => {
                   {shopPackages.map((shopPackage, index) => (
                     <div
                       key={shopPackage.packageId}
-                      className="transform transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1"
+                      className="transform transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 h-full"
                     >
                       <ShopCard shopPackage={shopPackage} index={index} />
                     </div>
