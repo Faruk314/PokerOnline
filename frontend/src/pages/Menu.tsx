@@ -112,7 +112,7 @@ const Menu = () => {
                     <h3 className="text-2xl font-bold text-white mb-2">
                       Create Game
                     </h3>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 text-sm text-center">
                       Create your own poker table
                     </p>
 
@@ -150,7 +150,7 @@ const Menu = () => {
                     <h3 className="text-2xl font-bold text-white mb-2">
                       Join Game
                     </h3>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 text-sm text-center">
                       Browse available tables
                     </p>
 
@@ -186,7 +186,7 @@ const Menu = () => {
                   <div className="relative h-full flex flex-col items-center justify-center p-4 md:p-6">
                     <div className="mb-2 md:mb-4 text-3xl md:text-4xl">💰</div>
                     <h3 className="text-2xl font-bold text-white mb-2">Shop</h3>
-                    <p className="text-gray-400 text-sm">Buy chips & items</p>
+                    <p className="text-gray-400 text-sm text-center">Buy chips & items</p>
 
                     <div className="absolute top-4 right-4">
                       <div className="relative bg-gradient-to-r from-yellow-500 to-yellow-600 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
@@ -229,7 +229,7 @@ const Menu = () => {
                       <RiLogoutCircleRFill className="text-red-700" />
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Exit</h3>
-                    <p className="text-gray-400 text-sm">
+                    <p className="text-gray-400 text-sm text-center">
                       Leave the poker room
                     </p>
 
