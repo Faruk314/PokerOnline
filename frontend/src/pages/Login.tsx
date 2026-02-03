@@ -49,7 +49,7 @@ const Login = () => {
   };
 
   return (
-    <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
+    <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-y-auto overflow-x-hidden relative py-8 md:py-0">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl animate-pulse"></div>
@@ -70,19 +70,19 @@ const Login = () => {
         <div className="absolute -inset-6 bg-gradient-to-r from-yellow-600 via-red-600 to-purple-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
 
         {/* Glassmorphism Form Container */}
-        <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+        <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-6 md:p-8 shadow-2xl">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 md:mb-8">
             <Logo />
           </div>
 
           {/* Login Form */}
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-4 md:space-y-6">
             {/* Email Input */}
-            <div className="space-y-2">
-              <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+            <div className="space-y-1 md:space-y-2">
+              <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500"></div>
                   Email Address
                 </div>
               </label>
@@ -92,7 +92,7 @@ const Login = () => {
                   onChange={onChange}
                   name="email"
                   value={email}
-                  className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
+                  className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
                   placeholder="Enter your email..."
                   type="email"
                   required
@@ -101,10 +101,10 @@ const Login = () => {
             </div>
 
             {/* Password Input */}
-            <div className="space-y-2">
-              <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+            <div className="space-y-1 md:space-y-2">
+              <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-red-500"></div>
                   Password
                 </div>
               </label>
@@ -115,7 +115,7 @@ const Login = () => {
                   name="password"
                   value={password}
                   type="password"
-                  className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all duration-300"
+                  className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all duration-300"
                   placeholder="Enter your password..."
                   required
                 />
@@ -124,33 +124,33 @@ const Login = () => {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-3 cursor-pointer group">
+              <label className="flex items-center gap-2 md:gap-3 cursor-pointer group">
                 <div className="relative">
                   <input type="checkbox" className="sr-only" />
-                  <div className="w-5 h-5 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-md group-hover:border-yellow-500/30 transition-all duration-300"></div>
+                  <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-md group-hover:border-yellow-500/30 transition-all duration-300"></div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-has-[:checked]:opacity-100 transition-opacity">
-                    <div className="w-3 h-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-sm"></div>
+                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-sm"></div>
                   </div>
                 </div>
-                <span className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
+                <span className="text-gray-400 text-xs md:text-sm group-hover:text-gray-300 transition-colors">
                   Remember me
                 </span>
               </label>
             </div>
 
             {/* Login Button */}
-            <div className="pt-4">
+            <div className="pt-2 md:pt-4">
               <button
                 type="submit"
-                className="relative group w-full py-4 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_30px_rgba(202,138,4,0.4)] hover:shadow-[0_0_40px_rgba(202,138,4,0.6)] hover:scale-[1.02]"
+                className="relative group w-full py-3 md:py-4 rounded-xl text-white text-xs md:text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_20px_rgba(202,138,4,0.3)] md:shadow-[0_0_30px_rgba(202,138,4,0.4)] hover:shadow-[0_0_40px_rgba(202,138,4,0.6)] hover:scale-[1.02]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 {!isLoading ? (
-                  <span className="relative flex items-center justify-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                  <span className="relative flex items-center justify-center gap-2 md:gap-3">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
                     LOGIN TO POKER
                     <svg
-                      className="w-4 h-4"
+                      className="w-3 h-3 md:w-4 md:h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -171,11 +171,11 @@ const Login = () => {
           </form>
 
           {/* Divider */}
-          <div className="relative my-8">
+          <div className="relative my-6 md:my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/10"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-xs md:text-sm">
               <span className="px-4 bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-500">
                 New to poker?
               </span>
@@ -186,11 +186,11 @@ const Login = () => {
           <div className="text-center">
             <Link
               to="/register"
-              className="inline-flex items-center gap-3 group"
+              className="inline-flex items-center gap-3 group w-full justify-center"
             >
-              <div className="relative px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-green-500/30 transition-all duration-300">
+              <div className="relative w-full px-4 py-3 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-green-500/30 transition-all duration-300">
                 <div className="absolute -inset-1 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 group-hover:from-green-300 group-hover:to-emerald-500 transition-all duration-300">
+                <span className="relative text-xs md:text-base text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600 group-hover:from-green-300 group-hover:to-emerald-500 transition-all duration-300 font-bold">
                   CREATE NEW ACCOUNT
                 </span>
               </div>

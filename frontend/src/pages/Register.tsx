@@ -59,7 +59,7 @@ const Register = () => {
   };
 
   return (
-    <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
+    <section className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-y-auto overflow-x-hidden relative py-8 md:py-0">
       {/* Animated Background Elements */}
 
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -81,29 +81,29 @@ const Register = () => {
         <div className="absolute -inset-6 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
 
         {/* Glassmorphism Form Container */}
-        <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+        <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-2xl border border-white/10 p-6 md:p-8 shadow-2xl">
           {/* Header with Welcome Bonus */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 md:mb-8">
             <Logo />
-            <div className="mt-4">
-              <h2 className="text-2xl font-bold text-white mb-2">
+            <div className="mt-2 md:mt-4">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-1 md:mb-2">
                 Join the{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">
                   Poker Community
                 </span>
               </h2>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-xs md:text-sm">
                 Create your account and start playing
               </p>
 
               {/* Welcome Bonus */}
-              <div className="mt-4 inline-flex items-center gap-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl px-4 py-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                  <img src={chip} className="text-black text-sm font-bold" />
+              <div className="mt-3 md:mt-4 inline-flex items-center gap-2 md:gap-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl px-3 py-2 md:px-4 md:py-3">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center">
+                  <img src={chip} className="text-black text-xs md:text-sm font-bold" />
                 </div>
                 <div className="text-left">
-                  <div className="text-white font-bold">1B BONUS CHIPS</div>
-                  <div className="text-green-400 text-xs">
+                  <div className="text-white font-bold text-xs md:text-base">1B BONUS CHIPS</div>
+                  <div className="text-green-400 text-[10px] md:text-xs">
                     Free on registration!
                   </div>
                 </div>
@@ -112,14 +112,14 @@ const Register = () => {
           </div>
 
           {/* Register Form */}
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-4 md:space-y-6">
             {/* Grid Layout for Inputs */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* Username Input */}
-              <div className="space-y-2">
-                <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+              <div className="space-y-1 md:space-y-2">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500"></div>
                     Username
                   </div>
                 </label>
@@ -129,7 +129,7 @@ const Register = () => {
                     onChange={onChange}
                     name="userName"
                     value={userName}
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
                     placeholder="Choose a username..."
                     required
                   />
@@ -137,10 +137,10 @@ const Register = () => {
               </div>
 
               {/* Email Input */}
-              <div className="space-y-2">
-                <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+              <div className="space-y-1 md:space-y-2">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></div>
                     Email Address
                   </div>
                 </label>
@@ -150,7 +150,7 @@ const Register = () => {
                     onChange={onChange}
                     name="email"
                     value={email}
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                     placeholder="Enter your email..."
                     type="email"
                     required
@@ -159,10 +159,10 @@ const Register = () => {
               </div>
 
               {/* Password Input */}
-              <div className="space-y-2">
-                <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+              <div className="space-y-1 md:space-y-2">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500"></div>
                     Password
                   </div>
                 </label>
@@ -173,7 +173,7 @@ const Register = () => {
                     name="password"
                     value={password}
                     type="password"
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20 transition-all duration-300"
                     placeholder="Create a password..."
                     required
                   />
@@ -181,8 +181,8 @@ const Register = () => {
 
                 {/* Password Strength Indicator */}
                 {password.length > 0 && (
-                  <div className="mt-2">
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                  <div className="mt-1 md:mt-2">
+                    <div className="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-1">
                       <span>Password strength</span>
                       <span
                         className={
@@ -213,10 +213,10 @@ const Register = () => {
               </div>
 
               {/* Repeat Password Input */}
-              <div className="space-y-2">
-                <label className="block text-gray-300 text-sm font-semibold uppercase tracking-wider">
+              <div className="space-y-1 md:space-y-2">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500"></div>
                     Confirm Password
                   </div>
                 </label>
@@ -227,7 +227,7 @@ const Register = () => {
                     name="password2"
                     value={password2}
                     type="password"
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300"
                     placeholder="Repeat your password..."
                     required
                   />
@@ -235,16 +235,16 @@ const Register = () => {
 
                 {/* Password Match Indicator */}
                 {password2.length > 0 && (
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-1 md:mt-2 flex items-center gap-2">
                     <div
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${
                         password === password2
                           ? "bg-green-500 animate-pulse"
                           : "bg-red-500"
                       }`}
                     ></div>
                     <span
-                      className={`text-xs ${
+                      className={`text-[10px] md:text-xs ${
                         password === password2
                           ? "text-green-500"
                           : "text-red-500"
@@ -260,17 +260,17 @@ const Register = () => {
             </div>
 
             {/* Terms Agreement */}
-            <div className="pt-2">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <div className="relative mt-1">
+            <div className="pt-1 md:pt-2">
+              <label className="flex items-start gap-2 md:gap-3 cursor-pointer group">
+                <div className="relative mt-0.5 md:mt-1">
                   <input type="checkbox" className="sr-only" required />
-                  <div className="w-5 h-5 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-md group-hover:border-green-500/30 transition-all duration-300"></div>
+                  <div className="w-4 h-4 md:w-5 md:h-5 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-md group-hover:border-green-500/30 transition-all duration-300"></div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-has-[:checked]:opacity-100 transition-opacity">
-                    <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-sm"></div>
+                    <div className="w-2.5 h-2.5 md:w-3 md:h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-sm"></div>
                   </div>
                 </div>
                 <div className="flex-1">
-                  <span className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">
+                  <span className="text-gray-400 text-xs md:text-sm group-hover:text-gray-300 transition-colors">
                     I agree to the{" "}
                     <button
                       type="button"
@@ -291,18 +291,18 @@ const Register = () => {
             </div>
 
             {/* Register Button */}
-            <div className="pt-6">
+            <div className="pt-4 md:pt-6">
               <button
                 type="submit"
-                className="relative group w-full py-4 rounded-xl text-white text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-green-600 via-emerald-500 to-green-600 shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:scale-[1.02]"
+                className="relative group w-full py-3 md:py-4 rounded-xl text-white text-xs md:text-sm font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-green-600 via-emerald-500 to-green-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] md:shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.6)] hover:scale-[1.02]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 {!isLoading ? (
-                  <span className="relative flex items-center justify-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                  <span className="relative flex items-center justify-center gap-2 md:gap-3">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
                     CREATE ACCOUNT & GET BONUS
                     <svg
-                      className="w-4 h-4"
+                      className="w-3 h-3 md:w-4 md:h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -323,11 +323,11 @@ const Register = () => {
           </form>
 
           {/* Divider */}
-          <div className="relative my-8">
+          <div className="relative my-6 md:my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/10"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-xs md:text-sm">
               <span className="px-4 bg-gradient-to-b from-gray-900/90 to-gray-950/90 text-gray-500">
                 Already have an account?
               </span>
@@ -336,10 +336,10 @@ const Register = () => {
 
           {/* Login Link */}
           <div className="text-center">
-            <Link to="/" className="inline-flex items-center gap-3 group">
-              <div className="relative px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300">
+            <Link to="/" className="inline-flex items-center gap-3 group w-full justify-center">
+              <div className="relative w-full px-4 py-3 md:px-6 md:py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300">
                 <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 group-hover:from-yellow-300 group-hover:to-yellow-500 transition-all duration-300">
+                <span className="relative text-xs md:text-base text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 group-hover:from-yellow-300 group-hover:to-yellow-500 transition-all duration-300 font-bold">
                   SIGN IN TO EXISTING ACCOUNT
                 </span>
               </div>
