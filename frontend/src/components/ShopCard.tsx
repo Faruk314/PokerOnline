@@ -49,8 +49,22 @@ const ShopCard = ({ shopPackage, index }: Props) => {
       {/* Animated Border */}
       <div className="absolute inset-0 rounded-xl md:rounded-2xl border-2 border-transparent group-hover:border-yellow-500/30 transition-all duration-500"></div>
 
+      {/* Badges - Absolute Positioning */}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+        {shopPackage.amount > 100000 && (
+          <div className="bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold text-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.2)] animate-pulse w-fit">
+            BEST VALUE
+          </div>
+        )}
+        {index === 3 && (
+          <div className="bg-blue-500/20 backdrop-blur-md border border-blue-500/30 px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)] w-fit">
+            POPULAR
+          </div>
+        )}
+      </div>
+
       {/* Package Name - Glassmorphism Style */}
-      <div className="relative mb-2 md:mb-6">
+      <div className="relative mt-6 mb-2 md:mb-6 md:mt-0">
         <div className="absolute -inset-2 md:-inset-4 bg-gradient-to-r from-yellow-500/10 to-red-500/10 rounded-lg md:rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div className="relative bg-gradient-to-b from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-lg md:rounded-xl px-2 py-2 md:px-6 md:py-4">
           <div className="flex flex-col items-center gap-1 md:gap-2">
@@ -61,29 +75,6 @@ const ShopCard = ({ shopPackage, index }: Props) => {
                 {SHOP_PACKAGE_NAMES[index]}
               </h3>
               <div className="w-1.5 h-1.5 md:w-3 md:h-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 animate-pulse delay-300"></div>
-            </div>
-
-            {/* Package Indicators */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4 mt-1 md:mt-0">
-              {/* Best Value Indicator */}
-              {shopPackage.amount > 100000 && (
-                <div className="flex items-center gap-1 md:gap-2">
-                  <div className="w-1 h-1 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
-                  <span className="text-[8px] md:text-xs text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 font-semibold whitespace-nowrap">
-                    🔥 BEST VALUE
-                  </span>
-                </div>
-              )}
-
-              {/* Popular Indicator */}
-              {index === 3 && (
-                <div className="flex items-center gap-1 md:gap-2">
-                  <div className="w-1 h-1 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
-                  <span className="text-[8px] md:text-xs text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 font-semibold whitespace-nowrap">
-                    ⭐ POPULAR
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
