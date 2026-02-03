@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchShopPackages } from "../store/slices/shop";
 import Loader from "../components/Loader";
 import ShopCard from "../components/ShopCard";
-import UserInfo from "../components/UserInfo";
 
 const Shop = () => {
   const navigate = useNavigate();
@@ -58,11 +57,6 @@ const Shop = () => {
                     </span>
                   </h2>
                 </div>
-              </div>
-
-              {/* User Info */}
-              <div className="flex-1 flex justify-end">
-                <UserInfo />
               </div>
             </div>
           </div>

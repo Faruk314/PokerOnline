@@ -6,7 +6,6 @@ import classNames from "classnames";
 import toast from "../utils/toast";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import chipSM from "../assets/images/chip.png";
-import UserInfo from "../components/UserInfo";
 
 const CreateGame = () => {
   const navigate = useNavigate();
@@ -107,11 +106,6 @@ const CreateGame = () => {
                     </span>
                   </h2>
                 </div>
-              </div>
-
-              {/* User Info */}
-              <div className="flex-1 flex justify-end">
-                <UserInfo />
               </div>
             </div>
           </div>
