@@ -193,11 +193,11 @@ const JoinGame = () => {
                   {/* Refresh Button */}
                   <button
                     onClick={handleRefresh}
-                    className="relative group px-4 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-blue-500/30 transition-all duration-300"
+                    className="relative group px-3 py-2 md:px-4 md:py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-blue-500/30 transition-all duration-300"
                   >
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/10 to-blue-600/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative flex items-center gap-3">
-                      <IoRefresh className="text-xl text-gray-400 group-hover:text-blue-400 transition-colors group-hover:animate-spin" />
+                    <div className="relative flex items-center gap-2 md:gap-3">
+                      <IoRefresh className="text-lg md:text-xl text-gray-400 group-hover:text-blue-400 transition-colors group-hover:animate-spin" />
                       <span className="hidden md:inline text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-gray-400 group-hover:from-blue-300 group-hover:to-blue-400 transition-all duration-300">
                         REFRESH
                       </span>

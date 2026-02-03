@@ -231,7 +231,7 @@ const RoomCard = ({ gameRoom }: Props) => {
               e.stopPropagation();
               handleJoin(gameRoom.roomId);
             }}
-            className="relative group/btn flex-1 md:w-full py-2 md:py-4 rounded-lg md:rounded-2xl text-white text-[10px] md:text-base font-bold tracking-widest transition-all duration-500 overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)] md:shadow-[0_0_40px_rgba(59,130,246,0.5)] hover:shadow-[0_0_60px_rgba(59,130,246,0.7)] hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 h-fit self-center md:self-auto"
+            className="relative group/btn flex-1 md:w-full py-2 md:py-4 rounded-lg md:rounded-2xl text-white text-[10px] md:text-base font-bold tracking-widest transition-all duration-500 overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)] md:shadow-[0_0_40px_rgba(59,130,246,0.5)] hover:shadow-[0_0_60px_rgba(59,130,246,0.7)] hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             disabled={gameRoom.players.length === gameRoom.maxPlayers}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"></div>
