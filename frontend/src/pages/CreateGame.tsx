@@ -66,7 +66,7 @@ const CreateGame = () => {
   };
 
   return (
-    <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-hidden relative">
+    <section className="min-h-screen w-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-black overflow-y-auto overflow-x-hidden relative">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl animate-pulse"></div>
@@ -83,17 +83,17 @@ const CreateGame = () => {
 
       {/* Header Section */}
       <div className="relative z-10">
-        <div className="px-6 py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
+        <div className="px-3 py-2 md:px-6 md:py-4 border-b border-white/10 bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
               {/* Back Button */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 md:gap-6">
                 <button
                   onClick={() => navigate("/menu")}
-                  className="relative group px-4 py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300"
+                  className="relative group px-3 py-2 md:px-4 md:py-3 rounded-xl bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 hover:border-yellow-500/30 transition-all duration-300"
                 >
                   <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <IoArrowBack className="relative text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors" />
+                  <IoArrowBack className="relative text-xl md:text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors" />
                 </button>
                 
                 <div className="hidden md:flex items-center gap-3">
@@ -114,34 +114,34 @@ const CreateGame = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex-1 overflow-hidden">
-        <div className="h-full flex flex-col items-center justify-center px-4 py-8">
+      <div className="relative z-10 flex-1 overflow-visible pb-8">
+        <div className="h-full flex flex-col items-center justify-start md:justify-center px-2 py-4 md:px-4 md:py-8">
           <div className="relative w-full max-w-2xl">
             {/* Animated Border Glow */}
             <div className="absolute -inset-8 bg-gradient-to-r from-yellow-600 via-red-600 to-purple-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
             
             {/* Glassmorphism Container */}
-            <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-3xl border border-white/10 p-8 shadow-2xl">
+            <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-3xl border border-white/10 p-4 md:p-8 shadow-2xl">
               {/* Header */}
-              <div className="mb-10 text-center">
-                <div className="inline-flex items-center gap-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl px-8 py-4 mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
-                    <h2 className="text-3xl font-black text-white">
+              <div className="mb-6 md:mb-10 text-center">
+                <div className="inline-flex items-center gap-2 md:gap-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2 md:px-8 md:py-4 mb-4 md:mb-6">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
+                    <h2 className="text-xl md:text-3xl font-black text-white">
                       CREATE <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">TABLE</span>
                     </h2>
                   </div>
                 </div>
-                <p className="text-gray-400 text-lg">
+                <p className="text-gray-400 text-sm md:text-lg">
                   Customize your poker table settings
                 </p>
               </div>
 
               {/* Room Name Input */}
-              <div className="mb-8">
-                <label className="block text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wider">
+              <div className="mb-4 md:mb-8">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-2 md:mb-3 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-yellow-500"></div>
                     Room Name
                   </div>
                 </label>
@@ -149,36 +149,36 @@ const CreateGame = () => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/10 to-red-500/10 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
                   <input
                     onChange={(e) => handleChange("roomName", e.target.value)}
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/20 transition-all duration-300"
                     placeholder="Enter your table name..."
                   />
                 </div>
               </div>
 
               {/* Minimal Stake Dropdown */}
-              <div className="mb-8">
-                <label className="block text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wider">
+              <div className="mb-4 md:mb-8">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-2 md:mb-3 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500"></div>
                     Minimal Stake
                   </div>
                 </label>
                 <div className="relative">
                   <button
                     onClick={handleDropdownClick}
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-yellow-500/30 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl flex items-center justify-between group hover:border-yellow-500/30 transition-all duration-300"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                       <div className="relative">
-                        <img src={chipSM} className="h-6 w-6" alt="Chip" />
+                        <img src={chipSM} className="h-5 w-5 md:h-6 md:w-6" alt="Chip" />
                         <div className="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping"></div>
                       </div>
-                      <span className="text-white font-bold text-lg">
+                      <span className="text-white font-bold text-base md:text-lg">
                         {roomSettings.minStake.toLocaleString()}
                       </span>
-                      <span className="text-gray-400 text-sm">CHIPS</span>
+                      <span className="text-gray-400 text-xs md:text-sm">CHIPS</span>
                     </div>
-                    <div className="text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors">
+                    <div className="text-xl md:text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors">
                       {openDropdown ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
                     </div>
                   </button>
@@ -192,16 +192,16 @@ const CreateGame = () => {
                             handleClick("minStake", stake);
                             setOpenDropDown(false);
                           }}
-                          className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
+                          className="w-full px-4 py-3 md:px-5 md:py-4 flex items-center justify-between hover:bg-white/5 border-b border-white/5 last:border-0 group transition-all duration-300"
                           key={stake}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 md:gap-3">
                             <div className="relative">
-                              <img src={chipSM} className="h-5 w-5" alt="Chip" />
+                              <img src={chipSM} className="h-4 w-4 md:h-5 md:w-5" alt="Chip" />
                               <div className="absolute inset-0 bg-yellow-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
                             <span className={classNames(
-                              "font-bold text-lg transition-colors",
+                              "font-bold text-base md:text-lg transition-colors",
                               roomSettings.minStake === stake 
                                 ? "text-yellow-400" 
                                 : "text-white group-hover:text-yellow-300"
@@ -210,7 +210,7 @@ const CreateGame = () => {
                             </span>
                           </div>
                           {roomSettings.minStake === stake && (
-                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
                           )}
                         </button>
                       ))}
@@ -220,12 +220,12 @@ const CreateGame = () => {
               </div>
 
               {/* Big Blind Input */}
-              <div className="mb-8">
-                <label className="block text-gray-300 text-sm font-semibold mb-3 uppercase tracking-wider">
+              <div className="mb-4 md:mb-8">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-2 md:mb-3 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></div>
                     Big Blind Amount
-                    <span className="text-gray-500 text-xs ml-2">(Default: 50)</span>
+                    <span className="text-gray-500 text-[10px] md:text-xs ml-1 md:ml-2">(Default: 50)</span>
                   </div>
                 </label>
                 <div className="relative group">
@@ -240,38 +240,38 @@ const CreateGame = () => {
                       }
                     }}
                     onChange={(e) => handleChange("bigBlind", Number(e.target.value))}
-                    className="relative w-full px-5 py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                    className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                     placeholder="Enter big blind amount..."
                     value={roomSettings.bigBlind}
                   />
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs md:text-sm">
                     CHIPS
                   </div>
                 </div>
               </div>
 
               {/* Number of Players */}
-              <div className="mb-10">
-                <label className="block text-gray-300 text-sm font-semibold mb-4 uppercase tracking-wider">
+              <div className="mb-6 md:mb-10">
+                <label className="block text-gray-300 text-xs md:text-sm font-semibold mb-2 md:mb-4 uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500"></div>
                     Number of Players
                   </div>
                 </label>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-5 gap-2 md:gap-3">
                   {playerNums.map((item) => (
                     <button
                       onClick={() => handleClick("maxPlayers", item)}
                       key={item}
                       className={classNames(
-                        "relative group flex-1 min-w-[4rem] px-4 py-4 rounded-xl border transition-all duration-300 hover:scale-105",
+                        "relative group w-full p-2 md:px-4 md:py-4 rounded-xl border transition-all duration-300 hover:scale-105 aspect-square flex flex-col items-center justify-center",
                         roomSettings.maxPlayers === item
                           ? "bg-gradient-to-r from-yellow-600 to-yellow-500 border-yellow-500/50 shadow-[0_0_20px_rgba(202,138,4,0.3)]"
                           : "bg-gradient-to-r from-gray-900/80 to-gray-950/80 border-white/10 hover:border-yellow-500/30"
                       )}
                     >
                       <div className={classNames(
-                        "text-2xl font-black transition-colors",
+                        "text-lg md:text-2xl font-black transition-colors",
                         roomSettings.maxPlayers === item
                           ? "text-white"
                           : "text-gray-400 group-hover:text-white"
@@ -279,7 +279,7 @@ const CreateGame = () => {
                         {item}
                       </div>
                       <div className={classNames(
-                        "text-xs mt-1 transition-colors",
+                        "text-[8px] md:text-xs mt-0.5 md:mt-1 transition-colors hidden sm:block",
                         roomSettings.maxPlayers === item
                           ? "text-yellow-200"
                           : "text-gray-500 group-hover:text-gray-300"
@@ -287,7 +287,7 @@ const CreateGame = () => {
                         PLAYERS
                       </div>
                       {roomSettings.maxPlayers === item && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
+                        <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
                       )}
                     </button>
                   ))}
@@ -295,27 +295,27 @@ const CreateGame = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-6 border-t border-white/10">
+              <div className="flex items-center justify-between pt-4 md:pt-6 border-t border-white/10 gap-3">
                 <button
                   onClick={() => navigate("/menu")}
-                  className="relative group px-8 py-4 rounded-xl text-white text-base font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-gray-900/80 to-gray-950/80 border border-white/10 hover:border-red-500/30 hover:scale-105"
+                  className="relative group flex-1 px-4 py-3 md:px-8 md:py-4 rounded-xl text-white text-xs md:text-base font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-gray-900/80 to-gray-950/80 border border-white/10 hover:border-red-500/30 hover:scale-105"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-red-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative flex items-center gap-3">
-                    <IoArrowBack className="text-xl" />
+                  <span className="relative flex items-center justify-center gap-2 md:gap-3">
+                    <IoArrowBack className="text-lg md:text-xl" />
                     BACK
                   </span>
                 </button>
 
                 <button
                   onClick={handleConfirm}
-                  className="relative group px-8 py-4 rounded-xl text-white text-base font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_30px_rgba(202,138,4,0.4)] hover:shadow-[0_0_40px_rgba(202,138,4,0.6)] hover:scale-105"
+                  className="relative group flex-[2] px-4 py-3 md:px-8 md:py-4 rounded-xl text-white text-xs md:text-base font-bold tracking-widest transition-all duration-300 overflow-hidden bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 shadow-[0_0_30px_rgba(202,138,4,0.4)] hover:shadow-[0_0_40px_rgba(202,138,4,0.6)] hover:scale-105"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-white animate-pulse"></div>
+                  <span className="relative flex items-center justify-center gap-2 md:gap-3">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
                     CREATE TABLE
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                   </span>
@@ -323,18 +323,18 @@ const CreateGame = () => {
               </div>
 
               {/* Footer Note */}
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-white/10">
+                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-xs text-gray-500">
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-green-500"></div>
                     <span>Secure Connection</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></div>
                     <span>Instant Setup</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-purple-500"></div>
                     <span>Live Support</span>
                   </div>
                 </div>
