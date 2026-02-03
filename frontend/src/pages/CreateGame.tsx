@@ -33,7 +33,9 @@ const CreateGame = () => {
       return toast.showPokerError("Big blind must be a multiple of 5");
     }
     if (roomSettings.bigBlind > roomSettings.minStake) {
-      return toast.showPokerError("Big blind cannot be bigger than the minimum stake");
+      return toast.showPokerError(
+        "Big blind cannot be bigger than the minimum stake"
+      );
     }
 
     if (!socket)
@@ -95,11 +97,14 @@ const CreateGame = () => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <IoArrowBack className="relative text-xl md:text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors" />
                 </button>
-                
+
                 <div className="hidden md:flex items-center gap-3">
                   <div className="w-3 h-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
                   <h2 className="text-2xl font-black text-white">
-                    CREATE <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">GAME</span>
+                    CREATE{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                      GAME
+                    </span>
                   </h2>
                 </div>
               </div>
@@ -119,7 +124,7 @@ const CreateGame = () => {
           <div className="relative w-full max-w-2xl">
             {/* Animated Border Glow */}
             <div className="absolute -inset-8 bg-gradient-to-r from-yellow-600 via-red-600 to-purple-600 rounded-3xl blur-2xl opacity-20 animate-gradient-x"></div>
-            
+
             {/* Glassmorphism Container */}
             <div className="relative bg-gradient-to-b from-gray-900/90 to-gray-950/90 backdrop-blur-xl rounded-3xl border border-white/10 p-4 md:p-8 shadow-2xl">
               {/* Header */}
@@ -128,7 +133,10 @@ const CreateGame = () => {
                   <div className="flex items-center gap-2 md:gap-3">
                     <div className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 animate-pulse"></div>
                     <h2 className="text-xl md:text-3xl font-black text-white">
-                      CREATE <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">TABLE</span>
+                      CREATE{" "}
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                        TABLE
+                      </span>
                     </h2>
                   </div>
                 </div>
@@ -170,16 +178,26 @@ const CreateGame = () => {
                   >
                     <div className="flex items-center gap-2 md:gap-3">
                       <div className="relative">
-                        <img src={chipSM} className="h-5 w-5 md:h-6 md:w-6" alt="Chip" />
+                        <img
+                          src={chipSM}
+                          className="h-5 w-5 md:h-6 md:w-6"
+                          alt="Chip"
+                        />
                         <div className="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping"></div>
                       </div>
                       <span className="text-white font-bold text-base md:text-lg">
                         {roomSettings.minStake.toLocaleString()}
                       </span>
-                      <span className="text-gray-400 text-xs md:text-sm">CHIPS</span>
+                      <span className="text-gray-400 text-xs md:text-sm">
+                        CHIPS
+                      </span>
                     </div>
                     <div className="text-xl md:text-2xl text-gray-400 group-hover:text-yellow-400 transition-colors">
-                      {openDropdown ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+                      {openDropdown ? (
+                        <MdKeyboardArrowUp />
+                      ) : (
+                        <MdKeyboardArrowDown />
+                      )}
                     </div>
                   </button>
 
@@ -197,15 +215,21 @@ const CreateGame = () => {
                         >
                           <div className="flex items-center gap-2 md:gap-3">
                             <div className="relative">
-                              <img src={chipSM} className="h-4 w-4 md:h-5 md:w-5" alt="Chip" />
+                              <img
+                                src={chipSM}
+                                className="h-4 w-4 md:h-5 md:w-5"
+                                alt="Chip"
+                              />
                               <div className="absolute inset-0 bg-yellow-500/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
-                            <span className={classNames(
-                              "font-bold text-base md:text-lg transition-colors",
-                              roomSettings.minStake === stake 
-                                ? "text-yellow-400" 
-                                : "text-white group-hover:text-yellow-300"
-                            )}>
+                            <span
+                              className={classNames(
+                                "font-bold text-base md:text-lg transition-colors",
+                                roomSettings.minStake === stake
+                                  ? "text-yellow-400"
+                                  : "text-white group-hover:text-yellow-300"
+                              )}
+                            >
                               {stake.toLocaleString()}
                             </span>
                           </div>
@@ -225,7 +249,9 @@ const CreateGame = () => {
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></div>
                     Big Blind Amount
-                    <span className="text-gray-500 text-[10px] md:text-xs ml-1 md:ml-2">(Default: 50)</span>
+                    <span className="text-gray-500 text-[10px] md:text-xs ml-1 md:ml-2">
+                      (Default: 50)
+                    </span>
                   </div>
                 </label>
                 <div className="relative group">
@@ -239,10 +265,12 @@ const CreateGame = () => {
                         e.preventDefault();
                       }
                     }}
-                    onChange={(e) => handleChange("bigBlind", Number(e.target.value))}
+                    onChange={(e) =>
+                      handleChange("bigBlind", Number(e.target.value))
+                    }
                     className="relative w-full px-4 py-3 md:px-5 md:py-4 bg-gradient-to-r from-gray-900/80 to-gray-950/80 backdrop-blur-sm border border-white/10 rounded-xl text-white text-sm md:text-base placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
                     placeholder="Enter big blind amount..."
-                    value={roomSettings.bigBlind}
+                    defaultValue={roomSettings.bigBlind}
                   />
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs md:text-sm">
                     CHIPS
@@ -270,20 +298,24 @@ const CreateGame = () => {
                           : "bg-gradient-to-r from-gray-900/80 to-gray-950/80 border-white/10 hover:border-yellow-500/30"
                       )}
                     >
-                      <div className={classNames(
-                        "text-lg md:text-2xl font-black transition-colors",
-                        roomSettings.maxPlayers === item
-                          ? "text-white"
-                          : "text-gray-400 group-hover:text-white"
-                      )}>
+                      <div
+                        className={classNames(
+                          "text-lg md:text-2xl font-black transition-colors",
+                          roomSettings.maxPlayers === item
+                            ? "text-white"
+                            : "text-gray-400 group-hover:text-white"
+                        )}
+                      >
                         {item}
                       </div>
-                      <div className={classNames(
-                        "text-[8px] md:text-xs mt-0.5 md:mt-1 transition-colors hidden sm:block",
-                        roomSettings.maxPlayers === item
-                          ? "text-yellow-200"
-                          : "text-gray-500 group-hover:text-gray-300"
-                      )}>
+                      <div
+                        className={classNames(
+                          "text-[8px] md:text-xs mt-0.5 md:mt-1 transition-colors hidden sm:block",
+                          roomSettings.maxPlayers === item
+                            ? "text-yellow-200"
+                            : "text-gray-500 group-hover:text-gray-300"
+                        )}
+                      >
                         PLAYERS
                       </div>
                       {roomSettings.maxPlayers === item && (
@@ -315,8 +347,18 @@ const CreateGame = () => {
                   <span className="relative flex items-center justify-center gap-2 md:gap-3">
                     <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-white animate-pulse"></div>
                     CREATE TABLE
-                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    <svg
+                      className="w-3 h-3 md:w-4 md:h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      ></path>
                     </svg>
                   </span>
                 </button>
