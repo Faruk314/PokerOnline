@@ -230,6 +230,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
           isFold: serverPlayerUpdate.isFold,
           playerPot: 0,
           coins: shouldKeepOldCoins ? previousPlayerCoins : p.coins,
+          hand: serverPlayerUpdate.hand,
         };
       });
 
@@ -565,6 +566,7 @@ export const GameContextProvider = ({ children }: GameContextProviderProps) => {
       setAnimateRiver,
       animateTurn,
       setAnimateTurn,
+      syncPlayers,
     ]
   );
 
