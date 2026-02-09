@@ -186,7 +186,9 @@ const Menu = () => {
                   <div className="relative h-full flex flex-col items-center justify-center p-4 md:p-6">
                     <div className="mb-2 md:mb-4 text-3xl md:text-4xl">💰</div>
                     <h3 className="text-2xl font-bold text-white mb-2">Shop</h3>
-                    <p className="text-gray-400 text-sm text-center">Buy chips & items</p>
+                    <p className="text-gray-400 text-sm text-center">
+                      Buy chips & items
+                    </p>
 
                     <div className="absolute top-4 right-4">
                       <div className="relative bg-gradient-to-r from-yellow-500 to-yellow-600 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
@@ -255,15 +257,6 @@ const Menu = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Floating Chips Animation */}
-      <div className="fixed bottom-8 left-8 z-20 opacity-20">
-        <div className="flex space-x-2 animate-bounce">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-red-600"></div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"></div>
         </div>
       </div>
     </section>
